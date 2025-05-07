@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
@@ -31,29 +32,35 @@ class Homepage extends StatelessWidget {
   }
 
 
-  Future<void> launchEmail() async {
-    final Uri emailLaunchUri = Uri(
+// Update the function signature to accept context
+  Future<void> launchEmail(BuildContext context) async {
+    final Uri emailUri = Uri(
       scheme: 'mailto',
       path: 'tarashekaft@gmail.com',
-      query: encodeQueryParameters(<String, String>{
+      queryParameters: {
         'subject': 'Math Joy practice App Feedback',
         'body': 'Dear Developer,\n\n'
-      }),
+      },
     );
 
-    if (await canLaunchUrl(emailLaunchUri)) {
-      await launchUrl(emailLaunchUri);
-    } else {
-      throw 'Could not launch email client';
+    try {
+      if (await canLaunchUrl(emailUri)) {
+        await launchUrl(emailUri);
+      } else {
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No email app found')),
+        );
+        await Clipboard.setData(const ClipboardData(text: 'tarashekaft@gmail.com'));
+      }
+    } catch (e) {
+      debugPrint('Email error: $e');
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to launch email')),
+      );
     }
   }
-
-  String? encodeQueryParameters(Map<String, String> params) {
-    return params.entries
-        .map((e) => '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
-        .join('&');
-  }
-
 
 
   @override
@@ -66,7 +73,7 @@ class Homepage extends StatelessWidget {
             image: AssetImage('assets/images/page1.JPEG'),
             fit: BoxFit.fill,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.3), // Adjust opacity here (0.0 to 1.0)
+              Colors.black.withOpacity(0.4), // Adjust opacity here (0.0 to 1.0)
               BlendMode.darken, // Use BlendMode to control how the color is applied
             ),
           ),
@@ -100,7 +107,7 @@ class Homepage extends StatelessWidget {
                       width: 300, // Set your desired button width here
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple[600],
+                          backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24.0),
@@ -125,7 +132,7 @@ class Homepage extends StatelessWidget {
                       width: 300, // Same width for all buttons
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple[600],
+                          backgroundColor: Colors.blue,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(24.0),
@@ -175,9 +182,9 @@ class Homepage extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   IconButton(
-                    icon: const Icon(Icons.email, size: 28, color: Colors.deepOrange), // Close icon
+                    icon: const Icon(Icons.email, size: 28, color: Colors.deepOrange),
                     onPressed: () {
-                      launchEmail();
+                      launchEmail(context);  // Pass context here
                     },
                   ),
                   const SizedBox(height: 16),
@@ -323,11 +330,15 @@ class Numeral_menu_page extends StatelessWidget {
 
       body: Container(
         constraints: const BoxConstraints.expand(),
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/back1.JPEG'),
+              image: const AssetImage('assets/images/back4.JPEG'),
               // color: const Color.fromRGBO(255, 255, 255, 0.5),
               fit: BoxFit.fill,
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.4), // Adjust opacity here (0.0 to 1.0)
+                BlendMode.darken, // Use BlendMode to control how the color is applied
+              ),
               //  fit: BoxFit.cover,
             )
         ),
@@ -339,12 +350,20 @@ class Numeral_menu_page extends StatelessWidget {
                 height: 90,
               ),
 
-              const Text('Math: Precise Ideas, Better Living ',
-                style: TextStyle(
-                  color: Colors.white,
-                  
-                  fontSize: 22.0,// double
-                   
+              Container(
+                padding: const EdgeInsets.all(8.0), // Optional: Add padding for better visual appearance
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(120, 66, 4, 4), // Transparent background color (adjust the alpha value as needed)
+                  borderRadius: BorderRadius.circular(10.0), // Optional: Add rounded corners
+                ),
+                child: const Text('Math: Precise Ideas, Better Living ',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+
+                    fontSize: 22.0,// double
+
+                  ),
                 ),
               ),
 
@@ -356,7 +375,8 @@ class Numeral_menu_page extends StatelessWidget {
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black87,
+                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
+
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: const Size(220, 95),
@@ -369,8 +389,8 @@ class Numeral_menu_page extends StatelessWidget {
                 },
                 child: const Text('Numeric systems?',
                   style: TextStyle(color: Colors.white,
-                    
-                    fontSize: 22,// double
+
+                    fontSize: 24,// double
                      
                   ),
                 ),
@@ -383,7 +403,8 @@ class Numeral_menu_page extends StatelessWidget {
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black54,
+                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
+
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: const Size(220, 85),
@@ -395,10 +416,10 @@ class Numeral_menu_page extends StatelessWidget {
                 },
 
                 child: const Text(
-                  'Examples',
+                  '   Examples   ',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 22,// double
+                    fontSize: 24,// double
                      
                   ),
                 ),
@@ -413,7 +434,8 @@ class Numeral_menu_page extends StatelessWidget {
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black45,
+                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
+
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: const Size(220, 75),
@@ -425,10 +447,10 @@ class Numeral_menu_page extends StatelessWidget {
                 },
 
                 child: const Text(
-                  'Practice',
+                  '  Practice  ',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 22,// double
+                    fontSize: 24,// double
                      
                   ),
                 ),
@@ -444,8 +466,8 @@ class Numeral_menu_page extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: IconButton(
                     icon:  const Icon(Icons.keyboard_return),
-                    color:Colors.white,
-                    iconSize: 35,
+                    color:Colors.lightGreenAccent,
+                    iconSize: 44,
                     onPressed: (){
                       Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Homepage()),
@@ -485,7 +507,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
       body: Container(
         padding: const EdgeInsets.all(15),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 194, 213, 213),
+          color: Color.fromARGB(255, 233, 163, 3),
           //     border: Border.all(color: Colors.black, width: 1.0),
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
@@ -498,11 +520,18 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                 style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
               ),
               TextSpan(
-                text: "📌 The decimal number system, or base-10 system, is the number system we use daily for counting, ranking, and measuring. It employs ten digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n\n"
+                text:
+              '📌 Each digit in a number (e.g., 7, 5, and 3 in 753) derives its value from its position and the base (or radix) of the numbering system.'
+              '\n\n[Base/Radix: The number that determines both available digits (0 to base-1) and how each position\'s value scales]'
 
-                    "📌 Each digit's value depends on its position.  It's the digit multiplied by 10 raised to the power of the digits to its right. For example, the third digit from the right has a place value of 10^2 (100).  In 1485, the 4 is in the third position, representing 400.\n\n"
+  '\n\nThe base determines how much each digit contributes to the total value considering its position.'
 
-                    "📌 Base-10's simplicity is a key advantage: 1000 = 10^3, and 80 = 8 × 10.  Its origin is possibly linked to our ten fingers, but historical records indicate that it took millennia for the full digit set and zero to develop.\n\n"
+  ' For example, in base ten, it\'s the digit multiplied by 10 raised to the power of the digits to its right. For example, the third digit from the right has a place value of 10^2 (100). In 1485, the 4 is in the third position, representing 400.'
+
+                    '\n\n📌 The decimal number system, or base-10 system, is the number system we use daily for counting, ranking, and measuring. It employs ten digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n\n'
+
+
+                    "📌 Base-10's simplicity is a key advantage: e.g., 1000 = 10^3, and 80 = 8 × 10.  Its origin is possibly linked to our ten fingers, but historical records indicate that it took millennia for the full digit set and zero to develop.\n\n"
 
                     "💡 Key Points:\n\n"
 
@@ -573,7 +602,10 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
 
                     "   🔑 Negative Powers: 10^-1 = 1/10 = 0.1; 10^-2 = 1/100 = 0.01, and so on.\n\n"
 
-                    "   🔑 Place Value (Again!): The position of each digit relative to the decimal determines its value.\n\n"
+                    "   🔑 Place Value (Again!): In a positional numeral system, the position "
+                    "of each digit relative to the decimal determines its value. Sometimes, in this systems \n\n"
+
+                    "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
 
                     "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
 
@@ -594,7 +626,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
       body: Container(
         padding: const EdgeInsets.all(15),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 194, 213, 213),
+          color: Color.fromARGB(255, 233, 163, 3),
           //     border: Border.all(color: Colors.black, width: 1.0),
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
@@ -704,7 +736,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
       body: Container(
         padding: const EdgeInsets.all(15),
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 194, 213, 213),
+          color: Color.fromARGB(255, 233, 163, 3),
           //     border: Border.all(color: Colors.black, width: 1.0),
           borderRadius: BorderRadius.all(Radius.circular(5)),
         ),
@@ -772,12 +804,16 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
 
       body: Container(
         constraints: const BoxConstraints.expand(),
-        decoration: const BoxDecoration(
+        decoration:  BoxDecoration(
             image: DecorationImage(
-              image: AssetImage('assets/images/back2.JPG'),
+              image: const AssetImage('assets/images/back2.JPG'),
               // color: const Color.fromRGBO(255, 255, 255, 0.5),
               fit: BoxFit.fill,
               //  fit: BoxFit.cover,
+              colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.4), // Adjust opacity here (0.0 to 1.0)
+                BlendMode.darken, // Use BlendMode to control how the color is applied
+              ),
             )
         ),
 
@@ -836,7 +872,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                                       child: Text(
                                         items[index].title,
                                         style: TextStyle(
-                                          color: Colors.white70,
+                                          color: Colors.white,
                                           fontWeight: FontWeight.bold,
                                           fontSize:  selected==-1 ? 20:15,// size of closed tiles
 
@@ -894,7 +930,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
 
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.info_outline),
+                    icon: const Icon(Icons.source),
                     color: Colors.white,
                     iconSize: 35,
                     onPressed: () {
@@ -908,7 +944,16 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                                 text: TextSpan(
                                   style: const TextStyle(fontSize: 18.0, color: Colors.black),
                                   children: [
+                                  const TextSpan(
+                                  text: '\nMethod 2 (Base Prediction) of converting numbers between bases'
+                                      ' was custom-developed by the developer of this application. '
+                                      'The core concepts may intersect with existing base-conversion '
+                                      'methodologies, such as those discussed in:\n\n',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    color: Colors.deepPurple,
 
+                                  ),),
                                     // 1. Khan Academy - Number Bases
                                     TextSpan(
                                       text: '\nKhan Academy - Number Bases\n\n',
@@ -1043,7 +1088,7 @@ class Numeralbase_example_page extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      body: Container(color: const Color.fromARGB(220, 66, 4, 4),
+      body: Container(color: Color.fromARGB(255, 230, 86, 3),
         child: Column (mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
@@ -1728,7 +1773,7 @@ class _State extends State<Numeralbase_practice_page> {
                 padding: const EdgeInsets.fromLTRB(8,8,8,0,),
                 child: Column(
                   children: <Widget>[
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 25),
 
                     SizedBox(height: 30,
                       child: Row(
@@ -1758,7 +1803,7 @@ class _State extends State<Numeralbase_practice_page> {
                           const SizedBox(width: 5,),
                           IconButton(
                             icon:  const Icon(Icons.question_mark_outlined),
-                            color:Colors.deepPurple,
+                            color:Colors.green,
                             iconSize: 25,
                             onPressed: (){
                               showDialog(
@@ -1881,92 +1926,24 @@ class _State extends State<Numeralbase_practice_page> {
                       ),
                     ),
 
-                    const SizedBox(height: 3,),
+                    const SizedBox(height: 4,),
 
                     Consumer<MyModel>( //            <--- MyModel Consumer
                         builder: (context, myModel, child) {
                           return Visibility(visible: timer_visible,
+
                             child : SizedBox(height: 32,
                                 child: Timerbox(timer_changed: timer_CallBack)),
                           );}
                     ),
 
-                    SizedBox(height: 2,),
+                    const SizedBox(height: 3,),
 
                     Visibility(visible: random_interval_visible,
                       child : SizedBox(height: 28,
                         child: Row(
                           children: [
-                            Flexible(
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(color: Colors.grey), // Add border for better visual separation
-                                ),
-                                child: TextField(
-                                  focusNode: _focus_maximum,
-                                  readOnly: true,
-                                  showCursor: true,
-                                  cursorHeight: 22,
-                                  cursorColor: Colors.black,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: const TextStyle(fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
-                                  controller: _controller_maximum,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                  decoration: const InputDecoration(
-                                    hintText: 'max',
-                                    hintStyle: TextStyle(fontSize: 16),
-                                    border: InputBorder.none, // Remove existing border
-                                    contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8), // Add padding
-                                    filled: true,
-                                    fillColor: Color.fromARGB(255, 246, 182, 58),
-                                  ),
-                                  textAlign: TextAlign.left,
-                                ),
-                              ),
-                            ),
 
-                            const SizedBox(width: 5,),
-                            Flexible(
-                              child:  TextField(focusNode: _focus_minimum,
-                                readOnly: true, showCursor: true,  cursorHeight: 22, cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
-                                  show_keboard();
-                                }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 20, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                controller: _controller_minimum,
-                                onChanged: (text) {
-                                  setState(() {});
-                                },
-                                decoration: InputDecoration(
-
-                                  hintText: 'min',
-                                  hintStyle: TextStyle(fontSize: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      width: 0,
-                                      style: BorderStyle.none,
-                                    ),
-                                  ),
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
-                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(width: 5,),
                             ToggleButtons(
                               isSelected: random_interval,
                               onPressed: (int index) {
@@ -1995,6 +1972,78 @@ class _State extends State<Numeralbase_practice_page> {
                                 ),
                               ],
                             ),
+                            const SizedBox(width: 5,),
+                            Flexible(
+                              child:  TextField(focusNode: _focus_minimum,
+                                readOnly: true, showCursor: true,  cursorHeight: 22, cursorColor: Colors.black,
+                                onTap: () { if (!_visible) {
+                                  show_keboard();
+                                }
+                                },
+                                autofocus: false,
+                                style: const TextStyle(fontSize: 20, color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                                controller: _controller_minimum,
+                                onChanged: (text) {
+                                  setState(() {});
+                                },
+                                decoration: InputDecoration(
+
+                                  hintText: 'min',
+                                  hintStyle: const TextStyle(fontSize: 16),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      width: 0,
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
+                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(width: 5,),
+
+                            Flexible(
+                              child: TextField(
+                                focusNode: _focus_maximum,
+                                readOnly: true,
+                                showCursor: true,
+                                cursorHeight: 22,
+                                cursorColor: Colors.black,
+                                onTap: () {
+                                  if (!_visible) {
+                                    show_keboard();
+                                  }
+                                },
+                                autofocus: false,
+                                style: const TextStyle(fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
+                                controller: _controller_maximum,
+                                onChanged: (text) {
+                                  setState(() {});
+                                },
+                                decoration: InputDecoration(
+
+                                  hintText: 'max',
+                                  hintStyle: const TextStyle(fontSize: 16),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      width: 0,
+                                      style: BorderStyle.none,
+                                    ),
+                                  ),
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
+                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
+                                ),
+
+                              ),
+                            ),
+
                           ],
                         ),
                       ),
@@ -2874,14 +2923,20 @@ class _TimerboxState extends State<Timerbox> {
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 32, 0, 14 ),
-      body: SizedBox(height: 30,
+      body: SizedBox(height: 35,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
 
             SizedBox(
            //   width: itemWidth,
-              child: Center(
+              child: Container(
+                padding: EdgeInsets.zero,
+                decoration: const BoxDecoration(
+                  color: Color.fromARGB(255,50, 87, 86),
+                  //     border: Border.all(color: Colors.black, width: 1.0),
+                  borderRadius: BorderRadius.all(Radius.circular(5)),
+                ),
                 child: ToggleButtons(
                   isSelected: myModel.timer_selected,
                   onPressed: (int index) {
@@ -2896,11 +2951,12 @@ class _TimerboxState extends State<Timerbox> {
                   color: Colors.red,
                   children: const <Widget>[
                     Padding(
-                      padding: EdgeInsets.all(4.0),
+                      padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
                       child: Text(
-                        'Timer',
+                        '   Timer   ',
                         style: TextStyle(
                           color: Colors.white70,
+                          fontWeight: FontWeight.bold,
                           fontSize: 16.0,
                         ),
                       ),

@@ -130,7 +130,7 @@ class Mental_calculation_page extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: IconButton(
                   icon:  const Icon(Icons.keyboard_return),
-                  color:Colors.white,
+                  color:Colors.red,
                   iconSize: 38,
                   onPressed: (){
                     Navigator.push(context,
@@ -676,7 +676,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                                   title: Text(
                                     items[index].title,
                                     style: TextStyle(
-                                      color: Colors.white70,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize:  selected==-1 ? 30:21,// size of icons +, -...
 
@@ -731,7 +731,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.info_outline),
+                    icon: const Icon(Icons.source),
                     color: Colors.white,
                     iconSize: 35,
                     onPressed: () {
@@ -1127,7 +1127,7 @@ class _State extends State<Mental_calculation_practice_page> {
                 padding: const EdgeInsets.fromLTRB(8,8,8,0,),
                 child: Column(
                   children: <Widget>[
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 30),
 
                     SizedBox(height: 30,
                       child: Row(
@@ -1157,7 +1157,7 @@ class _State extends State<Mental_calculation_practice_page> {
                           const SizedBox(width: 5,),
                           IconButton(
                             icon:  const Icon(Icons.question_mark_outlined),
-                            color:Colors.purple,
+                            color:Colors.green,
                             iconSize: 25,
                             onPressed: (){
                               showDialog(
@@ -1280,12 +1280,12 @@ class _State extends State<Mental_calculation_practice_page> {
                       ),
                     ),
 
-                    const SizedBox(height: 2,),
+                    const SizedBox(height: 5,),
 
                     Consumer<MyModel>( //            <--- MyModel Consumer
                         builder: (context, myModel, child) {
                           return Visibility(visible: timer_visible,
-                            child : SizedBox(height: 32,
+                            child : SizedBox(height: 30,
                                 child: Timerbox(timer_changed: timer_CallBack)),
                           );}
                     ),
@@ -1296,38 +1296,40 @@ class _State extends State<Mental_calculation_practice_page> {
                       child : SizedBox(height: 28,
                         child: Row(
                           children: [
-                            Flexible(
-                              child:  TextField(focusNode: _focus_maximum,
-                                readOnly: true, showCursor: true,  cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
-                                  show_keboard();
-                                }
+
+                            Container( //  '  عدد تصادفی for
+                              padding: EdgeInsets.zero,
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(255,50, 87, 86),
+                                //     border: Border.all(color: Colors.black, width: 1.0),
+                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                              ),
+                              child: ToggleButtons(
+                                isSelected: random_interval,
+                                onPressed: (int index) {
+                                  setState(() {
+                                    random_interval[0] = !random_interval[0];
+                                  });
                                 },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 26.0, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                controller: _controller_maximum,
-                                onChanged: (text) {
-                                  setState(() {});
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'max',
-                                  hintStyle: const TextStyle(fontSize: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      width: 0,
-                                      style: BorderStyle.none,
+                                borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                //  selectedBorderColor: Colors.red,
+                                selectedColor: Colors.red,
+                                fillColor: Colors.lightBlueAccent,
+                                color: Colors.red,
+                                children: const <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(4, 1, 4, 1),
+                                    child: Text('random number',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white70,
+                                        fontSize: 16,// double
+                                      ),
                                     ),
                                   ),
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
-                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
-                                ),
-                                textAlign: TextAlign.left,
+                                ],
                               ),
                             ),
-
                             const SizedBox(width: 5,),
                             Flexible(
                               child:  TextField(focusNode: _focus_minimum,
@@ -1360,39 +1362,39 @@ class _State extends State<Mental_calculation_practice_page> {
                                 ),
                               ),
                             ),
-
                             const SizedBox(width: 5,),
-                            Container( //  '  عدد تصادفی for
-                              padding: EdgeInsets.zero,
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255,50, 87, 86),
-                                //     border: Border.all(color: Colors.black, width: 1.0),
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: ToggleButtons(
-                                isSelected: random_interval,
-                                onPressed: (int index) {
-                                  setState(() {
-                                    random_interval[0] = !random_interval[0];
-                                  });
+                            Flexible(
+                              child:  TextField(focusNode: _focus_maximum,
+                                readOnly: true, showCursor: true,  cursorColor: Colors.black,
+                                onTap: () { if (!_visible) {
+                                  show_keboard();
+                                }
                                 },
-                                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                //  selectedBorderColor: Colors.red,
-                                selectedColor: Colors.red,
-                                fillColor: Colors.lightBlueAccent,
-                                color: Colors.red,
-                                children: const <Widget>[
-                                  Text('random number',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white70,
-                                      fontSize: 16,// double
-
+                                autofocus: false,
+                                style: const TextStyle(fontSize: 26.0, color: Colors.black,
+                                    fontWeight: FontWeight.bold),
+                                controller: _controller_maximum,
+                                onChanged: (text) {
+                                  setState(() {});
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'max',
+                                  hintStyle: const TextStyle(fontSize: 16),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: const BorderSide(
+                                      width: 0,
+                                      style: BorderStyle.none,
                                     ),
                                   ),
-                                ],
+                                  filled: true,
+                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
+                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
+                                ),
+                                textAlign: TextAlign.left,
                               ),
                             ),
+
                           ],
                         ),
                       ),
@@ -1416,7 +1418,7 @@ class _State extends State<Mental_calculation_practice_page> {
                           return Container(
                             padding: EdgeInsets.zero,
                             decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 50, 87, 86),
+                              color: const Color.fromARGB(255, 51, 117, 115),
                               border: Border.all(color: Colors.black, width: 1.0),
                               borderRadius: const BorderRadius.all(Radius.circular(5.0)),
                             ),
