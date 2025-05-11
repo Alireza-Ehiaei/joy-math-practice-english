@@ -1,15 +1,17 @@
 import 'dart:async';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:math_expressions/math_expressions.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math';
 import 'custom_keyboard.dart';
 import 'mental_calculation.dart';
 import 'package:share_plus/share_plus.dart';
-// import 'package:myket_iap/myket_iap.dart';
+
 
 void main() {
   runApp(const MaterialApp(
@@ -321,8 +323,97 @@ showAlertDialog_empty_input(BuildContext context) {
 
 ////////////////////////////////////////////////////////////Numeral menu page
 
-class Numeral_menu_page extends StatelessWidget {
+
+class Numeral_menu_page extends StatefulWidget {
   const Numeral_menu_page({super.key});
+
+  @override
+  _Numeral_menu_pageState createState() => _Numeral_menu_pageState();
+}
+
+class _Numeral_menu_pageState extends State<Numeral_menu_page> {
+  static const String _productId = 'nonConsumable1';
+  final InAppPurchase _iap = InAppPurchase.instance;
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
+  bool _isPurchased = false;
+  bool _isLoading = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _initPurchaseInfo();
+    _subscription = _iap.purchaseStream.listen(_handlePurchaseUpdate);
+  }
+
+
+  Future<void> _initPurchaseInfo() async {
+    // Check local storage first
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isPurchased = prefs.getBool(_productId) ?? false;
+    });
+  }
+
+  Future<void> _handlePurchaseUpdate(List<PurchaseDetails> purchases) async {
+    for (final purchase in purchases) {
+      if (purchase.productID == _productId &&
+          (purchase.status == PurchaseStatus.purchased ||
+              purchase.status == PurchaseStatus.restored)) {
+        // Save purchase status locally
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool(_productId, true);
+
+        if (purchase.pendingCompletePurchase) {
+          await _iap.completePurchase(purchase);
+        }
+
+        setState(() => _isPurchased = true);
+      }
+    }
+  }
+
+  Future<void> _buyProduct() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final productDetails = (await _iap.queryProductDetails({_productId})).productDetails.first;
+      final purchaseParam = PurchaseParam(productDetails: productDetails);
+      await _iap.buyNonConsumable(purchaseParam: purchaseParam);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Purchase failed: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _restorePurchases() async {
+    setState(() => _isLoading = true);
+
+    try {
+      await _iap.restorePurchases();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Purchases restored successfully!')),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Restore failed: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+
+
+  @override
+  void dispose() {
+    _subscription.cancel();
+    super.dispose();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -434,25 +525,61 @@ class Numeral_menu_page extends StatelessWidget {
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
-
+                  backgroundColor: const Color.fromARGB(255, 2, 139, 4),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32.0)),
+                    borderRadius: BorderRadius.circular(32.0),
+                  ),
                   minimumSize: const Size(220, 75),
                 ),
-                onPressed: () {
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) =>  Numeralbase_practice_page()),
-                  );
+                onPressed: _isLoading
+                    ? null
+                    : () {
+                  if (_isPurchased) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Numeralbase_practice_page(),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Unlock Practice'),
+                        content: const Text('Get lifetime access to practice features.'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              _buyProduct();
+                            },
+                            child: const Text('Purchase'),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancel'),
+                          ),
+                        ],
+                      ),
+                    );
+                  }
                 },
-
-                child: const Text(
+                child: _isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
                   '  Practice  ',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 24,// double
-                     
+                    fontSize: 24,
                   ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: _isLoading ? null : _restorePurchases,
+                child: const Text(
+                  'Restore Purchases',
+                  style: TextStyle(fontSize: 16),
                 ),
               ),
 
