@@ -1,35 +1,38 @@
 name: Build iOS IPA
-
-on:
-  push:
-    branches:
-      - main
+on: push  # Trigger on code push
 
 jobs:
   build:
-    runs-on: macos-latest
-
+    runs-on: macos-latest  # Required for iOS builds
     steps:
+      # 1. Checkout code
       - uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: flutter-actions/setup-flutter@v2
+      # 2. Set up Flutter
+      - uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          flutter-version: 'stable'  # Or your Flutter version
 
-      - name: Install CocoaPods dependencies
+      # 3. Install CocoaPods and dependencies
+      - name: Install CocoaPods
         run: |
-          cd ios
-          pod install
-          cd ..
+          sudo gem install cocoapods
+          pod setup
 
-      - name: Build IPA
+      # 4. Get Flutter dependencies and run `pod install`
+      - name: Install dependencies
         run: |
           flutter pub get
-          flutter build ipa --release
+          cd ios
+          pod install --repo-update  # Generates Pods folder
+          cd ..
 
-      - name: Upload IPA artifact
-        uses: actions/upload-artifact@v4
+      # 5. Build the IPA
+      - name: Build IPA
+        run: flutter build ipa --release --no-codesign
+
+      # 6. Upload the IPA as an artifact
+      - uses: actions/upload-artifact@v3
         with:
-          name: ios-ipa
-          path: build/ios/ipa/
+          name: app-release.ipa
+          path: build/ios/ipa/*.ipa
