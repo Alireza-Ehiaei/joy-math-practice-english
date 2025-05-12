@@ -54,7 +54,8 @@ jobs:
 
       # Optional: Upload IPA as artifact
       - name: Upload IPA artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ios-ipa
           path: build/ios/ipa/*.ipa
+
