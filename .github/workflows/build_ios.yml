@@ -1,38 +1,60 @@
-name: Build iOS IPA
-on: push  # Trigger on code push
+name: Build Flutter iOS IPA
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: macos-latest  # Required for iOS builds
+  build_ios:
+    runs-on: macos-latest
+
     steps:
-      # 1. Checkout code
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 2. Set up Flutter
-      - uses: subosito/flutter-action@v2
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          flutter-version: 'stable'  # Or your Flutter version
+          flutter-version: 'stable'
 
-      # 3. Install CocoaPods and dependencies
-      - name: Install CocoaPods
+      - name: Install envsubst (for placeholder substitution)
         run: |
-          sudo gem install cocoapods
-          pod setup
+          brew install gettext
+          brew link --force gettext
 
-      # 4. Get Flutter dependencies and run `pod install`
-      - name: Install dependencies
+      - name: Decode and save iOS certificate (.p12)
         run: |
-          flutter pub get
+          echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 --decode > ios/ios_distribution.p12
+
+      - name: Decode and save provisioning profile
+        run: |
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 --decode > ios/profile.mobileprovision
+
+      - name: Generate ExportOptions.plist
+        env:
+          EXPORT_METHOD: app-store
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          PROVISIONING_PROFILE_NAME: "Your Provisioning Profile Name"  # Replace with your actual profile name
+        run: |
+          envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
+
+      - name: Set up Flutter dependencies
+        run: flutter pub get
+
+      - name: Install CocoaPods dependencies
+        run: |
           cd ios
-          pod install --repo-update  # Generates Pods folder
-          cd ..
+          pod install
 
-      # 5. Build the IPA
       - name: Build IPA
-        run: flutter build ipa --release --no-codesign
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
-      # 6. Upload the IPA as an artifact
-      - uses: actions/upload-artifact@v3
+      # Optional: Upload IPA as artifact
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v3
         with:
-          name: app-release.ipa
+          name: ios-ipa
           path: build/ios/ipa/*.ipa
