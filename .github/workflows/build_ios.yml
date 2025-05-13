@@ -19,7 +19,7 @@ jobs:
         with:
           flutter-version: '3.29.3'
 
-      - name: Install envsubst (for placeholder substitution)
+      - name: Install envsubst
         run: |
           brew install gettext
           brew link --force gettext
@@ -29,7 +29,7 @@ jobs:
           EXPORT_METHOD: app-store
           TEAM_ID: ${{ secrets.TEAM_ID }}
           APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
-          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution" # Replace with your actual profile name
+          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
         run: |
           envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
 
@@ -46,13 +46,18 @@ jobs:
 
       - name: Import Apple certificate into keychain
         env:
-          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}  # Ensure this is correct!
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > ios/certificate.p12
-          security import ios/certificate.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          
+          # Ensure the keychain is unlocked before import
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Import with the correct password and set partition list
+          security import ios/certificate.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
       - name: Install provisioning profile
