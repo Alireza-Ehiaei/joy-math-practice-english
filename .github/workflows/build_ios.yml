@@ -51,6 +51,15 @@ jobs:
           security default-keychain -s "$KEYCHAIN_PATH"
           security list-keychains -s "$KEYCHAIN_PATH" $(security list-keychains | sed s/\"//g)
 
+      - name: Install Apple WWDR Intermediate Certificate
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
+          curl -o AppleWWDRCAG3.cer https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          security import AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign
+
+
       - name: Import Apple certificate into keychain
         env:
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
