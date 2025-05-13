@@ -1,0 +1,63 @@
+name: Debug iOS Code Signing
+
+on:
+  workflow_dispatch:  # Manually trigger this workflow
+
+jobs:
+  debug_signing:
+    runs-on: macos-latest  # Must use macOS for keychain/security tools
+
+    steps:
+      ### 1. Set up environment
+      - name: Checkout repo (empty)
+        uses: actions/checkout@v4
+
+      ### 2. Create and unlock keychain (isolated test)
+      - name: Test Keychain Creation
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}  # Password for the temp keychain
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/debug.keychain-db"
+          
+          # Create keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          echo "✅ Keychain created"
+
+          # Unlock and set as default
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security default-keychain -s "$KEYCHAIN_PATH"
+          echo "✅ Keychain unlocked and set as default"
+
+          # Verify keychain exists
+          security list-keychains | grep "debug.keychain-db" || exit 1
+          echo "✅ Keychain verified"
+
+      ### 3. Test .p12 Import (isolated test)
+      - name: Test .p12 Import
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}  # .p12 password
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}      # Base64-encoded .p12
+        run: |
+          KEYCHAIN_PATH="$RUNNER_TEMP/debug.keychain-db"
+          
+          # Decode .p12 file
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > debug_cert.p12
+          echo "ℹ️ Decoded .p12 file (size: $(wc -c < debug_cert.p12) bytes)"
+
+          # Attempt import
+          security import debug_cert.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          echo "✅ .p12 imported successfully"
+
+          # Verify certificate exists in keychain
+          security find-identity -p codesigning -v "$KEYCHAIN_PATH" | grep "iPhone Distribution" || exit 1
+          echo "✅ Certificate verified in keychain"
+
+      ### 4. (Optional) Cleanup
+      - name: Delete temporary keychain
+        if: always()  # Run even if previous steps fail
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          security delete-keychain "$RUNNER_TEMP/debug.keychain-db"
+          echo "🧹 Keychain deleted"
