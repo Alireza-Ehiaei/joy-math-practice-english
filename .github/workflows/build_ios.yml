@@ -1,14 +1,14 @@
 name: Build Flutter iOS IPA
 
 on:
-  workflow_dispatch:  # Manual trigger (recommended for production builds)
+  workflow_dispatch:  # Manual trigger
   push:
-    branches: [ main ]  # Auto-trigger on main branch (optional)
+    branches: [main]  # Auto-trigger on main
 
 jobs:
   build_ios:
     runs-on: macos-latest
-    timeout-minutes: 30  # Prevent hangs
+    timeout-minutes: 30
 
     steps:
       ### 1. Checkout Code
@@ -19,17 +19,29 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.29.3'  # Match your project's version
+          flutter-version: '3.29.3'
           cache: true
 
-      ### 3. Install CocoaPods (if needed)
+      ### 3. Ensure iOS Folder Exists
+      - name: Verify iOS Project
+        run: |
+          if [ ! -d "ios" ]; then
+            flutter create --platforms ios .
+          fi
+
+      ### 4. Install CocoaPods System-Wide
       - name: Install CocoaPods
+        run: sudo gem install cocoapods
+
+      ### 5. Resolve iOS Dependencies
+      - name: Install Pods
         run: |
           cd ios
-          pod install --repo-update
+          pod repo update  # Ensure latest specs
+          pod install --verbose  # Detailed logging
           cd ..
 
-      ### 4. Keychain Setup (from debug workflow)
+      ### 6. Keychain Setup
       - name: Setup Keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
@@ -40,34 +52,32 @@ jobs:
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security default-keychain -s "$KEYCHAIN_PATH"
 
-      ### 5. Import .p12 Certificate (from debug workflow)
+      ### 7. Import Certificate
       - name: Import Certificate
         env:
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/signing.keychain"
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > cert.p12
           security import cert.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S "apple-tool:,apple:" -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-      ### 6. Install Provisioning Profile
+      ### 8. Install Provisioning Profile
       - name: Install Provisioning Profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/app.mobileprovision
-          echo "Provisioning profile installed"
 
-      ### 7. Build IPA
+      ### 9. Build IPA
       - name: Build IPA
         run: |
           flutter pub get
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
-      ### 8. Upload IPA Artifact
+      ### 10. Upload Artifact
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
