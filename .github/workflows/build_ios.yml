@@ -29,7 +29,7 @@ jobs:
           EXPORT_METHOD: app-store
           TEAM_ID: ${{ secrets.TEAM_ID }}
           APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
-          PROVISIONING_PROFILE_NAME: "Your Provisioning Profile Name" # Replace with your actual profile name
+          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution" # Replace with your actual profile name
         run: |
           envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
 
