@@ -1,4 +1,4 @@
-name: Generate iOS Certificates
+name: Generate iOS Certificates1
 
 on:
   workflow_dispatch:  # Manual trigger only
