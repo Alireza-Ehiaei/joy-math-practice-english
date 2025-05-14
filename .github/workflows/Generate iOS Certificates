@@ -2,10 +2,14 @@ name: Generate iOS Certificates
 
 on:
   workflow_dispatch:
-  
+
 jobs:
   generate_certs:
     runs-on: macos-latest
+    outputs:
+      cert_base64: ${{ steps.cert_gen.outputs.CERT_BASE64 }}
+      password: ${{ steps.cert_gen.outputs.PASSWORD }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -16,17 +20,15 @@ jobs:
           PASSWORD=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c 16)
           openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=TestCertificate_$(date +%s)"
           openssl pkcs12 -export -out certificate.p12 -inkey key.pem -in cert.pem -password pass:"$PASSWORD"
+
+          # Base64 encode without newlines
+          CERT_BASE64=$(base64 -b 0 certificate.p12)
           
-          base64 certificate.p12 > certificate_base64.txt
-          echo "CERT_BASE64=$(cat certificate_base64.txt)" >> $GITHUB_OUTPUT
+          # Export outputs
+          echo "CERT_BASE64=$CERT_BASE64" >> $GITHUB_OUTPUT
           echo "PASSWORD=$PASSWORD" >> $GITHUB_OUTPUT
           echo "::add-mask::$PASSWORD"
 
-    outputs:
-      cert_base64: ${{ steps.cert_gen.outputs.CERT_BASE64 }}
-      password: ${{ steps.cert_gen.outputs.PASSWORD }}
-
-  # Simplified output display
   show_results:
     needs: generate_certs
     runs-on: ubuntu-latest
