@@ -1,7 +1,7 @@
 name: Generate iOS Certificates
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:  # Manual trigger only
   
 jobs:
   generate_certs:
@@ -10,15 +10,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Generate Self-Signed Certificate (for testing)
+      - name: Generate Certificate
+        id: cert_gen
         run: |
-          # Generate test certificate (replace with real cert from Apple later)
-          openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=TestCertificate"
-          openssl pkcs12 -export -out certificate.p12 -inkey key.pem -in cert.pem -password pass:password123
+          # Generate a RANDOM password (recommended)
+          PASSWORD=$(openssl rand -base64 32 | tr -dc 'a-zA-Z0-9' | head -c 16)
+          
+          openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -nodes -subj "/CN=TestCertificate_$(date +%s)"
+          openssl pkcs12 -export -out certificate.p12 -inkey key.pem -in cert.pem -password pass:"$PASSWORD"
 
-          # Encode for GitHub Secrets
+          # Encode and set outputs
           base64 certificate.p12 > certificate_base64.txt
-          echo "=== Save these values as GitHub Secrets ==="
-          echo "CERTIFICATE_BASE64: $(cat certificate_base64.txt)"
-          echo "PASSWORD: password123"
-          echo "==========================================="
+          echo "CERT_BASE64=$(cat certificate_base64.txt)" >> $GITHUB_OUTPUT
+          echo "PASSWORD=$PASSWORD" >> $GITHUB_OUTPUT
+
+          # Mask secrets in logs
+          echo "::add-mask::$PASSWORD"
+          echo "Certificate generated successfully!"
+
+    outputs:
+      cert_base64: ${{ steps.cert_gen.outputs.CERT_BASE64 }}
+      password: ${{ steps.cert_gen.outputs.PASSWORD }}
+
+  trigger_build:
+    needs: generate_certs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger iOS Build
+        run: |
+          echo "First workflow complete! Now manually run the Build iOS IPA workflow."
+          echo "Use these values for secrets:"
+          echo "CERTIFICATE_BASE64: ${{ needs.generate_certs.outputs.cert_base64 }}"
+          echo "CERTIFICATE_PASSWORD: ${{ needs.generate_certs.outputs.password }}"
