@@ -19,26 +19,9 @@ jobs:
         with:
           flutter-version: '3.29.3'
 
-      # Ensure iOS project is initialized (creates Podfile if missing)
-      - name: Ensure iOS project is initialized
+      - name: Delete old keychain (if exists)
         run: |
-          if [ ! -f "ios/Podfile" ]; then
-            flutter create --platforms ios .
-          fi
-
-      - name: Install envsubst (for placeholder substitution)
-        run: |
-          brew install gettext
-          brew link --force gettext
-
-      - name: Generate ExportOptions.plist
-        env:
-          EXPORT_METHOD: app-store
-          TEAM_ID: ${{ secrets.TEAM_ID }}
-          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
-          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
-        run: |
-          envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
+          security delete-keychain "$RUNNER_TEMP/temp.keychain-db" || true
 
       - name: Create temporary keychain
         env:
@@ -49,35 +32,20 @@ jobs:
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security default-keychain -s "$KEYCHAIN_PATH"
-          security list-keychains -s "$KEYCHAIN_PATH" $(security list-keychains | sed s/\"//g)
 
       - name: Install Apple WWDR Intermediate Certificate
-        env:
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
           curl -o AppleWWDRCAG3.cer https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
           security import AppleWWDRCAG3.cer -k "$KEYCHAIN_PATH" -A -T /usr/bin/codesign
 
-
-      - name: Import Apple certificate into keychain
-        env:
-          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
-          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-        run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
-          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > ios/certificate.p12
-          security import ios/certificate.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-
-      - name: Install provisioning profile
-        env:
-          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+      - name: Import Apple certificate and provisioning profile
+        uses: apple-actions/import-codesign-certs@v1
+        with:
+          p12-file-base64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          p12-password: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          keychain-password: ${{ secrets.KEYCHAIN_PASSWORD }}
+          profiles: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
 
       - name: Install CocoaPods dependencies
         run: |
@@ -86,7 +54,7 @@ jobs:
           cd ..
 
       - name: Build IPA
-        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
+        run: flutter build ipa --release
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
