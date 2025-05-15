@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA3
+name: Build Flutter iOS IPA5
 
 on:
   push:
@@ -63,7 +63,10 @@ jobs:
 
           # Verify certificate with openssl
           OPENSSL_PATH=$(command -v openssl || echo "/opt/homebrew/bin/openssl")
-          "$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info || echo "OpenSSL verification failed"
+          if ! "$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info; then
+            echo "OpenSSL verification failed. Check IOS_CERTIFICATE_PASSWORD or re-export .p12 with legacy algorithms."
+            exit 1
+          fi
 
           # Import with explicit PKCS12 format
           security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -f pkcs12
