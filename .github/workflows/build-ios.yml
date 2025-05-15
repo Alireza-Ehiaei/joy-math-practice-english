@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA
+name: Build Flutter iOS IPA1
 
 on:
   push:
@@ -19,7 +19,7 @@ jobs:
         with:
           flutter-version: '3.29.3'
 
-      - name: Install envsubst (for placeholder substitution)
+      - name: Install envsubst
         run: |
           brew install gettext
           brew link --force gettext
@@ -53,21 +53,22 @@ jobs:
           KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
           CERTIFICATE_PATH="$RUNNER_TEMP/certificate.p12"
 
-          # Decode certificate and verify
+          # Decode and verify certificate
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
-          ls -l "$CERTIFICATE_PATH"  # Debug: Verify file creation
+          ls -l "$CERTIFICATE_PATH"  # Debug: Verify file
           file "$CERTIFICATE_PATH"   # Debug: Check file type
+          echo "Certificate size: $(stat -f %z "$CERTIFICATE_PATH") bytes"  # Debug: Size
 
-          # Attempt import with legacy algorithms
+          # Import with explicit PKCS12 format
           security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -f pkcs12
 
-          # Verify import
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"  # Debug: List identities
+          # Debug: Verify certificate import
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
 
-          # Set key partition list for codesign access
+          # Set key partition list
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Unlock keychain again
+          # Unlock keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
       - name: Install provisioning profile
@@ -77,7 +78,7 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           PROFILE_PATH=~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
-          ls -l "$PROFILE_PATH"  # Debug: Verify file creation
+          ls -l "$PROFILE_PATH"  # Debug: Verify file
 
       - name: Install CocoaPods dependencies
         run: |
