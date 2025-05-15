@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA2
+name: Build Flutter iOS IPA3
 
 on:
   push:
@@ -23,7 +23,8 @@ jobs:
         run: |
           brew install gettext
           brew link --force gettext
-          brew install openssl
+          brew install openssl@3
+          echo "OpenSSL version: $(openssl version)"  # Debug: Verify OpenSSL
 
       - name: Generate ExportOptions.plist
         env:
@@ -61,7 +62,8 @@ jobs:
           echo "Certificate size: $(stat -f %z "$CERTIFICATE_PATH") bytes"  # Debug: Size
 
           # Verify certificate with openssl
-          /usr/local/opt/openssl/bin/openssl pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info || echo "OpenSSL verification failed"
+          OPENSSL_PATH=$(command -v openssl || echo "/opt/homebrew/bin/openssl")
+          "$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info || echo "OpenSSL verification failed"
 
           # Import with explicit PKCS12 format
           security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -f pkcs12
