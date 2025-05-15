@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA6
+name: Build Flutter iOS IPA7
 
 on:
   push:
@@ -19,19 +19,17 @@ jobs:
         with:
           flutter-version: '3.29.3'
 
-      - name: Install dependencies
+      - name: Install envsubst (for placeholder substitution)
         run: |
           brew install gettext
           brew link --force gettext
-          brew install openssl@3
-          echo "OpenSSL version: $(openssl version)"  # Debug: Verify OpenSSL
 
       - name: Generate ExportOptions.plist
         env:
           EXPORT_METHOD: app-store
           TEAM_ID: ${{ secrets.TEAM_ID }}
           APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
-          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
+          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution" # Replace with your actual profile name
         run: |
           envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
 
@@ -53,37 +51,15 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
-          CERTIFICATE_PATH="$RUNNER_TEMP/certificate.p12"
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > ios/certificate.p12
 
-          # Decode and verify certificate
-          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > "$CERTIFICATE_PATH"
-          ls -l "$CERTIFICATE_PATH"  # Debug: Verify file
-          file "$CERTIFICATE_PATH"   # Debug: Check file type
-          echo "Certificate size: $(stat -f %z "$CERTIFICATE_PATH") bytes"  # Debug: Size
+          # Import certificate with access for codesign
+          security import ios/certificate.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
 
-          # Verify certificate with openssl and check encryption
-          OPENSSL_PATH=$(command -v openssl || echo "/opt/homebrew/bin/openssl")
-          OPENSSL_OUTPUT=$("$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info 2>&1)
-          echo "$OPENSSL_OUTPUT"
-          if echo "$OPENSSL_OUTPUT" | grep -q "AES-256-CBC\|PBKDF2"; then
-            echo "Error: .p12 uses modern encryption (AES-256-CBC/PBKDF2). Re-export with -legacy flag using PBE-SHA1-3DES."
-            exit 1
-          fi
-          if ! echo "$OPENSSL_OUTPUT" | grep -q "PBE-SHA1-3DES"; then
-            echo "Error: .p12 does not use PBE-SHA1-3DES. Re-export with -legacy flag."
-            exit 1
-          fi
-
-          # Import with explicit PKCS12 format
-          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign -f pkcs12
-
-          # Debug: Verify certificate import
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-
-          # Set key partition list
+          # Set key partition list for codesign access
           security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # Unlock keychain
+          # Unlock keychain again to ensure accessibility
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
       - name: Install provisioning profile
@@ -91,9 +67,7 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          PROFILE_PATH=~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > "$PROFILE_PATH"
-          ls -l "$PROFILE_PATH"  # Debug: Verify file
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
       - name: Install CocoaPods dependencies
         run: |
