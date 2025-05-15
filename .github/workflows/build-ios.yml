@@ -61,12 +61,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/My_MathEnglish_App_App_Store_Distribution.mobileprovision
 
-      - name: Install CocoaPods dependencies
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
-
       - name: Build IPA
         run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
