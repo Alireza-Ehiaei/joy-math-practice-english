@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA5
+name: Build Flutter iOS IPA6
 
 on:
   push:
@@ -61,10 +61,16 @@ jobs:
           file "$CERTIFICATE_PATH"   # Debug: Check file type
           echo "Certificate size: $(stat -f %z "$CERTIFICATE_PATH") bytes"  # Debug: Size
 
-          # Verify certificate with openssl
+          # Verify certificate with openssl and check encryption
           OPENSSL_PATH=$(command -v openssl || echo "/opt/homebrew/bin/openssl")
-          if ! "$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info; then
-            echo "OpenSSL verification failed. Check IOS_CERTIFICATE_PASSWORD or re-export .p12 with legacy algorithms."
+          OPENSSL_OUTPUT=$("$OPENSSL_PATH" pkcs12 -in "$CERTIFICATE_PATH" -nokeys -passin pass:"$IOS_CERTIFICATE_PASSWORD" -info 2>&1)
+          echo "$OPENSSL_OUTPUT"
+          if echo "$OPENSSL_OUTPUT" | grep -q "AES-256-CBC\|PBKDF2"; then
+            echo "Error: .p12 uses modern encryption (AES-256-CBC/PBKDF2). Re-export with -legacy flag using PBE-SHA1-3DES."
+            exit 1
+          fi
+          if ! echo "$OPENSSL_OUTPUT" | grep -q "PBE-SHA1-3DES"; then
+            echo "Error: .p12 does not use PBE-SHA1-3DES. Re-export with -legacy flag."
             exit 1
           fi
 
