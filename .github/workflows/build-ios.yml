@@ -67,6 +67,10 @@ jobs:
             echo "Error: Failed to extract UUID from provisioning profile"
             exit 1
           fi
+      - name: Verify code signing setup
+        run: |
+          xcodebuild -showsdks
+          codesign -dvvv ios/Runner.app || echo "Runner.app not yet signed"
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
