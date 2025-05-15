@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA7
+name: Build Flutter iOS IPA8
 
 on:
   push:
@@ -68,6 +68,17 @@ jobs:
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: Ensure Podfile exists
+        run: |
+          cd ios
+          if [ ! -f Podfile ]; then
+            flutter create .
+          fi
+          cd ..
 
       - name: Install CocoaPods dependencies
         run: |
