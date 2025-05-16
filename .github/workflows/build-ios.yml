@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA
+name: Build Flutter iOS IPA20
 on:
   push:
     branches:
@@ -70,10 +70,10 @@ jobs:
       - name: Verify code signing setup
         run: |
           xcodebuild -showsdks
-          codesign -dvvv ios/Runner.app || echo "Runner.app not yet signed"
+          security find-certificate -c "Apple Distribution: Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
       - name: Build IPA
         run: |
-          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
