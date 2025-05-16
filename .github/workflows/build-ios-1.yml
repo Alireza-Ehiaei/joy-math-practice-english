@@ -52,7 +52,7 @@ jobs:
           security find-certificate -a -p "$RUNNER_TEMP/temp.keychain-db" > cert_details.txt
           echo "Certificate details:"
           cat cert_details.txt
-          security find-certificate -a -c "Apple Distribution: Alireza Ehiaei" -Z "$RUNNER_TEMP/temp.keychain-db" || exit 1
+          security find-certificate -a -c "Alireza Ehiaei" -Z "$RUNNER_TEMP/temp.keychain-db" || exit 1
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
@@ -72,10 +72,10 @@ jobs:
       - name: Verify certificate and provisioning profile
         run: |
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
-          security find-certificate -c "Apple Distribution: Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
+          security find-certificate -c "Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || echo "Failed to decode provisioning profile"
           xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep CODE_SIGN_IDENTITY
-      - name: Build IPA
+      - name: Build IPA with explicit code signing
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose \
             --dart-define=CODE_SIGN_IDENTITY="Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
