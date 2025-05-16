@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-name: Build Flutter iOS IPA 25
-=======
-name: Build Flutter iOS IPA 24
->>>>>>> 9189da8c3bc4621339a55c300bce925ddc5f9611
+name: Build Flutter iOS IPA 26
 on:
   push:
     branches:
@@ -79,15 +75,6 @@ jobs:
           security find-certificate -c "Apple Distribution: Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || echo "Failed to decode provisioning profile"
           xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep CODE_SIGN_IDENTITY
-      - name: Set code signing identity explicitly
-        run: |
-          cd ios
-          sed -i '' 's|CODE_SIGN_IDENTITY = .*|CODE_SIGN_IDENTITY = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)"|' Runner.xcodeproj/project.pbxproj
-          sed -i '' 's|CODE_SIGN_STYLE = .*|CODE_SIGN_STYLE = Manual|' Runner.xcodeproj/project.pbxproj
-          sed -i '' 's|PROVISIONING_PROFILE_SPECIFIER = .*|PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution"|' Runner.xcodeproj/project.pbxproj
-          grep "CODE_SIGN_IDENTITY" Runner.xcodeproj/project.pbxproj
-          grep "CODE_SIGN_STYLE" Runner.xcodeproj/project.pbxproj
-          grep "PROVISIONING_PROFILE_SPECIFIER" Runner.xcodeproj/project.pbxproj
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose \
