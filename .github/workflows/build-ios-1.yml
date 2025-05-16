@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA21
+name: Build Flutter iOS IPA 22
 on:
   push:
     branches:
@@ -24,7 +24,7 @@ jobs:
           EXPORT_METHOD: app-store
           TEAM_ID: AHVM2Z8TDL
           APP_IDENTIFIER: com.tech4dev.mathJoyPracticeEnglish
-          PROVISIONING_PROFILE_NAME: My_MathEnglish_App_App_Store_Distribution
+          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
         run: |
           envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
           cat ios/ExportOptions.plist
@@ -32,25 +32,23 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: tempkeychainpassword
         run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          security default-keychain -s "$KEYCHAIN_PATH"
-          security list-keychains -d user -s "$KEYCHAIN_PATH"
-          security show-keychain-info "$KEYCHAIN_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/temp.keychain-db"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security default-keychain -s "$RUNNER_TEMP/temp.keychain-db"
+          security list-keychains -d user -s "$RUNNER_TEMP/temp.keychain-db"
+          security show-keychain-info "$RUNNER_TEMP/temp.keychain-db"
       - name: Import Apple certificate into keychain
         env:
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
           KEYCHAIN_PASSWORD: tempkeychainpassword
         run: |
-          KEYCHAIN_PATH="$RUNNER_TEMP/temp.keychain-db"
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
           ls -l certificate.p12
-          security import certificate.p12 -k "$KEYCHAIN_PATH" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign || exit 1
-          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH" || exit 1
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH" || exit 1
+          security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign || exit 1
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db" || exit 1
+          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db" || exit 1
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
@@ -67,10 +65,12 @@ jobs:
             echo "Error: Failed to extract UUID from provisioning profile"
             exit 1
           fi
-      - name: Verify code signing setup
+      - name: Verify certificate and provisioning profile
         run: |
-          xcodebuild -showsdks
+          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
           security find-certificate -c "Apple Distribution: Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || echo "Failed to decode provisioning profile"
+          xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep CODE_SIGN_IDENTITY
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose
