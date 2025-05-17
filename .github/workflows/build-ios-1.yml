@@ -52,7 +52,7 @@ jobs:
           security find-certificate -a -p "$RUNNER_TEMP/temp.keychain-db" > cert_details.txt
           echo "Certificate details:"
           cat cert_details.txt
-          security find-certificate -a -c "Apple Distribution: Alireza Ehiaei" -Z "$RUNNER_TEMP/temp.keychain-db" || exit 1
+          security find-certificate -a -c "Alireza Ehiaei" -Z "$RUNNER_TEMP/temp.keychain-db" || exit 1
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
@@ -69,13 +69,27 @@ jobs:
             echo "Error: Failed to extract UUID from provisioning profile"
             exit 1
           fi
-      - name: Verify certificate and provisioning profile
+      - name: Update project.pbxproj for manual code signing
+        run: |
+          sed -i '' 's/CODE_SIGN_IDENTITY\[sdk=iphoneos\*\] = "iPhone Developer"/CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)"/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/CODE_SIGN_STYLE = Automatic/CODE_SIGN_STYLE = Manual/g' ios/Runner.xcodeproj/project.pbxproj
+          echo "Adding PROVISIONING_PROFILE_SPECIFIER to Release and Profile configurations"
+          sed -i '' '/name = Release;/a\
+          \t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' '/name = Profile;/a\
+          \t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";' ios/Runner.xcodeproj/project.pbxproj
+          echo "Verifying updated project.pbxproj settings:"
+          grep "CODE_SIGN_IDENTITY" ios/Runner.xcodeproj/project.pbxproj
+          grep "CODE_SIGN_STYLE" ios/Runner.xcodeproj/project.pbxproj
+          grep "PROVISIONING_PROFILE_SPECIFIER" ios/Runner.xcodeproj/project.pbxproj
+      - name: Verify certificate and build settings
         run: |
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
-          security find-certificate -c "Apple Distribution: Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
+          security find-certificate -c "Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || echo "Failed to decode provisioning profile"
-          xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep CODE_SIGN_IDENTITY
-      - name: Build IPA
+          echo "Checking Xcode build settings:"
+          xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release | grep -E "CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|PROVISIONING_PROFILE_SPECIFIER|DEVELOPMENT_TEAM"
+      - name: Build IPA with explicit code signing
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose \
             --dart-define=CODE_SIGN_IDENTITY="Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
