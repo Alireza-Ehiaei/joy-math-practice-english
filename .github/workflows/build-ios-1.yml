@@ -74,7 +74,11 @@ jobs:
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
           security find-certificate -c "Alireza Ehiaei" -p "$RUNNER_TEMP/temp.keychain-db" || echo "Certificate not found"
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision || echo "Failed to decode provisioning profile"
-          xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep CODE_SIGN_IDENTITY
+          echo "Checking project.pbxproj for code signing settings:"
+          grep "CODE_SIGN_IDENTITY" ios/Runner.xcodeproj/project.pbxproj
+          grep "CODE_SIGN_STYLE" ios/Runner.xcodeproj/project.pbxproj
+          grep "PROVISIONING_PROFILE_SPECIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "No PROVISIONING_PROFILE_SPECIFIER found"
+          xcodebuild -showBuildSettings -workspace ios/Runner.xcworkspace -scheme Runner | grep -E "CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|PROVISIONING_PROFILE_SPECIFIER"
       - name: Build IPA with explicit code signing
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose \
