@@ -35,19 +35,31 @@ jobs:
       - name: Import Code Signing Certificate
         run: |
           echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/certificate.p12"
-          security import "$RUNNER_TEMP/certificate.p12" -k "$RUNNER_TEMP/temp.keychain-db" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
-          security set-keychain-password -o "" -n "temp" "$RUNNER_TEMP/temp.keychain-db"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$RUNNER_TEMP/temp.keychain-db" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -A -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "temp" "$RUNNER_TEMP/temp.keychain-db"
+          security unlock-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
+        env:
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
 
       - name: Import Provisioning Profile
         run: |
           echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/profile.mobileprovision"
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp "$RUNNER_TEMP/profile.mobileprovision" ~/Library/MobileDevice/Provisioning\ Profiles/
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
 
       - name: Verify Code Signing Setup
         run: |
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Install CocoaPods Dependencies
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
 
       - name: Check Xcode Build Settings
         run: |
