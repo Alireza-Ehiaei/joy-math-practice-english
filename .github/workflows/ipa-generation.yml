@@ -55,6 +55,13 @@ jobs:
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: List Xcode Schemes
+        run: |
+          cd ios
+          xcodebuild -list
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+
       - name: Check Xcode Build Settings
         run: |
           cd ios
