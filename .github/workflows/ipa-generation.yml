@@ -55,12 +55,6 @@ jobs:
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Install CocoaPods Dependencies
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
-
       - name: Check Xcode Build Settings
         run: |
           cd ios
