@@ -1,0 +1,83 @@
+name: IPA Generation
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+          cache: true
+
+      - name: Install Flutter Dependencies
+        run: flutter pub get
+        working-directory: .
+
+      - name: Create Keychain
+        run: |
+          security create-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
+          security set-keychain-settings -t 3600 -l "$RUNNER_TEMP/temp.keychain-db"
+          security unlock-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
+
+      - name: Import Code Signing Certificate
+        run: |
+          echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/certificate.p12"
+          security import "$RUNNER_TEMP/certificate.p12" -k "$RUNNER_TEMP/temp.keychain-db" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -T /usr/bin/codesign
+          security set-keychain-password -o "" -n "temp" "$RUNNER_TEMP/temp.keychain-db"
+
+      - name: Import Provisioning Profile
+        run: |
+          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/profile.mobileprovision"
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp "$RUNNER_TEMP/profile.mobileprovision" ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Verify Code Signing Setup
+        run: |
+          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Check Xcode Build Settings
+        run: |
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -showBuildSettings
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Build Flutter iOS App
+        run: |
+          flutter build ios --release --no-codesign
+        working-directory: .
+
+      - name: Archive and Export IPA
+        run: |
+          cd ios
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            CODE_SIGN_IDENTITY="Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="My MathEnglish App App Store Distribution" \
+            archive
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
+            -exportPath "$RUNNER_TEMP/ipa" \
+            -exportOptionsPlist ../exportOptions.plist
+        env:
+          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ipa
+          path: $RUNNER_TEMP/ipa/*.ipa
+          retention-days: 7
