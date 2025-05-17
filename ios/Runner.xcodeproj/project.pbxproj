@@ -353,6 +353,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -378,6 +379,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -399,6 +401,7 @@
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -418,6 +421,7 @@
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -437,6 +441,7 @@
 				SWIFT_VERSION = 5.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -498,6 +503,7 @@
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -556,6 +562,7 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -582,6 +589,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
@@ -607,6 +615,7 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				CODE_SIGN_IDENTITY[sdk=iphoneos*] = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE_SPECIFIER = "My MathEnglish App App Store Distribution";
 				PRODUCT_BUNDLE_IDENTIFIER = com.tech4dev.mathJoyPracticeEnglish;
