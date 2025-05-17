@@ -1,0 +1,41 @@
+name: Debug iOS Certificate Issue
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+jobs:
+  debug-ios:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create temporary keychain
+        env:
+          KEYCHAIN_PASSWORD: tempkeychainpassword
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/temp.keychain-db"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security default-keychain -s "$RUNNER_TEMP/temp.keychain-db"
+          security list-keychains -d user -s "$RUNNER_TEMP/temp.keychain-db"
+
+      - name: Import Apple certificate into keychain
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: tempkeychainpassword
+        run: |
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          echo "Listing valid code signing identities:"
+          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
+          echo "Listing all certificates in the keychain:"
+          security find-certificate -a -p "$RUNNER_TEMP/temp.keychain-db" > cert_details.txt
+          cat cert_details.txt
+
+      - name: Check certificate details
+        run: |
+          security find-certificate -a -c "Alireza Ehiaei" -Z "$RUNNER_TEMP/temp.keychain-db"
