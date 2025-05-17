@@ -1,4 +1,3 @@
-```yaml
 name: IPA Generation
 
 on:
@@ -84,4 +83,3 @@ jobs:
           name: app-ipa
           path: $RUNNER_TEMP/ipa/*.ipa
           retention-days: 7
-```
