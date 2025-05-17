@@ -1,98 +1,83 @@
-name: IPA Generation
+name: Build Flutter iOS IPA
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build-ios:
-    runs-on: macos-14
+  build_ios:
+    runs-on: macos-latest
+
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.3'
+          flutter-version: '3.29.3'
           channel: 'stable'
-          cache: true
 
-      - name: Install Flutter Dependencies
+      - name: Install envsubst (for ExportOptions.plist template)
         run: |
-          flutter pub add in_app_purchase:^3.2.0
-          flutter pub get
-        working-directory: .
+          brew install gettext
+          brew link --force gettext
 
-      - name: Create Keychain
+      - name: Generate ExportOptions.plist
+        env:
+          EXPORT_METHOD: app-store
+          TEAM_ID: AHVM2Z8TDL
+          APP_IDENTIFIER: com.tech4dev.mathJoyPracticeEnglish
+          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
         run: |
-          security create-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
-          security set-keychain-settings -t 3600 -l "$RUNNER_TEMP/temp.keychain-db"
-          security unlock-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
+          envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
+          cat ios/ExportOptions.plist
 
-      - name: Import Code Signing Certificate
+      - name: Create temporary keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          echo "${{ secrets.IOS_CERTIFICATE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/certificate.p12"
-          security import "$RUNNER_TEMP/certificate.p12" -k "$RUNNER_TEMP/temp.keychain-db" -P "${{ secrets.IOS_CERTIFICATE_PASSWORD }}" -A -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple: -s -k "temp" "$RUNNER_TEMP/temp.keychain-db"
-          security unlock-keychain -p "temp" "$RUNNER_TEMP/temp.keychain-db"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/temp.keychain-db"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security default-keychain -s "$RUNNER_TEMP/temp.keychain-db"
+          security list-keychains -d user -s "$RUNNER_TEMP/temp.keychain-db"
+
+      - name: Import Apple certificate into keychain
         env:
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
-
-      - name: Import Provisioning Profile
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          echo "${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/profile.mobileprovision"
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp "$RUNNER_TEMP/profile.mobileprovision" ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
+          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
+
+      - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-
-      - name: Verify Code Signing Setup
         run: |
-          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
-          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          UUID=$(grep -a -o -m 1 '[-A-F0-9]\{36\}' profile.mobileprovision)
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
 
-      - name: List Xcode Schemes
-        run: |
-          cd ios
-          xcodebuild -list
-        env:
-          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+      - name: Get Flutter dependencies
+        run: flutter pub get
 
-      - name: Check Xcode Build Settings
+      - name: Install CocoaPods dependencies
         run: |
           cd ios
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release -showBuildSettings
-        env:
-          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
+          pod install --repo-update
 
-      - name: Build Flutter iOS App
+      - name: Build IPA
         run: |
-          flutter build ios --release --no-codesign
-        working-directory: .
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
 
-      - name: Archive and Export IPA
-        run: |
-          cd ios
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release \
-            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            CODE_SIGN_IDENTITY="Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
-            CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="My MathEnglish App App Store Distribution" \
-            archive
-          xcodebuild -exportArchive \
-            -archivePath "$RUNNER_TEMP/Runner.xcarchive" \
-            -exportPath "$RUNNER_TEMP/ipa" \
-            -exportOptionsPlist ../exportOptions.plist
-        env:
-          DEVELOPER_DIR: /Applications/Xcode_15.4.app/Contents/Developer
-
-      - name: Upload IPA
+      - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-ipa
-          path: $RUNNER_TEMP/ipa/*.ipa
-          retention-days: 7
+          name: ios-ipa
+          path: build/ios/ipa/*.ipa
