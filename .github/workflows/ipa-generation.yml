@@ -19,11 +19,6 @@ jobs:
           flutter-version: '3.29.3'
           channel: 'stable'
 
-      - name: Install envsubst (for ExportOptions.plist template)
-        run: |
-          brew install gettext
-          brew link --force gettext
-
       - name: Generate ExportOptions.plist
         env:
           EXPORT_METHOD: app-store
@@ -66,11 +61,6 @@ jobs:
 
       - name: Get Flutter dependencies
         run: flutter pub get
-
-      - name: Install CocoaPods dependencies
-        run: |
-          cd ios
-          pod install --repo-update
 
       - name: Build IPA
         run: |
