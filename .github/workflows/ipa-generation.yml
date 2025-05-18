@@ -19,8 +19,6 @@ jobs:
           flutter-version: '3.29.3'
           channel: 'stable'
 
-  
-
       - name: Create temporary keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
@@ -41,7 +39,7 @@ jobs:
           security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
-      
+
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
@@ -49,13 +47,16 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
-
       - name: Get Flutter dependencies
         run: flutter pub get
 
+      - name: List Xcode Schemes
+        run: |
+          cd ios
+          xcodebuild -list
+
       - name: Build IPA
         run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
-
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
