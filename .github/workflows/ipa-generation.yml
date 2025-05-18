@@ -62,6 +62,7 @@ jobs:
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose > build_log.txt 2>&1
+          ls -l build/ios/ipa/ || echo "IPA directory not found"
         continue-on-error: true
 
       - name: Upload build log
