@@ -41,15 +41,23 @@ jobs:
           security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
           security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
-
+      
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
+          echo "HOME is: $HOME"
           mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           UUID=$(grep -a -o -m 1 '[-A-F0-9]\{36\}' profile.mobileprovision)
-          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+          mv profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
+          ls -l "$HOME/Library/MobileDevice/Provisioning Profiles"
+      
+      - name: Debug HOME directory
+        run: |
+          echo "HOME is: $HOME"
+          ls -ld $HOME
+
 
       - name: Get Flutter dependencies
         run: flutter pub get
