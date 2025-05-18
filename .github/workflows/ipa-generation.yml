@@ -1,4 +1,4 @@
-name: Diagnose iOS IPA Build
+name: Build Flutter iOS IPA
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  diagnose_ios:
+  build_ios:
     runs-on: macos-latest
 
     steps:
@@ -27,8 +27,9 @@ jobs:
           security set-keychain-settings -lut 21600 "$RUNNER_TEMP/temp.keychain-db"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
           security default-keychain -s "$RUNNER_TEMP/temp.keychain-db"
+          security list-keychains -d user -s "$RUNNER_TEMP/temp.keychain-db"
 
-      - name: Import Apple certificate
+      - name: Import Apple certificate into keychain
         env:
           IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
@@ -45,11 +46,20 @@ jobs:
         run: |
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
-          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
-      - name: Verify provisioning profile
+      - name: Get Flutter dependencies
+        run: flutter pub get
+
+      - name: List Xcode Schemes
         run: |
           cd ios
-          xcodebuild -showBuildSettings -target Runner | grep PROVISIONING_PROFILE
-          codesign -dv --verbose=4 ios/Runner.app || echo "App not yet signed"
+          xcodebuild -list
+
+      - name: Build IPA
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-ipa
+          path: build/ios/ipa/*.ipa
