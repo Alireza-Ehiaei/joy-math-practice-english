@@ -46,17 +46,14 @@ jobs:
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
-          echo "HOME is: $HOME"
-          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
-          UUID=$(grep -a -o -m 1 '[-A-F0-9]\{36\}' profile.mobileprovision)
-          mv profile.mobileprovision "$HOME/Library/MobileDevice/Provisioning Profiles/$UUID.mobileprovision"
-          ls -l "$HOME/Library/MobileDevice/Provisioning Profiles"
-      
-      - name: Debug HOME directory
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
+
+      - name: Install CocoaPods dependencies
         run: |
-          echo "HOME is: $HOME"
-          ls -ld $HOME
+          cd ios
+          pod install --repo-update
+          cd ..
 
 
       - name: Get Flutter dependencies
