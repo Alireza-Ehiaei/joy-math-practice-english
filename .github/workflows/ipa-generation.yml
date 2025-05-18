@@ -1,4 +1,4 @@
-name: Build Flutter iOS IPA
+name: Build iOS IPA
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build_ios:
+  build:
     runs-on: macos-latest
 
     steps:
@@ -23,22 +23,21 @@ jobs:
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          security create-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
-          security set-keychain-settings -lut 21600 "$RUNNER_TEMP/temp.keychain-db"
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
-          security default-keychain -s "$RUNNER_TEMP/temp.keychain-db"
-          security list-keychains -d user -s "$RUNNER_TEMP/temp.keychain-db"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
 
-      - name: Import Apple certificate into keychain
+      - name: Import Apple certificate
         env:
-          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
-          security import certificate.p12 -k "$RUNNER_TEMP/temp.keychain-db" -P "$IOS_CERTIFICATE_PASSWORD" -A -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$RUNNER_TEMP/temp.keychain-db"
-          security find-identity -v -p codesigning "$RUNNER_TEMP/temp.keychain-db"
+          security import certificate.p12 -k build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -A
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security find-identity -v -p codesigning build.keychain
 
       - name: Install provisioning profile
         env:
@@ -47,21 +46,20 @@ jobs:
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
-           
-      
-      - name: Get Flutter dependencies
-        run: flutter pub get
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: List Xcode Schemes
+      - name: Install CocoaPods dependencies
         run: |
           cd ios
-          xcodebuild -list
+          pod install
+          cd ..
 
       - name: Build IPA
-        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
+        run: |
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
 
-      - name: Upload IPA artifact
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: ios-ipa
+          name: app-ipa
           path: build/ios/ipa/*.ipa
