@@ -19,15 +19,7 @@ jobs:
           flutter-version: '3.29.3'
           channel: 'stable'
 
-      - name: Generate ExportOptions.plist
-        env:
-          EXPORT_METHOD: app-store
-          TEAM_ID: AHVM2Z8TDL
-          APP_IDENTIFIER: com.tech4dev.mathJoyPracticeEnglish
-          PROVISIONING_PROFILE_NAME: "My MathEnglish App App Store Distribution"
-        run: |
-          envsubst < ios/ExportOptions-Template.plist > ios/ExportOptions.plist
-          cat ios/ExportOptions.plist
+  
 
       - name: Create temporary keychain
         env:
@@ -63,8 +55,7 @@ jobs:
         run: flutter pub get
 
       - name: Build IPA
-        run: |
-          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
+        run: flutter build ipa --release --export-options-plist=ios/ExportOptions.plist
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
