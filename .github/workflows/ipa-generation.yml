@@ -54,6 +54,7 @@ jobs:
           pod install
           cd ..
 
+
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose
