@@ -1,3 +1,4 @@
+# Xcode
 **/dgph
 *.mode1v3
 *.mode2v3
@@ -5,16 +6,20 @@
 *.pbxuser
 *.perspectivev3
 **/*sync/
-.sconsign.dblite
-.tags*
-**/.vagrant/
+xcuserdata
 **/DerivedData/
 Icon?
 **/Pods/
 **/.symlinks/
 profile
-xcuserdata
 **/.generated/
+
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
 Flutter/App.framework
 Flutter/Flutter.framework
 Flutter/Flutter.podspec
@@ -27,8 +32,20 @@ Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
 Runner/GeneratedPluginRegistrant.*
 
-# Exceptions to above rules.
+# Android Studio/Flutter metadata
+.metadata
+
+# Test directory (optional: remove if tests are needed)
+test/
+
+# Common macOS files
+.DS_Store
+
+# Exceptions to Xcode rules
 !default.mode1v3
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Ensure critical files are tracked
+!ios/ExportOptions.plist
