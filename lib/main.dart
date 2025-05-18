@@ -555,6 +555,14 @@ class _Numeral_menu_pageState extends State<Numeral_menu_page> {
                             },
                             child: const Text('Purchase'),
                           ),
+                          // Add the Restore Purchases button here
+                          TextButton(
+                            onPressed: _isLoading ? null : _restorePurchases,
+                            child: const Text(
+                              'Restore Purchases',
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: const Text('Cancel'),
@@ -574,14 +582,8 @@ class _Numeral_menu_pageState extends State<Numeral_menu_page> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 20),
-              TextButton(
-                onPressed: _isLoading ? null : _restorePurchases,
-                child: const Text(
-                  'Restore Purchases',
-                  style: TextStyle(fontSize: 16),
-                ),
-              ),
 
               const Align(
                 child: SizedBox(
