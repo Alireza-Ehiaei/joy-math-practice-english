@@ -49,12 +49,6 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
 
-      - name: Install CocoaPods dependencies
-        run: |
-          cd ios
-          pod install --repo-update
-          cd ..
-
 
       - name: Get Flutter dependencies
         run: flutter pub get
