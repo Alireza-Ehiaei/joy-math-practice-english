@@ -58,11 +58,13 @@ jobs:
           cd ios
           pod install --repo-update || echo "Pod install failed, continuing..."
           cd ..
-
+      
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose > build_log.txt 2>&1
           ls -l build/ios/ipa/ || echo "IPA directory not found"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
         continue-on-error: true
 
       - name: Upload build log
