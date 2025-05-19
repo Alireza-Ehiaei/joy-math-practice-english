@@ -4,12 +4,12 @@
 <dict>
     <key>method</key>
     <string>app-store</string>
-    <key>teamID</key>
-    <string>AHVM2Z8TDL</string>
     <key>provisioningProfiles</key>
     <dict>
         <key>com.tech4dev.mathJoyPracticeEnglish</key>
         <string>MathJoyAppStore2025</string>
     </dict>
+    <key>signingCertificate</key>
+    <string>Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)</string>
 </dict>
 </plist>
