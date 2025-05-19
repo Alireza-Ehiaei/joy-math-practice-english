@@ -50,7 +50,8 @@ jobs:
         run: |
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
+          UUID=$(grep -a -o -m 1 '[-A-F0-9]\{36\}' profile.mobileprovision)
+          cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Install CocoaPods dependencies
@@ -58,14 +59,23 @@ jobs:
           cd ios
           pod install --repo-update || echo "Pod install failed, continuing..."
           cd ..
-      
-      - name: Build IPA
+
+      - name: Build IPA with xcodebuild
         run: |
-          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose > build_log.txt 2>&1
-          ls -l build/ios/ipa/ || echo "IPA directory not found"
-          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
-          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-        continue-on-error: true
+          cd ios
+          xcodebuild -scheme Runner \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -sdk iphoneos \
+            -configuration Release \
+            CODE_SIGN_IDENTITY="Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
+            PROVISIONING_PROFILE_SPECIFIER="My MathEnglish App App Store Distribution"
+            || exit 1
+          xcodebuild -exportArchive \
+            -archivePath build/ios/archive/Runner.xcarchive \
+            -exportPath build/ios/ipa \
+            -exportOptionsPlist ExportOptions.plist \
+            || exit 1
+          cd ..
 
       - name: Upload build log
         uses: actions/upload-artifact@v4
