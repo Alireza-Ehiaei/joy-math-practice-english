@@ -333,6 +333,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -374,13 +377,15 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 			};
 			name = Profile;
 		};
 		331C8088294A63A400263BE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
 				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
@@ -393,14 +398,12 @@
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Debug;
 		};
 		331C8089294A63A400263BE5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
 				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
@@ -411,14 +414,12 @@
 				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Release;
 		};
 		331C808A294A63A400263BE5 /* Profile */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Manual;
 				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
 				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
@@ -429,7 +430,6 @@
 				DEVELOPMENT_TEAM = AHVM2Z8TDL;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Runner.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Runner";
 			};
 			name = Profile;
 		};
@@ -463,6 +463,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -520,6 +523,9 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "Apple Distribution: Alireza Ehiaei (AHVM2Z8TDL)";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
@@ -564,6 +570,9 @@
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 			};
 			name = Debug;
 		};
@@ -586,6 +595,9 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
+				CODE_SIGN_STYLE = Manual;
+				PROVISIONING_PROFILE = "<7e2e5608-7c77-45ff-ac95-b86f868dff8c>";
+				PROVISIONING_PROFILE_SPECIFIER = "MathJoyAppStore2025";
 			};
 			name = Release;
 		};
