@@ -1,28 +1,22 @@
 name: Build iOS IPA
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   build:
     runs-on: macos-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.29.3'
           channel: 'stable'
-
-      - name: Run flutter pub get
-        run: |
-          flutter pub get
-          ls -l ios/Flutter/ # Verify Generated.xcconfig exists
+          architecture: arm64
+      - name: Install dependencies
+        run: flutter pub get
       - name: Create temporary keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
@@ -52,24 +46,22 @@ jobs:
       - name: Install CocoaPods dependencies
         run: |
           cd ios
-          pod install --repo-update || echo "Pod install failed, continuing..."
+          pod install --repo-update
           cd ..
-      
       - name: Build IPA
         run: |
           flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --verbose > build_log.txt 2>&1
           ls -l build/ios/ipa/ || echo "IPA directory not found"
           cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-        continue-on-error: true
-
       - name: Upload build log
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
           path: build_log.txt
-
       - name: Upload IPA
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: app-ipa
