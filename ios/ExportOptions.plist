@@ -6,7 +6,7 @@
     <string>app-store</string>
     <key>provisioningProfiles</key>
     <dict>
-        <key>com.tech4dev.mathJoyPracticeEnglish</key>
+        <key>com.tech4dev.mathjoypracticeenglish</key>
         <string>MathJoyAppStore2025</string>
     </dict>
     <key>signingCertificate</key>
