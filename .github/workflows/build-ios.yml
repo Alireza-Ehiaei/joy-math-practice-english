@@ -50,12 +50,13 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
 
+      - name: Run Fastlane to upload IPA
+        run: fastlane ios upload_to_app_store_connect
       - name: Set up Fastlane configuration
         run: |
           mkdir -p fastlane
           cat > fastlane/Fastfile << EOL
           default_platform(:ios)
-
           platform :ios do
             lane :upload_to_app_store_connect do
               app_store_connect_api_key(
@@ -65,7 +66,7 @@ jobs:
                 is_key_content_base64: true
               )
               deliver(
-                ipa: "app-ipa/math_joy_practice_english.ipa",
+                ipa: "./app-ipa/math_joy_practice_english.ipa",
                 skip_screenshots: true,
                 skip_metadata: true,
                 skip_app_version_update: true,
