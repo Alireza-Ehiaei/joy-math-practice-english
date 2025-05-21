@@ -52,6 +52,7 @@ jobs:
 
       - name: Run Fastlane to upload IPA
         run: fastlane ios upload_to_app_store_connect
+        working-directory: ${{ github.workspace }}
       - name: Set up Fastlane configuration
         run: |
           mkdir -p ./fastlane
