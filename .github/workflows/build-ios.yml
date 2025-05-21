@@ -54,8 +54,8 @@ jobs:
         run: fastlane ios upload_to_app_store_connect
       - name: Set up Fastlane configuration
         run: |
-          mkdir -p fastlane
-          cat > fastlane/Fastfile << EOL
+          mkdir -p ./fastlane
+          cat > ./fastlane/Fastfile << EOL
           default_platform(:ios)
           platform :ios do
             lane :upload_to_app_store_connect do
@@ -75,9 +75,11 @@ jobs:
             end
           end
           EOL
-
+          working-directory: .
+      
       - name: Run Fastlane to upload IPA
         run: fastlane ios upload_to_app_store_connect
+        working-directory: .
 
       - name: Upload build log
         if: always()
