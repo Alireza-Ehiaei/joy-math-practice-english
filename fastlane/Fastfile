@@ -8,12 +8,13 @@ platform :ios do
       key_content: ENV["APP_STORE_CONNECT_KEY_CONTENT"],
       is_key_content_base64: true
     )
-    deliver(
-      ipa: "app-ipa/math_joy_practice_english.ipa",
-      skip_screenshots: true,
-      skip_metadata: true,
-      skip_app_version_update: true,
-      force: true
-    )
+   deliver(
+    ipa: "./app-ipa/math_joy_practice_english.ipa",
+    skip_screenshots: true,
+    skip_metadata: true,
+    skip_app_version_update: true,
+    force: true,
+    run_precheck_before_submit: false
+   )
   end
 end
