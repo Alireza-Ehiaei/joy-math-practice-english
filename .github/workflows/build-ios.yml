@@ -50,20 +50,18 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
 
-      - name: Run Fastlane to upload IPA
-        run: fastlane ios upload_to_app_store_connect
-        working-directory: ${{ github.workspace }}
+
       - name: Set up Fastlane configuration
         run: |
           mkdir -p ./fastlane
-          cat > ./fastlane/Fastfile << EOL
+          cat > ./fastlane/Fastfile << 'EOL'
           default_platform(:ios)
           platform :ios do
             lane :upload_to_app_store_connect do
               app_store_connect_api_key(
-                key_id: "${{ secrets.APP_STORE_CONNECT_KEY_ID }}",
-                issuer_id: "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}",
-                key_content: "${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}",
+                key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
+                issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
+                key_content: ENV["APP_STORE_CONNECT_KEY_CONTENT"],
                 is_key_content_base64: true
               )
               deliver(
@@ -76,15 +74,17 @@ jobs:
             end
           end
           EOL
-          working-directory: .
-      
+
       - name: Run Fastlane to upload IPA
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
         run: fastlane ios upload_to_app_store_connect
         working-directory: ${{ github.workspace }}
+
+      - name: Debug App Store Connect env vars
+        run: |
+          echo "APP_STORE_CONNECT_KEY_ID is set: ${APP_STORE_CONNECT_KEY_ID:+yes}"
+          echo "APP_STORE_CONNECT_ISSUER_ID is set: ${APP_STORE_CONNECT_ISSUER_ID:+yes}"
+          echo "APP_STORE_CONNECT_KEY_CONTENT is set: ${APP_STORE_CONNECT_KEY_CONTENT:+yes}"
+        shell: bash
 
       - name: Upload build log
         if: always()
