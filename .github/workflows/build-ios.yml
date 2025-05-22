@@ -79,8 +79,12 @@ jobs:
           working-directory: .
       
       - name: Run Fastlane to upload IPA
+        env:
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
         run: fastlane ios upload_to_app_store_connect
-        working-directory: .
+        working-directory: ${{ github.workspace }}
 
       - name: Upload build log
         if: always()
