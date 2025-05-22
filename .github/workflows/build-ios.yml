@@ -1,4 +1,4 @@
-name: Upload iOS IPA to App Store Connect
+name: Build and Upload iOS IPA to App Store Connect
 
 on:
   push:
@@ -6,12 +6,22 @@ on:
   workflow_dispatch:
 
 jobs:
-  upload:
-    runs-on: macos-latest
+  build-and-upload:
+    runs-on: macos-15  # Uses Xcode 16 with iOS 18 SDK
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          architecture: arm64
+
+      - name: Install dependencies
+        run: flutter pub get
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
@@ -49,7 +59,24 @@ jobs:
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod install --repo-update
+          cd ..
+
+      - name: Build IPA
+        run: |
+          flutter build ipa \
+            --release \
+            --export-options-plist=ios/ExportOptions.plist \
+            --verbose > build_log.txt 2>&1
+          ls -l build/ios/ipa/ || echo "IPA directory not found"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
+          mkdir -p app-ipa
+          cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
 
       - name: Set up Fastlane configuration
         run: |
@@ -58,6 +85,7 @@ jobs:
           default_platform(:ios)
           platform :ios do
             lane :upload_to_app_store_connect do
+              ENV["SPACESHIP_LOGGER"] = "nil"
               app_store_connect_api_key(
                 key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
                 issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
@@ -94,10 +122,18 @@ jobs:
           echo "APP_STORE_CONNECT_KEY_CONTENT is set: ${APP_STORE_CONNECT_KEY_CONTENT:+yes}"
         shell: bash
 
-
       - name: Upload build log
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: build-log
-          path: fastlane/report.xml
+          path: |
+            build_log.txt
+            fastlane/report.xml
+
+      - name: Upload IPA
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-ipa
+          path: app-ipa/*.ipa
