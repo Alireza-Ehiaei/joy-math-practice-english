@@ -61,6 +61,7 @@ jobs:
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
+
       - name: Install CocoaPods dependencies
         run: |
           cd ios
