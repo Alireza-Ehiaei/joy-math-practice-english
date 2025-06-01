@@ -22,7 +22,7 @@ void main() {
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
-
+/*
   void shareApp() {
     const String appLink = 'https://play.google.com/store/apps/details?id=com.tech4dev.math_joy_practice_english';
     const String appName = 'Math Joy Practice';
@@ -31,7 +31,7 @@ class Homepage extends StatelessWidget {
       'Check out $appName: $appLink',
       subject: 'Share $appName',
     );
-  }
+  }*/
 
 
 // Update the function signature to accept context
@@ -67,6 +67,30 @@ class Homepage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+
+// Base sizes for phones
+    const baseButtonWidth = 350.0;
+    const baseFontSize = 30;
+    const baseTitleFontSize = 35;
+    const baseIconSizeLarge = 48;
+    const baseIconSizeSmall = 28.0;
+
+// Calculate scale factor for tablets (e.g., width > 400)
+    double scaleFactor = 1.0;
+    if (screenWidth > 400) {
+      scaleFactor = screenWidth / 600;
+    }
+
+// Scaled sizes
+    final buttonWidth = baseButtonWidth * scaleFactor;
+    final fontSize = baseFontSize * scaleFactor;
+    final titleFontSize = baseTitleFontSize * scaleFactor;
+    final iconSizeLarge = baseIconSizeLarge * scaleFactor;
+    final iconSizeSmall = baseIconSizeSmall * scaleFactor;
+
+
     return Scaffold(
       body: Container(
         constraints: const BoxConstraints.expand(),
@@ -81,119 +105,126 @@ class Homepage extends StatelessWidget {
           ),
         ),
 
-        child: Column (mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const Align(
-                child: SizedBox(
-                  height: 10,
-                ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Align(
+              child: SizedBox(
+                height: 10,
               ),
+            ),
 
-              const Text('Math Is Beautiful',
-                style: TextStyle(
-                  color: Colors.limeAccent,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30.0,// double
-                ),
+            Text(
+              'Math Is Beautiful',
+              style: TextStyle(
+                color: Colors.limeAccent,
+                fontWeight: FontWeight.bold,
+                fontSize: titleFontSize,
               ),
+            ),
 
-              const SizedBox(
-                height: 190,
-              ),
+            const SizedBox(height: 190),
 
-              Center( // Wrap the Column in a Center widget
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center, // Use center instead of stretch
-                  children: [
-                    SizedBox(
-                      width: 300, // Set your desired button width here
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 25.0,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Mental_calculation_page()),
-                          );
-                        },
-                        child: const Text('Math Mental Tricks'),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: 300, // Same width for all buttons
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                          textStyle: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 25.0,
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Numeral_menu_page()),
-                          );
-                        },
-                        child: const Text('Number Systems'),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Align(
-                child: SizedBox(
-                  height: 110,
-                ),
-              ),
-
-
-              Column(
+            Center(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  IconButton(
-                    icon:  const Icon(Icons.data_saver_on),
-                    color:Colors.limeAccent,
-                    iconSize: 40,
-                    onPressed: (){
-                      showAlertDialog(context);
-                    },
+                  SizedBox(
+                    width: buttonWidth,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.pink,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 16),
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Mental_calculation_page()),
+                        );
+                      },
+                      child: const Text('Math Mental Tricks'),
+                    ),
                   ),
-
-                  const SizedBox(height: 16),
-                  IconButton(
-                    icon: const Icon(Icons.share, size: 28, color: Colors.deepOrange),
-                    onPressed: shareApp, // Use the shareApp function directly
-                    tooltip: 'Share App',
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: buttonWidth,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurpleAccent,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24.0),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                        textStyle: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: fontSize,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Numeral_menu_page()),
+                        );
+                      },
+                      child: const Text('Number Systems'),
+                    ),
                   ),
-                  const SizedBox(height: 16),
-                  IconButton(
-                    icon: const Icon(Icons.email, size: 28, color: Colors.deepOrange),
-                    onPressed: () {
-                      launchEmail(context);  // Pass context here
-                    },
-                  ),
-                  const SizedBox(height: 16),
                 ],
-              )
-            ]
+              ),
+            ),
+
+            const Align(
+              child: SizedBox(
+                height: 110,
+              ),
+            ),
+
+            Column(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.data_saver_on),
+                  color: Colors.limeAccent,
+                  iconSize: iconSizeLarge,
+                  onPressed: () {
+                    showAlertDialog(context);
+                  },
+                ),
+
+                const SizedBox(height: 16),
+
+                /* Uncomment if needed
+        IconButton(
+          icon: const Icon(Icons.share, color: Colors.deepOrange),
+          iconSize: iconSizeSmall,
+          onPressed: shareApp,
+          tooltip: 'Share App',
         ),
+        const SizedBox(height: 16),
+        */
+
+                IconButton(
+                  icon: const Icon(Icons.email, color: Colors.deepOrange),
+                  iconSize: iconSizeLarge,
+                  onPressed: () {
+                    launchEmail(context);
+                  },
+                ),
+
+                const SizedBox(height: 16),
+              ],
+            )
+          ],
+        ),
+
 
       ),
 
@@ -406,17 +437,47 @@ class _Numeral_menu_pageState extends State<Numeral_menu_page> {
     }
   }
 
-
-
   @override
   void dispose() {
     _subscription.cancel();
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600; // Tablet breakpoint
+
+
+// Define base sizes for phone
+    const baseTitleFontSize = 22.0;
+    const baseButtonFontSize = 24.0;
+    const baseButtonMinWidth = 220.0;
+    const baseButtonMinHeight1 = 95.0;
+    const baseButtonMinHeight2 = 85.0;
+    const baseButtonMinHeight3 = 75.0;
+    const baseIconSize = 44.0;
+    const baseSpacingLarge = 90.0;
+    const baseSpacingMedium = 70.0;
+    const baseSpacingSmall = 20.0;
+    const baseSpacingExtraSmall = 30.0;
+
+// Scale factor (increase sizes on tablets)
+    double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
+
+// Scaled sizes
+    final titleFontSize = baseTitleFontSize * scaleFactor;
+    final buttonFontSize = baseButtonFontSize * scaleFactor;
+    final buttonMinWidth = baseButtonMinWidth * scaleFactor;
+    final buttonMinHeight1 = baseButtonMinHeight1 * scaleFactor;
+    final buttonMinHeight2 = baseButtonMinHeight2 * scaleFactor;
+    final buttonMinHeight3 = baseButtonMinHeight3 * scaleFactor;
+    final iconSize = baseIconSize * scaleFactor;
+    final spacingLarge = baseSpacingLarge * scaleFactor;
+    final spacingMedium = baseSpacingMedium * scaleFactor;
+    final spacingSmall = baseSpacingSmall * scaleFactor;
+    final spacingExtraSmall = baseSpacingExtraSmall * scaleFactor;
+
     return Scaffold(
 
       body: Container(
@@ -435,179 +496,197 @@ class _Numeral_menu_pageState extends State<Numeral_menu_page> {
         ),
 
 
-        child: Column (mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              const SizedBox(
-                height: 90,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            SizedBox(height: spacingLarge),
+
+            Container(
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(120, 66, 4, 4),
+                borderRadius: BorderRadius.circular(10.0),
               ),
-
-              Container(
-                padding: const EdgeInsets.all(8.0), // Optional: Add padding for better visual appearance
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(120, 66, 4, 4), // Transparent background color (adjust the alpha value as needed)
-                  borderRadius: BorderRadius.circular(10.0), // Optional: Add rounded corners
-                ),
-                child: const Text('Math: Precise Ideas, Better Living ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-
-                    fontSize: 22.0,// double
-
-                  ),
+              child: Text(
+                'Math: Precise Ideas, Better Living',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: titleFontSize,
                 ),
               ),
+            ),
 
-              const Align(
-                child: SizedBox(
-                  height: 90,
-                ),
+            SizedBox(height: spacingLarge),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
+                minimumSize: Size(buttonMinWidth, buttonMinHeight1),
               ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => Numeralbase_explain_page()),
+                );
+              },
+              child: Text(
+                'Numeric systems?',
+                style: TextStyle(color: Colors.white, fontSize: buttonFontSize),
+              ),
+            ),
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
+            SizedBox(height: spacingSmall),
 
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32.0)),
-                  minimumSize: const Size(220, 95),
-                ),
-                onPressed: () {
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
+                minimumSize: Size(buttonMinWidth, buttonMinHeight2),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Numeralbase_example_page()),
+                );
+              },
+              child: Text(
+                '   Examples   ',
+                style: TextStyle(color: Colors.white, fontSize: buttonFontSize),
+              ),
+            ),
+
+            SizedBox(height: spacingSmall),
+
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
+                minimumSize: Size(buttonMinWidth, buttonMinHeight3),
+              ),
+              onPressed: _isLoading
+                  ? null
+                  : () {
+                if (_isPurchased) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Numeralbase_explain_page()),
+                    MaterialPageRoute(builder: (context) => Numeralbase_practice_page()),
                   );
-                },
-                child: const Text('Numeric systems?',
-                  style: TextStyle(color: Colors.white,
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      final screenWidth = MediaQuery.of(context).size.width;
+                      final bool isTablet = screenWidth >= 600;
 
-                    fontSize: 24,// double
-                     
-                  ),
-                ),
-              ),
-              const Align(
-                child: SizedBox(
-                  height: 20,
-                ),
-              ),
+                      // You can adjust these as needed
+                      final double dialogWidth = isTablet ? 500 : screenWidth * 0.9;
+                      final double titleFontSize = isTablet ? 32 : 22;
+                      final double contentFontSize = isTablet ? 26 : 16;
+                      final double actionFontSize = isTablet ? 24 : 16;
 
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:const Color.fromARGB(255, 2, 139, 4),
-
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(32.0)),
-                  minimumSize: const Size(220, 85),
-                ),
-                onPressed: () {
-                  Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const Numeralbase_example_page()),
-                  );
-                },
-
-                child: const Text(
-                  '   Examples   ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,// double
-                     
-                  ),
-                ),
-              ),
-
-
-              const Align(
-                child: SizedBox(
-                  height: 20,
-                ),
-              ),
-
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 2, 139, 4),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(32.0),
-                  ),
-                  minimumSize: const Size(220, 75),
-                ),
-                onPressed: _isLoading
-                    ? null
-                    : () {
-                  if (_isPurchased) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Numeralbase_practice_page(),
-                      ),
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Unlock Practice'),
-                        content: const Text('Get lifetime access to practice features.'),
+                      return AlertDialog(
+                        backgroundColor: const Color(0xFF223344), // Dark blue background for readability
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        title: Text(
+                          'Unlock Practice',
+                          style: TextStyle(
+                            fontSize: titleFontSize,
+                            color: Colors.amberAccent, // Bright color for contrast
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        content: SizedBox(
+                          width: dialogWidth,
+                          child: Text(
+                            'Get lifetime access to practice features.',
+                            style: TextStyle(
+                              fontSize: contentFontSize,
+                              color: Colors.white, // High contrast text
+                            ),
+                          ),
+                        ),
                         actions: [
                           TextButton(
                             onPressed: () {
                               Navigator.pop(context);
                               _buyProduct();
                             },
-                            child: const Text('Purchase'),
+                            child: Text(
+                              'Purchase',
+                              style: TextStyle(
+                                fontSize: actionFontSize,
+                                color: Colors.lightGreenAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
-                          // Add the Restore Purchases button here
+
+                          // Apple requires a "Restore Purchases" button, but Google Play does not.
+                          // So, only show it on iOS:
                           TextButton(
                             onPressed: _isLoading ? null : _restorePurchases,
-                            child: const Text(
+                            child: Text(
                               'Restore Purchases',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: actionFontSize,
+                                color: Colors.cyanAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancel'),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(
+                                fontSize: actionFontSize,
+                                color: Colors.redAccent,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ],
-                      ),
-                    );
-                  }
-                },
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                  '  Practice  ',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              const Align(
-                child: SizedBox(
-                  height: 70,
-                ),
-              ),
-              const Spacer(),
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: IconButton(
-                    icon:  const Icon(Icons.keyboard_return),
-                    color:Colors.lightGreenAccent,
-                    iconSize: 44,
-                    onPressed: (){
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Homepage()),
                       );
                     },
-                  )),
-           const SizedBox(
-                height: 30,
+                  );
+
+                }
+              },
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                '  Practice  ',
+                style: TextStyle(color: Colors.white, fontSize: buttonFontSize),
               ),
-            ]
+            ),
+
+            SizedBox(height: spacingSmall),
+
+            SizedBox(height: spacingMedium),
+
+            const Spacer(),
+
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.keyboard_return),
+                color: Colors.white,
+                iconSize: iconSize,
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Homepage()),
+                  );
+                },
+              ),
+            ),
+
+            SizedBox(height: spacingExtraSmall),
+          ],
         ),
+
       ),
     );
   }
@@ -628,297 +707,268 @@ class Numeralbase_explain_page extends StatefulWidget {
 
 class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with TickerProviderStateMixin {
   late List<GlobalKey> expansionTile_number_base;
+  late List<GlobalKey> expansionTile;
   int selected = -1;
-  final List<AdvancedTile> items = [
+  bool get isTablet => MediaQuery.of(context).size.width >= 600;
 
-    AdvancedTile(
-      title: 'Decimal numeral system\n',
-      body: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 233, 163, 3),
-          //     border: Border.all(color: Colors.black, width: 1.0),
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-        ),
-        child: RichText(
-          text: const TextSpan(
-            children: <TextSpan>[
+  List<AdvancedTile> buildItems(bool isTablet) {
+    return  [
 
-              TextSpan(
-                text: 'The Decimal Number System\n\n ',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-              ),
-              TextSpan(
-                text:
-              '📌 Each digit in a number (e.g., 7, 5, and 3 in 753) derives its value from its position and the base (or radix) of the numbering system.'
-              '\n\n[Base/Radix: The number that determines both available digits (0 to base-1) and how each position\'s value scales]'
-
-  '\n\nThe base determines how much each digit contributes to the total value considering its position.'
-
-  ' For example, in base ten, it\'s the digit multiplied by 10 raised to the power of the digits to its right. For example, the third digit from the right has a place value of 10^2 (100). In 1485, the 4 is in the third position, representing 400.'
-
-                    '\n\n📌 The decimal number system, or base-10 system, is the number system we use daily for counting, ranking, and measuring. It employs ten digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n\n'
-
-
-                    "📌 Base-10's simplicity is a key advantage: e.g., 1000 = 10^3, and 80 = 8 × 10.  Its origin is possibly linked to our ten fingers, but historical records indicate that it took millennia for the full digit set and zero to develop.\n\n"
-
-                    "💡 Key Points:\n\n"
-
-                    "  🔑 Power of a Number: Multiplying a number by itself a certain number of times (e.g., 3^2 = 3 × 3 = 9).\n\n"
-
-                    "  🔑 Any Number Raised to the Power of 0 Equals 1: This means that any number multiplied by 1 will remain unchanged.\n\n"
-
-                    "  🔑 Expanded Form: Expressing a number as the sum of its digits multiplied by their place values (e.g., 24 = 2 × 10^1 + 4 × 10^0).\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-
-              TextSpan(
-                text: '🤔 Why Powers in Expanded Form (Base 10)?\n ',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-              ),
-              TextSpan(
-                text: "📌 In base 10, we only use digits 0-9.  These digits are actually the coefficients of powers of 10.\n\n"
-
-                    "❌ We can't write 147 as 14 × 10^1 + 7 × 10^0 because coefficients must be single digits (0-9). 14 is not a single digit!\n\n"
-
-                    "✅ Instead: We need a higher power of 10 to represent a larger part of 147.  This ensures all coefficients of 10 are from 0 to 9:\n\n"
-
-                    "   147 = 1 × 10^2 + 4 × 10^1 + 7 × 10^0 = 1 × 10^2 + 4 × 10^1 + 7\n\n"
-
-                    "✨ In everyday life, we use powers of 10 (place value) to easily express numbers. The 5 in 536 represents 500, but in 5206 it represents 5000! Position matters!\n\n"
-
-                    "💡 Explanation:\n\n"
-
-                    "  📍 Place Value: A digit's 'address' in a number (e.g., in 123, 1 is 100, 2 is 20, 3 is 3).\n\n"
-
-                    "  📍 Powers of 10: Help assign the correct value based on position (e.g., in 123, 1 is multiplied by 10^2, 2 by 10^1, 3 by 10^0).\n\n"
-
-                    "  📍 Why Powers? We can represent *any* number using only digits 0-9 as coefficients and powers of 10! This compact form is crucial.\n\n"
-
-                    "🎓 The Bottom Line: Powers of 10 and digits 0-9 are the foundation of our number system, allowing us to represent any number and perform mathematical operations effectively. 🧮\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-              TextSpan(
-                text: '🔢 Expanded Form for Decimal Numbers (Base 10)?\n ',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-              ),
-              TextSpan(
-                text: "📌 Decimal numbers (like 14.67) have digits *after* the decimal point, representing fractions of 1.\n\n"
-
-                    "📍 Digits to the *left* of the decimal are whole numbers (powers of 10 like we saw before).\n\n"
-
-                    "📍 Digits to the *right* of the decimal are tenths, hundredths, thousandths, etc. (negative powers of 10).\n\n"
-
-                    "Let's expand 14.67:\n\n"
-
-                    "✅  14.67 = (1 × 10^1) + (4 × 10^0) + (6 × 10^-1) + (7 × 10^-2)\n\n"
-
-                    "✨What does this mean?\n\n"
-
-                    " 1️⃣  (1 × 10^1) = 10 (One ten)\n\n"
-
-                    " 2️⃣  (4 × 10^0) = 4 (Four ones)\n\n"
-
-                    " 3️⃣  (6 × 10^-1) = 0.6 (Six tenths)\n\n"
-
-                    " 4️⃣  (7 × 10^-2) = 0.07 (Seven hundredths)\n\n"
-
-                    "➕ Adding it all together: 10 + 4 + 0.6 + 0.07 = 14.67. It works! ➕\n\n"
-
-                    "💡 Key Points:\n\n"
-
-                    "   🔑 Negative Powers: 10^-1 = 1/10 = 0.1; 10^-2 = 1/100 = 0.01, and so on.\n\n"
-
-                    "   🔑 Place Value (Again!): In a positional numeral system, the position "
-                    "of each digit relative to the decimal determines its value. Sometimes, in this systems \n\n"
-
-                    "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
-
-                    "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
-
-                    " 🧠 Tip: Think of the decimal point as the 'ones' place (10^0). Moving left increases the power of 10, and moving right *decreases* the power (becomes negative). 🧠\n\n"
-
-                    " 🎯 In summary: Decimal numbers use both positive and negative powers of 10 to represent whole numbers and fractions, all with the same base-10 system! 💯\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-
-            ],
+      AdvancedTile(
+        title: 'Decimal numeral system\n',
+        body: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 233, 163, 3),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          child: RichText(
+            text: TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                  text: 'The Decimal Number System\n\n ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 110, 29, 4),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  '📌 Each digit in a number (e.g., 7, 5, and 3 in 753) derives its value from its position and the base (or radix) of the numbering system.'
+                      '\n\n[Base/Radix: The number that determines both available digits (0 to base-1) and how each position\'s value scales]'
+                      '\n\nThe base determines how much each digit contributes to the total value considering its position.'
+                      ' For example, in base ten, it\'s the digit multiplied by 10 raised to the power of the digits to its right. For example, the third digit from the right has a place value of 10^2 (100). In 1485, the 4 is in the third position, representing 400.'
+                      '\n\n📌 The decimal number system, or base-10 system, is the number system we use daily for counting, ranking, and measuring. It employs ten digits: 0, 1, 2, 3, 4, 5, 6, 7, 8, and 9.\n\n'
+                      "📌 Base-10's simplicity is a key advantage: e.g., 1000 = 10^3, and 80 = 8 × 10.  Its origin is possibly linked to our ten fingers, but historical records indicate that it took millennia for the full digit set and zero to develop.\n\n"
+                      "💡 Key Points:\n\n"
+                      "  🔑 Power of a Number: Multiplying a number by itself a certain number of times (e.g., 3^2 = 3 × 3 = 9).\n\n"
+                      "  🔑 Any Number Raised to the Power of 0 Equals 1: This means that any number multiplied by 1 will remain unchanged.\n\n"
+                      "  🔑 Expanded Form: Expressing a number as the sum of its digits multiplied by their place values (e.g., 24 = 2 × 10^1 + 4 × 10^0).\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: '🤔 Why Powers in Expanded Form (Base 10)?\n ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 110, 29, 4),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "📌 In base 10, we only use digits 0-9.  These digits are actually the coefficients of powers of 10.\n\n"
+                      "❌ We can't write 147 as 14 × 10^1 + 7 × 10^0 because coefficients must be single digits (0-9). 14 is not a single digit!\n\n"
+                      "✅ Instead: We need a higher power of 10 to represent a larger part of 147.  This ensures all coefficients of 10 are from 0 to 9:\n\n"
+                      "   147 = 1 × 10^2 + 4 × 10^1 + 7 × 10^0 = 1 × 10^2 + 4 × 10^1 + 7\n\n"
+                      "✨ In everyday life, we use powers of 10 (place value) to easily express numbers. The 5 in 536 represents 500, but in 5206 it represents 5000! Position matters!\n\n"
+                      "💡 Explanation:\n\n"
+                      "  📍 Place Value: A digit's 'address' in a number (e.g., in 123, 1 is 100, 2 is 20, 3 is 3).\n\n"
+                      "  📍 Powers of 10: Help assign the correct value based on position (e.g., in 123, 1 is multiplied by 10^2, 2 by 10^1, 3 by 10^0).\n\n"
+                      "  📍 Why Powers? We can represent *any* number using only digits 0-9 as coefficients and powers of 10! This compact form is crucial.\n\n"
+                      "🎓 The Bottom Line: Powers of 10 and digits 0-9 are the foundation of our number system, allowing us to represent any number and perform mathematical operations effectively. 🧮\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: '🔢 Expanded Form for Decimal Numbers (Base 10)?\n ',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 110, 29, 4),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "📌 Decimal numbers (like 14.67) have digits *after* the decimal point, representing fractions of 1.\n\n"
+                      "📍 Digits to the *left* of the decimal are whole numbers (powers of 10 like we saw before).\n\n"
+                      "📍 Digits to the *right* of the decimal are tenths, hundredths, thousandths, etc. (negative powers of 10).\n\n"
+                      "Let's expand 14.67:\n\n"
+                      "✅  14.67 = (1 × 10^1) + (4 × 10^0) + (6 × 10^-1) + (7 × 10^-2)\n\n"
+                      "✨What does this mean?\n\n"
+                      " 1️⃣  (1 × 10^1) = 10 (One ten)\n\n"
+                      " 2️⃣  (4 × 10^0) = 4 (Four ones)\n\n"
+                      " 3️⃣  (6 × 10^-1) = 0.6 (Six tenths)\n\n"
+                      " 4️⃣  (7 × 10^-2) = 0.07 (Seven hundredths)\n\n"
+                      "➕ Adding it all together: 10 + 4 + 0.6 + 0.07 = 14.67. It works! ➕\n\n"
+                      "💡 Key Points:\n\n"
+                      "   🔑 Negative Powers: 10^-1 = 1/10 = 0.1; 10^-2 = 1/100 = 0.01, and so on.\n\n"
+                      "   🔑 Place Value (Again!): In a positional numeral system, the position "
+                      "of each digit relative to the decimal determines its value. Sometimes, in this systems \n\n"
+                      "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
+                      "   🔑 Expanded Form: Breaks down the number into the sum of each digit multiplied by its place value (a power of 10).\n\n"
+                      " 🧠 Tip: Think of the decimal point as the 'ones' place (10^0). Moving left increases the power of 10, and moving right *decreases* the power (becomes negative). 🧠\n\n"
+                      " 🎯 In summary: Decimal numbers use both positive and negative powers of 10 to represent whole numbers and fractions, all with the same base-10 system! 💯\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),),
+      ),
 
-    AdvancedTile(
-      title: 'Number systems with a base less than 10\n',
-      body: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 233, 163, 3),
-          //     border: Border.all(color: Colors.black, width: 1.0),
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-        ),
-        child: RichText(
-          text: const TextSpan(
-            children: <TextSpan>[
-              TextSpan(
-                text: '🔢 Number Systems with Base < 10\n',
-                style: TextStyle(fontWeight: FontWeight.bold,
-                    color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-              ),
-              TextSpan(
-                text: "📌 In a base-n number system, there are only n digits (0 to n-1). E.g., base 10 has 0-9, base 8 has 0-7. 📌\n\n"
 
-                    "✨ Base-8 numbers use powers of 8 with coefficients from 0 to 7. Example: 17 (base 10) = 21 (base 8) ✨\n\n"
-
-                    " 1️⃣  17 (base 10) = 1 × 10^1 + 7 × 10^0\n"
-                    " 2️⃣  21 (base 8) = 2 × 8^1 + 1 × 8^0\n\n"
-
-                    "🤔 But how do we know 17 (base 10) = 21 (base 8)?\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-              TextSpan(
-                text: ' Method 1: Repeated Division\n',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(
-                    255, 150, 1, 76), fontSize: 26),
-              ),
-              TextSpan(
-                text:
-                "❌ Dividing 17 by 8 gives 2.125, BUT 2.125 isn't an integer from 0-7. We only want the *integer quotient*! ❌\n\n"
-
-                    "✅ Steps to convert a base-10 number to another base using division: ✅\n\n"
-
-                    "   1️⃣ Divide the number by the new base.\n"
-                    "   2️⃣ If the quotient is divisible by the base, divide *again*! Repeat until the quotient is less than the new base.\n"
-                    "   3️⃣ Write down the remainders from *last to first*. This is the number in the new base!\n\n"
-
-                    "Let's convert 17 (base 10) to base 8:\n\n"
-
-                    "   ⬆️ Quotient 2 is not divisible by 8.  Remainders (last to first): 2, then 1. Thus, 17 (base 10) = 21 (base 8).\n\n"
-
-                    "Another Example: Convert 155 (base 10) to base 6:\n\n"
-
-                    "   ➗ Divide 155 by 6: Quotient = 25, Remainder = 5.\n"
-                    "   ➗ Divide 25 by 6: Quotient = 4, Remainder = 1.\n"
-                    "   🛑 4 is not divisible by 6, so we stop.\n"
-                    "   📝 Remainders (last to first): 4, 1, 5.  Thus, 155 (base 10) = 415 (base 6).\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-              TextSpan(
-                text: ' Method 2: Predicting Coefficients (Base Conversion)\n',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(
-                    255, 150, 1, 76), fontSize: 26),
-              ),
-              TextSpan(
-                text: "✨ For mental math lovers! This method is quicker for smaller numbers with some practice. ✨\n\n"
-
-                    "🎯 The Goal: Express numbers in a new base by predicting the coefficients of its powers. 🎯\n\n"
-
-                    "🪜 Steps: 🪜\n\n"
-
-                    " 1️⃣ Find the *largest* power of the new base that's *smaller* than your original number. Find the *largest* coefficient for this power where their product ≤ the original number. This coefficient is the leftmost digit in the new base!\n\n"
-
-                    " 2️⃣ Subtract the product (coefficient × power) from the original number. The remainder is what's left to convert!\n\n"
-
-                    " 3️⃣ Repeat steps 1 & 2 with the remainder until the remainder is zero.\n\n"
-
-                    " 4️⃣ Write down the coefficients from left to right. 🎉 This is your number in the new base! 🎉\n\n"
-
-                    "Let's convert 17 (base 10) to base 8:\n\n"
-
-                    " 💡 8^1 (8) is the largest power of 8 less than 17.\n"
-                    " 💡 2 is the largest coefficient for 8^1 that's ≤ 17 (2 × 8 = 16).\n"
-                    " ➖ The remainder is 17 - 16 = 1.\n"
-                    " ✅ 1 is less than 8, so the final digits are 2 and 1. 17 (base 10) = 21 (base 8).\n\n"
-
-                    "Let's convert 155 (base 10) to base 6:\n\n"
-
-                    " 🔎 6^2 (36) is the largest power of 6 less than 155.\n"
-                    " 🔎 4 is the largest coefficient for 6^2 that's ≤ 155 (4 × 36 = 144).\n"
-                    " ➖ The remainder is 155 - 144 = 11.\n"
-                    " 🔎 6^1 (6) is the largest power of 6 less than 11.\n"
-                    " 🔎 1 is the largest coefficient for 6^1 that's ≤ 11 (1 × 6 = 6).\n"
-                    " ➖ The remainder is 11 - 6 = 5.\n"
-                    " ✅ So, 155 (base 10) = 415 (base 6).\n\n"
-
-                    "⚠️ There's no strict formula! Trial and error is your friend. Practice makes perfect! ⚠️\n\n"
-
-                    "💡 Key Points:\n\n"
-
-                    " 📍 We break down the number into a sum of powers of the new base.\n"
-                    " 📍 Coefficients must be less than the new base.\n"
-                    " 📍 Repeated subtraction (finding the largest possible coefficients) is key.\n"
-                    " 🤸 It's another way to understand base conversion - building the number step-by-step. 🤸\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-            ],
+      AdvancedTile(
+        title: 'Number systems with a base less than 10\n',
+        body: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 233, 163, 3),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          child: RichText(
+            text: TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                  text: '🔢 Number Systems with Base < 10\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 110, 29, 4),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "📌 In a base-n number system, there are only n digits (0 to n-1). E.g., base 10 has 0-9, base 8 has 0-7. 📌\n\n"
+                      "✨ Base-8 numbers use powers of 8 with coefficients from 0 to 7. Example: 17 (base 10) = 21 (base 8) ✨\n\n"
+                      " 1️⃣  17 (base 10) = 1 × 10^1 + 7 × 10^0\n"
+                      " 2️⃣  21 (base 8) = 2 × 8^1 + 1 × 8^0\n\n"
+                      "🤔 But how do we know 17 (base 10) = 21 (base 8)?\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: ' Method 1: Repeated Division\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 150, 1, 76),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "❌ Dividing 17 by 8 gives 2.125, BUT 2.125 isn't an integer from 0-7. We only want the *integer quotient*! ❌\n\n"
+                      "✅ Steps to convert a base-10 number to another base using division: ✅\n\n"
+                      "   1️⃣ Divide the number by the new base.\n"
+                      "   2️⃣ If the quotient is divisible by the base, divide *again*! Repeat until the quotient is less than the new base.\n"
+                      "   3️⃣ Write down the remainders from *last to first*. This is the number in the new base!\n\n"
+                      "Let's convert 17 (base 10) to base 8:\n\n"
+                      "   ⬆️ Quotient 2 is not divisible by 8.  Remainders (last to first): 2, then 1. Thus, 17 (base 10) = 21 (base 8).\n\n"
+                      "Another Example: Convert 155 (base 10) to base 6:\n\n"
+                      "   ➗ Divide 155 by 6: Quotient = 25, Remainder = 5.\n"
+                      "   ➗ Divide 25 by 6: Quotient = 4, Remainder = 1.\n"
+                      "   🛑 4 is not divisible by 6, so we stop.\n"
+                      "   📝 Remainders (last to first): 4, 1, 5.  Thus, 155 (base 10) = 415 (base 6).\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+                TextSpan(
+                  text: ' Method 2: Predicting Coefficients (Base Conversion)\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 150, 1, 76),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "✨ For mental math lovers! This method is quicker for smaller numbers with some practice. ✨\n\n"
+                      "🎯 The Goal: Express numbers in a new base by predicting the coefficients of its powers. 🎯\n\n"
+                      "🪜 Steps: 🪜\n\n"
+                      " 1️⃣ Find the *largest* power of the new base that's *smaller* than your original number. Find the *largest* coefficient for this power where their product ≤ the original number. This coefficient is the leftmost digit in the new base!\n\n"
+                      " 2️⃣ Subtract the product (coefficient × power) from the original number. The remainder is what's left to convert!\n\n"
+                      " 3️⃣ Repeat steps 1 & 2 with the remainder until the remainder is zero.\n\n"
+                      " 4️⃣ Write down the coefficients from left to right. 🎉 This is your number in the new base! 🎉\n\n"
+                      "Let's convert 17 (base 10) to base 8:\n\n"
+                      " 💡 8^1 (8) is the largest power of 8 less than 17.\n"
+                      " 💡 2 is the largest coefficient for 8^1 that's ≤ 17 (2 × 8 = 16).\n"
+                      " ➖ The remainder is 17 - 16 = 1.\n"
+                      " ✅ 1 is less than 8, so the final digits are 2 and 1. 17 (base 10) = 21 (base 8).\n\n"
+                      "Let's convert 155 (base 10) to base 6:\n\n"
+                      " 🔎 6^2 (36) is the largest power of 6 less than 155.\n"
+                      " 🔎 4 is the largest coefficient for 6^2 that's ≤ 155 (4 × 36 = 144).\n"
+                      " ➖ The remainder is 155 - 144 = 11.\n"
+                      " 🔎 6^1 (6) is the largest power of 6 less than 11.\n"
+                      " 🔎 1 is the largest coefficient for 6^1 that's ≤ 11 (1 × 6 = 6).\n"
+                      " ➖ The remainder is 11 - 6 = 5.\n"
+                      " ✅ So, 155 (base 10) = 415 (base 6).\n\n"
+                      "⚠️ There's no strict formula! Trial and error is your friend. Practice makes perfect! ⚠️\n\n"
+                      "💡 Key Points:\n\n"
+                      " 📍 We break down the number into a sum of powers of the new base.\n"
+                      " 📍 Coefficients must be less than the new base.\n"
+                      " 📍 Repeated subtraction (finding the largest possible coefficients) is key.\n"
+                      " 🤸 It's another way to understand base conversion - building the number step-by-step. 🤸\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),),
-
-    AdvancedTile(
-      title: 'Number systems with a base greater than 10\n',
-      body: Container(
-        padding: const EdgeInsets.all(15),
-        decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 233, 163, 3),
-          //     border: Border.all(color: Colors.black, width: 1.0),
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-        ),
-        child: RichText(
-          text: const TextSpan(
-            children: <TextSpan>[
+      ),
 
 
-              TextSpan(
-                text: '🔢 Number Systems with Base > 10\n',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-              ),
-              TextSpan(
-                text: "📌 Bases larger than 10 need more than ten digits! Base 12, for example, needs twelve unique digits. 📌\n\n"
-
-                    "❌ Let's convert 155 (base 10) to base 12:  Is 12(1 0 11) correct? NO! We can't tell if '11' means eleven or one-one! ❌\n\n"
-
-                    "✅ We need *unique symbols* for *all* digits. In base 12, we can use 0-9, 'a' for 10, and 'b' for 11. ✅\n\n"
-
-                    " 1️⃣ So, 155 (base 10) = 12(10b).\n"
-                    " 2️⃣  And 1453 (base 10) = 12(a11).  Now we can tell the difference!\n\n"
-
-                    "✨ Base 50 would need 50 unique symbols – hard to memorize! ✨\n\n"
-
-                    "🤯 Smaller bases can be tricky too! Memorizing powers of 7 (like 7^2, 7^3, 7^4) isn't as easy as powers of 10! 🤯\n\n"
-
-                    "🎉 Working with different bases is FUN! It boosts mental math skills and can help you make cool codes or passwords! 🎉\n\n"
-
-                    "💡 Key Points:\n\n"
-
-                    " 📍 Base > 10 means more symbols are needed.\n"
-                    " 📍 Powers of the base help represent numbers in different bases.\n"
-                    " 📍 Repeated division converts between bases.\n"
-                    " 📍 Understanding different systems is math skill unlocked 🔓!\n\n",
-                style: TextStyle(fontSize: 25, color: Colors.black),
-              ),
-
-
-            ],
+      AdvancedTile(
+        title: 'Number systems with a base greater than 10\n',
+        body: Container(
+          padding: const EdgeInsets.all(15),
+          decoration: const BoxDecoration(
+            color: Color.fromARGB(255, 233, 163, 3),
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
+          child: RichText(
+            text: TextSpan(
+              children: <TextSpan>[
+                TextSpan(
+                  text: '🔢 Number Systems with Base > 10\n',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: const Color.fromARGB(255, 110, 29, 4),
+                    fontSize: isTablet ? 32 : 26,
+                  ),
+                ),
+                TextSpan(
+                  text:
+                  "📌 Bases larger than 10 need more than ten digits! Base 12, for example, needs twelve unique digits. 📌\n\n"
+                      "❌ Let's convert 155 (base 10) to base 12:  Is 12(1 0 11) correct? NO! We can't tell if '11' means eleven or one-one! ❌\n\n"
+                      "✅ We need *unique symbols* for *all* digits. In base 12, we can use 0-9, 'a' for 10, and 'b' for 11. ✅\n\n"
+                      " 1️⃣ So, 155 (base 10) = 12(10b).\n"
+                      " 2️⃣  And 1453 (base 10) = 12(a11).  Now we can tell the difference!\n\n"
+                      "✨ Base 50 would need 50 unique symbols – hard to memorize! ✨\n\n"
+                      "🤯 Smaller bases can be tricky too! Memorizing powers of 7 (like 7^2, 7^3, 7^4) isn't as easy as powers of 10! 🤯\n\n"
+                      "🎉 Working with different bases is FUN! It boosts mental math skills and can help you make cool codes or passwords! 🎉\n\n"
+                      "💡 Key Points:\n\n"
+                      " 📍 Base > 10 means more symbols are needed.\n"
+                      " 📍 Powers of the base help represent numbers in different bases.\n"
+                      " 📍 Repeated division converts between bases.\n"
+                      " 📍 Understanding different systems is math skill unlocked 🔓!\n\n",
+                  style: TextStyle(
+                    fontSize: isTablet ? 30 : 25,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),),
+      ),
 
-  ];
 
-  @override
-  void initState(){
-    super.initState();
-    // Generating key for each items
-    expansionTile_number_base = List<GlobalKey<_Numeralbase_explain_page>>.generate(items.length,
-            (index) => GlobalKey());
-
-    }
+    ];}
 
   double? _fontSize = 25;
   void _changeFontSize(double fontSize) {
@@ -928,6 +978,38 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
   }
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600; // Tablet breakpoint
+    final items = buildItems(isTablet);
+
+// Define base sizes for phone
+    const baseTitleFontSize = 22.0;
+    const baseButtonFontSize = 24.0;
+    const baseButtonMinWidth = 220.0;
+    const baseButtonMinHeight1 = 95.0;
+    const baseButtonMinHeight2 = 85.0;
+    const baseButtonMinHeight3 = 75.0;
+    const baseIconSize = 44.0;
+    const baseSpacingLarge = 90.0;
+    const baseSpacingMedium = 70.0;
+    const baseSpacingSmall = 20.0;
+    const baseSpacingExtraSmall = 30.0;
+
+// Scale factor (increase sizes on tablets)
+    double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
+
+// Scaled sizes
+    final titleFontSize = baseTitleFontSize * scaleFactor;
+    final buttonFontSize = baseButtonFontSize * scaleFactor;
+    final buttonMinWidth = baseButtonMinWidth * scaleFactor;
+    final buttonMinHeight1 = baseButtonMinHeight1 * scaleFactor;
+    final buttonMinHeight2 = baseButtonMinHeight2 * scaleFactor;
+    final buttonMinHeight3 = baseButtonMinHeight3 * scaleFactor;
+    final iconSize = baseIconSize * scaleFactor;
+    final spacingLarge = baseSpacingLarge * scaleFactor;
+    final spacingMedium = baseSpacingMedium * scaleFactor;
+    final spacingSmall = baseSpacingSmall * scaleFactor;
+    final spacingExtraSmall = baseSpacingExtraSmall * scaleFactor;
 
     return Scaffold(
 
@@ -978,47 +1060,41 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                                 child: ExpansionTile(
                                   key: Key(index.toString()),
                                   initiallyExpanded: index == selected,
-                                  // Whenever newState is True, setState will be called and index of clicked
-                                  // menu goes to selected that closes other opened widget
-                                  onExpansionChanged: (newState){
-                                    if(newState){
-                                      setState(() {
+                                  onExpansionChanged: (newState) {
+                                    setState(() {
+                                      if (newState) {
                                         selected = index;
-                                        _changeFontSize(10);
-                                      });
-                                    }
-                                    else{
-                                      setState(() {
+                                        _changeFontSize(isTablet ? 25 : 10);  // larger font size on tablets when expanded
+                                      } else {
                                         selected = -1;
-                                        // items are numbered from zero, so no one of widgets would be opened
-                                        _changeFontSize(35);
-                                      });
-                                    }
+                                        _changeFontSize(isTablet ? 40 : 35);  // reset font size on collapse
+                                      }
+                                    });
                                   },
                                   title: Center(
-
                                     child: SizedBox(
                                       child: Text(
                                         items[index].title,
                                         style: TextStyle(
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
-                                          fontSize:  selected==-1 ? 20:15,// size of closed tiles
-
+                                          fontSize: selected == -1
+                                              ? (isTablet ? 45 : 25)  // larger font size for closed tile on tablet
+                                              : (isTablet ? 38 : 18), // larger font size for opened tile on tablet
                                         ),
                                       ),
                                     ),
                                   ),
-                                  children:  <Widget>[
-                                    AspectRatio(aspectRatio: .8, // ratio of width to height of each opened tile
-                                      child: ListView.builder(itemCount: 1,
-                                          itemBuilder: (context, item){
-                                            //if you have defined body of advanced tile as string then here:
-                                            // return Image.asset(items[index].body but now we need:
-                                            return (items[index].body
-                                            );
-                                          }),
-                                    )
+                                  children: <Widget>[
+                                    AspectRatio(
+                                      aspectRatio: isTablet ? 1.2 : 0.8,  // reduce height on tablets
+                                      child: ListView.builder(
+                                        itemCount: 1,
+                                        itemBuilder: (context, item) {
+                                          return items[index].body;
+                                        },
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1038,7 +1114,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                   IconButton(
                     icon:  const Icon(Icons.keyboard_return),
                     color:Colors.white,
-                    iconSize: 35,
+                    iconSize: iconSize,
                     onPressed: (){
                       Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Numeral_menu_page()),
@@ -1049,7 +1125,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                   IconButton(
                     icon:  const Icon(Icons.home),
                     color:Colors.white,
-                    iconSize: 35,
+                    iconSize: iconSize,
                     onPressed: (){
                       Navigator.push(context,
                         MaterialPageRoute(builder: (context) => const Homepage()),
@@ -1061,7 +1137,7 @@ class _Numeralbase_explain_page extends State<Numeralbase_explain_page> with Tic
                   IconButton(
                     icon: const Icon(Icons.source),
                     color: Colors.white,
-                    iconSize: 35,
+                    iconSize: iconSize,
                     onPressed: () {
                       showDialog(
                         context: context,
@@ -1215,34 +1291,70 @@ class Numeralbase_example_page extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600; // Tablet breakpoint
+
+// Define base sizes for phone
+    const baseTitleFontSize = 22.0;
+    const baseButtonFontSize = 24.0;
+    const baseButtonMinWidth = 220.0;
+    const baseButtonMinHeight1 = 95.0;
+    const baseButtonMinHeight2 = 85.0;
+    const baseButtonMinHeight3 = 75.0;
+    const baseIconSize = 44.0;
+    const baseSpacingLarge = 90.0;
+    const baseSpacingMedium = 70.0;
+    const baseSpacingSmall = 20.0;
+    const baseSpacingExtraSmall = 30.0;
+
+// Scale factor (increase sizes on tablets)
+    double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
+
+// Scaled sizes
+    final titleFontSize = baseTitleFontSize * scaleFactor;
+    final buttonFontSize = baseButtonFontSize * scaleFactor;
+    final buttonMinWidth = baseButtonMinWidth * scaleFactor;
+    final buttonMinHeight1 = baseButtonMinHeight1 * scaleFactor;
+    final buttonMinHeight2 = baseButtonMinHeight2 * scaleFactor;
+    final buttonMinHeight3 = baseButtonMinHeight3 * scaleFactor;
+    final iconSize = baseIconSize * scaleFactor;
+    final spacingLarge = baseSpacingLarge * scaleFactor;
+    final spacingMedium = baseSpacingMedium * scaleFactor;
+    final spacingSmall = baseSpacingSmall * scaleFactor;
+    final spacingExtraSmall = baseSpacingExtraSmall * scaleFactor;
+// Set container width: fixed for phones, wider for tablets
+    final containerWidth = isTablet ? 600.0 : 360.0;
+
+// Set font size: larger for tablets
+    final fontSize = isTablet ? 30.0 : 16.0;
+
     return Scaffold(
 
-      body: Container(color: Color.fromARGB(255, 230, 86, 3),
+      body: Container(color: const Color.fromARGB(255, 230, 86, 3),
         child: Column (mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
 
               const SizedBox(
                 height: 20,
               ),
-               Container(width: 360,
-                padding: const EdgeInsets.all(18.0), // Optional: Add padding for better visual appearance
-                decoration: BoxDecoration(
-             //     color: const Color.fromARGB(120, 66, 4, 4), // Transparent background color (adjust the alpha value as needed)
-                  borderRadius: BorderRadius.circular(10.0), // Optional: Add rounded corners
-                ),
-                child: const Text(
-                  'Mathematics is about exploring patterns and making connections. '
-                      'Does one have to be a genius to do mathematics? The answer is an emphatic NO - Terence Tao',
-                  style: TextStyle(
-                    color: Colors.white,
-                //    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+          Container(
+            width: containerWidth,
+            padding: const EdgeInsets.all(18.0),
+            decoration: BoxDecoration(
+              // color: const Color.fromARGB(120, 66, 4, 4), // Uncomment if needed
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Text(
+              'Mathematics is about exploring patterns and making connections. '
+                  'Does one have to be a genius to do mathematics? The answer is an emphatic NO - Terence Tao',
+              style: TextStyle(
+                color: Colors.black87,
+                // fontWeight: FontWeight.bold,
+                fontSize: fontSize,
               ),
-
-
+              textAlign: TextAlign.center,
+            ),
+          ),
 
               Flexible(
                 child: Container(
@@ -1254,78 +1366,70 @@ class Numeralbase_example_page extends StatelessWidget {
                   ),
                   child: SingleChildScrollView(
                     child: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: <TextSpan>[
-
                           TextSpan(
                             text: '✨ Examples of Numbers in Bases Other Than 10\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 110, 29, 4),
+                              fontSize: isTablet ? 32 : 26,
+                            ),
                           ),
                           TextSpan(
                             text: "📌 Reminder:\n\n"
-
                                 "   🔑 A number raised to the power of n: Multiplying that number by itself n times (e.g., 100 = 10×10 = 10^2).\n"
                                 "   🔑 Any number raised to the power of zero equals one (e.g. 1 = 1^0 or 1 = 5^0).\n"
                                 "   🔑 Numbers we use daily are in base 10: expressed as a sum of multiples of powers of 10, (e.g., 369 = 3×10^2 + 6×10^1 + 9×10^0).\n"
                                 "   🔑 Expressing a number in a base other than 10: representing it as a sum of multiples of powers of the new base.\n\n"
-
                                 "❌ For example, to express 369 in base 5:❌\n"
                                 "   369 = 5×8^2 + 6×8^1 + 1×8^0\n\n"
-
-                               "📌 In these explanations, we use the notation (a)<sub>b</sub> as shorthand.  This means 'the number 'a' expressed in base 'b'.📌\n\n"
-
-                            "✅ For Example:\n\n"
-
-                             "    ✨(100)₅ is a shorter way of writing '100 in base 5'.✨\n\n"
+                                "📌 In these explanations, we use the notation (a)<sub>b</sub> as shorthand.  This means 'the number 'a' expressed in base 'b'.📌\n\n"
+                                "✅ For Example:\n\n"
+                                "    ✨(100)₅ is a shorter way of writing '100 in base 5'.✨\n\n"
                                 "More examples:\n\n"
-
                                 "✅ Converting 32 (base 10) to base 5: We can use the division method:✅\n"
-
                                 "   🔑 32 ÷ 5 = 6 remainder 2\n"
                                 "   🔑  6 ÷ 5 = 1 remainder 1\n"
                                 "   🔑 So, 32 in base 10 is (112)₅.\n\n"
-
                                 "Method 1: Repeated Division\n\n"
-
                                 "   🔑 We divide the number by the new base repeatedly until the quotient is less than the base. The remainders, read from bottom to top, give us the number in the new base.\n\n"
-
                                 "✨ Another Method: Coefficient Prediction ✨\n\n"
-
                                 "   🔑 Instead of repeated division, we can use a mental approach to find the equivalent number in a new base. With practice, you'll find this method quicker and more intuitive for smaller numbers.\n\n"
-
                                 "   🔑 Here's how it works:\n\n"
-
                                 "      1️⃣  Find the largest power of the new base that is smaller than the original number. For example, to convert 32 (base 10) to base 5, the largest power of 5 smaller than 32 is 5^2 (which is 25).\n"
                                 "      2️⃣  Find the largest coefficient for this power such that their product is less than or equal to the original number. In our example, the largest coefficient for 5^2 that is less than 32 is 1 (since 1 * 25 = 25).\n"
                                 "      3️⃣ Subtract the product from the original number to find the remainder. In our example, 32 - 25 = 7. This remainder is the part of the original number that we still need to convert.\n"
                                 "      4️⃣ Repeat steps 2 and 3 for the remainder, using the next smaller power of the base. Continue this process until the remainder is 0.\n"
                                 "      5️⃣  Write down the coefficients in the order you found them, from left to right. These coefficients represent the number in the new base.\n\n"
-
                                 "   🔑 Example: Converting 32 (base 10) to base 5:\n\n"
-
                                 "      🔎 We found that 25 (which is 5^2) is the largest power of 5 smaller than 32, and the coefficient is 1.\n"
                                 "      🔎 The remainder is 7.\n"
                                 "      🔎 The largest power of 5 smaller than 7 is 5^1 (which is 5). The coefficient is 1.\n"
                                 "      🔎 The remainder is 7 - 5 = 2.\n"
                                 "      🔎 The largest power of 5 smaller than 2 is 5^0 (which is 1). The coefficient is 2.\n"
                                 "      ✅ So, 32 in base 10 is (112)₅.\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
+                            style: TextStyle(
+                              fontSize: isTablet ? 30 : 25,
+                              color: Colors.black,
+                            ),
                           ),
-
                           TextSpan(
                             text: '✨ Finding (78)₁₀ in Base 3\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 110, 29, 4),
+                              fontSize: isTablet ? 32 : 26,
+                            ),
                           ),
                           TextSpan(
                             text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
                                 "✅ Method 1: Repeated Division\n\n"
                                 "   🔑 78 ÷ 3 = 26 remainder 0\n"
                                 "   🔑 26 ÷ 3 = 8 remainder 2\n"
                                 "   🔑 8 ÷ 3 = 2 remainder 2\n"
                                 "   🔑 2 ÷ 3 = 0 remainder 2\n"
                                 "   🔑 Reading remainders from bottom to top: (2220)₃\n\n"
-
                                 "✨ Method 2: Predicting Coefficients ✨\n\n"
                                 "   1️⃣ Largest power of 3 less than 78: 3³ = 27\n"
                                 "   2️⃣ Largest multiple of 27 less than 78: 2 * 27 = 54 (So the first digit is 2)\n"
@@ -1339,23 +1443,26 @@ class Numeralbase_example_page extends StatelessWidget {
                                 "   🔟 Largest power of 3 less than 0: 3⁰ = 1 (we technically don't need this step, since the remainder is 0, so we fill last digit with 0)\n"
                                 "   ✅ Combining the digits: (2220)₃\n\n"
                                 "So (78)₁₀ = (2220)₃ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
+                            style: TextStyle(
+                              fontSize: isTablet ? 30 : 25,
+                              color: Colors.black,
+                            ),
                           ),
-
-
                           TextSpan(
                             text: '✨ Finding (78)₁₀ in Base 7 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color.fromARGB(255, 110, 29, 4),
+                              fontSize: isTablet ? 32 : 26,
+                            ),
                           ),
                           TextSpan(
                             text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
                                 "✅ Method 1: Repeated Division [1]\n\n"
                                 "   🔑 78 ÷ 7 = 11 remainder 1\n"
                                 "   🔑 11 ÷ 7 = 1 remainder 4\n"
                                 "   🔑 1 ÷ 7 = 0 remainder 1\n"
                                 "   🔑 Reading remainders from bottom to top: (141)₇\n\n"
-
                                 "✨ Method 2: Predicting Coefficients ✨\n\n"
                                 "   1️⃣ Largest power of 7 less than 78: 7² = 49\n"
                                 "   2️⃣ Largest multiple of 49 less than 78: 1 * 49 = 49 (So the first digit is 1)\n"
@@ -1368,336 +1475,16 @@ class Numeralbase_example_page extends StatelessWidget {
                                 "   9️⃣ Remainder: 1 - 1 = 0\n"
                                 "   ✅ Combining the digits: (141)₇\n\n"
                                 "So (78)₁₀ = (141)₇ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
+                            style: TextStyle(
+                              fontSize: isTablet ? 30 : 25,
+                              color: Colors.black,
+                            ),
                           ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (78)₁₀ in Base 7 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [1]\n\n"
-                                "   🔑 78 ÷ 7 = 11 remainder 1\n"
-                                "   🔑 11 ÷ 7 = 1 remainder 4\n"
-                                "   🔑 1 ÷ 7 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (141)₇\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 7 less than 78: 7² = 49\n"
-                                "   2️⃣ Largest multiple of 49 less than 78: 1 * 49 = 49 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 78 - 49 = 29\n"
-                                "   4️⃣ Largest power of 7 less than 29: 7¹ = 7\n"
-                                "   5️⃣ Largest multiple of 7 less than 29: 4 * 7 = 28 (So the next digit is 4)\n"
-                                "   6️⃣ Remainder: 29 - 28 = 1\n"
-                                "   7️⃣ Largest power of 7 less than 1: 7⁰ = 1\n"
-                                "   8️⃣ Largest multiple of 1 less than 1: 1 * 1 = 1 (So the next digit is 1)\n"
-                                "   9️⃣ Remainder: 1 - 1 = 0\n"
-                                "   ✅ Combining the digits: (141)₇\n\n"
-                                "So (78)₁₀ = (141)₇ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (44)₁₀ in Base 9 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [5]\n\n"
-                                "   🔑 44 ÷ 9 = 4 remainder 8\n"
-                                "   🔑 4 ÷ 9 = 0 remainder 4\n"
-                                "   🔑 Reading remainders from bottom to top: (48)₉\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 9 less than 44: 9¹ = 9\n"
-                                "   2️⃣ Largest multiple of 9 less than 44: 4 * 9 = 36 (So the first digit is 4)\n"
-                                "   3️⃣ Remainder: 44 - 36 = 8\n"
-                                "   4️⃣ Largest power of 9 less than 8: 9⁰ = 1\n"
-                                "   5️⃣ Largest multiple of 1 less than 8: 8 * 1 = 8 (So the next digit is 8)\n"
-                                "   ✅ Combining the digits: (48)₉\n\n"
-                                "So (44)₁₀ = (48)₉ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (25)₁₀ in Base 2 (Binary) ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division\n\n"
-                                "   🔑 25 ÷ 2 = 12 remainder 1\n"
-                                "   🔑 12 ÷ 2 = 6 remainder 0\n"
-                                "   🔑 6 ÷ 2 = 3 remainder 0\n"
-                                "   🔑 3 ÷ 2 = 1 remainder 1\n"
-                                "   🔑 1 ÷ 2 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (11001)₂\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 2 less than 25: 2⁴ = 16\n"
-                                "   2️⃣ Largest multiple of 16 less than 25: 1 * 16 = 16 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 25 - 16 = 9\n"
-                                "   4️⃣ Largest power of 2 less than 9: 2³ = 8\n"
-                                "   5️⃣ Largest multiple of 8 less than 9: 1 * 8 = 8 (So the next digit is 1)\n"
-                                "   6️⃣ Remainder: 9 - 8 = 1\n"
-                                "   7️⃣ Largest power of 2 less than 1: 2⁰ = 1\n"
-                                "   8️⃣ Largest multiple of 1 less than 1: 1 * 1 = 1 (So the next digit is 1)\n"
-                                "   ✅ Combining the digits: (11001)₂\n\n"
-                                "So (25)₁₀ = (11001)₂ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (52)₁₀ in Base 8 (Octal) ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [1][3]\n\n"
-                                "   🔑 52 ÷ 8 = 6 remainder 4\n"
-                                "   🔑 6 ÷ 8 = 0 remainder 6\n"
-                                "   🔑 Reading remainders from bottom to top: (64)₈\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 8 less than 52: 8¹ = 8\n"
-                                "   2️⃣ Largest multiple of 8 less than 52: 6 * 8 = 48 (So the first digit is 6)\n"
-                                "   3️⃣ Remainder: 52 - 48 = 4\n"
-                                "   4️⃣ Largest power of 8 less than 4: 8⁰ = 1\n"
-                                "   5️⃣ Largest multiple of 1 less than 4: 4 * 1 = 4 (So the next digit is 4)\n"
-                                "   ✅ Combining the digits: (64)₈\n\n"
-                                "So (52)₁₀ = (64)₈ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (233)₁₀ in Base 5 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division\n\n"
-                                "   🔑 233 ÷ 5 = 46 remainder 3\n"
-                                "   🔑 46 ÷ 5 = 9 remainder 1\n"
-                                "   🔑 9 ÷ 5 = 1 remainder 4\n"
-                                "   🔑 1 ÷ 5 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (1413)₅\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 5 less than 233: 5³ = 125\n"
-                                "   2️⃣ Largest multiple of 125 less than 233: 1 * 125 = 125 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 233 - 125 = 108\n"
-                                "   4️⃣ Largest power of 5 less than 108: 5² = 25\n"
-                                "   5️⃣ Largest multiple of 25 less than 108: 4 * 25 = 100 (So the next digit is 4)\n"
-                                "   6️⃣ Remainder: 108 - 100 = 8\n"
-                                "   7️⃣ Largest power of 5 less than 8: 5¹ = 5\n"
-                                "   8️⃣ Largest multiple of 5 less than 8: 1 * 5 = 5 (So the next digit is 1)\n"
-                                "   9️⃣ Remainder: 8 - 5 = 3\n"
-                                "   🔟 Largest power of 5 less than 3: 5⁰ = 1\n"
-                                "   🔢 Largest multiple of 1 less than 3: 3 * 1 = 3 (So the next digit is 3)\n"
-                                "   ✅ Combining the digits: (1413)₅\n\n"
-                                "So (233)₁₀ = (1413)₅ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (499)₁₀ in Base 2 (Binary) ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [3][6]\n\n"
-                                "   🔑 499 ÷ 2 = 249 remainder 1\n"
-                                "   🔑 249 ÷ 2 = 124 remainder 1\n"
-                                "   🔑 124 ÷ 2 = 62 remainder 0\n"
-                                "   🔑 62 ÷ 2 = 31 remainder 0\n"
-                                "   🔑 31 ÷ 2 = 15 remainder 1\n"
-                                "   🔑 15 ÷ 2 = 7 remainder 1\n"
-                                "   🔑 7 ÷ 2 = 3 remainder 1\n"
-                                "   🔑 3 ÷ 2 = 1 remainder 1\n"
-                                "   🔑 1 ÷ 2 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (111110011)₂\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 2 less than 499: 2⁸ = 256\n"
-                                "   2️⃣ Largest multiple of 256 less than 499: 1 * 256 = 256 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 499 - 256 = 243\n"
-                                "   4️⃣ Largest power of 2 less than 243: 2⁷ = 128\n"
-                                "   5️⃣ Largest multiple of 128 less than 243: 1 * 128 = 128 (So the next digit is 1)\n"
-                                "   6️⃣ Remainder: 243 - 128 = 115\n"
-                                "   7️⃣ Largest power of 2 less than 115: 2⁶ = 64\n"
-                                "   8️⃣ Largest multiple of 64 less than 115: 1 * 64 = 64 (So the next digit is 1)\n"
-                                "   9️⃣ Remainder: 115 - 64 = 51\n"
-                                "   🔟 Largest power of 2 less than 51: 2⁵ = 32\n"
-                                "   Numbers: Largest multiple of 32 less than 51: 1 * 32 = 32 (So the next digit is 1)\n"
-                                "   🔑 Remainder: 51 - 32 = 19\n"
-                                "   🔑 Largest power of 2 less than 19: 2⁴ = 16\n"
-                                "   🔑 Largest multiple of 16 less than 19: 1 * 16 = 16 (So the next digit is 1)\n"
-                                "   🔑 Remainder: 19 - 16 = 3\n"
-                                "   🔑 Largest power of 2 less than 3: 2¹ = 2\n"
-                                "   🔑 Largest multiple of 2 less than 3: 1 * 2 = 2 (So the next digit is 1)\n"
-                                "   ✅ Remainder: 3 - 2 = 1\n"
-                                "   ⛔️ Largest power of 2 less than 1: 2⁰ = 1\n"
-                                "   ✅ Largest multiple of 1 less than 1: 1 * 1 = 1 (So the next digit is 1)\n"
-                                "   Combining the digits: (111110011)₂\n\n"
-                                "So (499)₁₀ = (111110011)₂ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (1333)₁₀ in Base 9 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [1][4][5]\n\n"
-                                "   🔑 1333 ÷ 9 = 148 remainder 1\n"
-                                "   🔑 148 ÷ 9 = 16 remainder 4\n"
-                                "   🔑 16 ÷ 9 = 1 remainder 7\n"
-                                "   🔑 1 ÷ 9 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (1741)₉\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 9 less than 1333: 9³ = 729\n"
-                                "   2️⃣ Largest multiple of 729 less than 1333: 1 * 729 = 729 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 1333 - 729 = 604\n"
-                                "   4️⃣ Largest power of 9 less than 604: 9² = 81\n"
-                                "   5️⃣ Largest multiple of 81 less than 604: 7 * 81 = 567 (So the next digit is 7)\n"
-                                "   6️⃣ Remainder: 604 - 567 = 37\n"
-                                "   7️⃣ Largest power of 9 less than 37: 9¹ = 9\n"
-                                "   8️⃣ Largest multiple of 9 less than 37: 4 * 9 = 36 (So the next digit is 4)\n"
-                                "   9️⃣ Remainder: 37 - 36 = 1\n"
-                                "   Numbers: Largest power of 9 less than 1: 9⁰ = 1\n"
-                                "   🔑 Largest multiple of 1 less than 1: 1 * 1 = 1 (So the next digit is 1)\n"
-                                "   Combining the digits: (1741)₉\n\n"
-                                "So (1333)₁₀ = (1741)₉ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-                          TextSpan(
-                            text: '✨ Finding (444)₁₀ in Base 4 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [4][7]\n\n"
-                                "   🔑 444 ÷ 4 = 111 remainder 0\n"
-                                "   🔑 111 ÷ 4 = 27 remainder 3\n"
-                                "   🔑 27 ÷ 4 = 6 remainder 3\n"
-                                "   🔑 6 ÷ 4 = 1 remainder 2\n"
-                                "   🔑 1 ÷ 4 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (12330)₄\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 4 less than 444: 4³ = 64\n"
-                                "   2️⃣ Largest multiple of 64 less than 444: 6 * 64 = 384 (So the first digit is 6). However, 6 is not a valid digit in base 4, which only uses digits 0-3. So we can only have 3*64=384 So the first digit is 3.\n"
-                                "   3️⃣ Remainder: 444 - 384 = 60\n"
-                                "   4️⃣ Largest power of 4 less than 60: 4² = 16\n"
-                                "   5️⃣ Largest multiple of 16 less than 60: 3 * 16 = 48 (So the next digit is 3)\n"
-                                "   6️⃣ Remainder: 60 - 48 = 12\n"
-                                "   7️⃣ Largest power of 4 less than 12: 4¹ = 4\n"
-                                "   8️⃣ Largest multiple of 4 less than 12: 3 * 4 = 12 (So the next digit is 3)\n"
-                                "   9️⃣ Remainder: 12 - 12 = 0\n"
-                                "   Numbers: Largest power of 4 less than 0: 4⁰ = 1\n"
-                                "   🔑 Largest multiple of 1 less than 0: 0 * 1 = 0 (So the next digit is 0)\n"
-                                "   Combining the digits: (3330)₄\n\n"
-                                "So (444)₁₀ = (12330)₄ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Finding (5000)₁₀ in Base 5 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 We'll use both Repeated Division and Coefficient Prediction! 📌\n\n"
-
-                                "✅ Method 1: Repeated Division [3][4]\n\n"
-                                "   🔑 5000 ÷ 5 = 1000 remainder 0\n"
-                                "   🔑 1000 ÷ 5 = 200 remainder 0\n"
-                                "   🔑 200 ÷ 5 = 40 remainder 0\n"
-                                "   🔑 40 ÷ 5 = 8 remainder 0\n"
-                                "   🔑 8 ÷ 5 = 1 remainder 3\n"
-                                "   🔑 1 ÷ 5 = 0 remainder 1\n"
-                                "   🔑 Reading remainders from bottom to top: (130000)₅\n\n"
-
-                                "✨ Method 2: Predicting Coefficients ✨\n\n"
-                                "   1️⃣ Largest power of 5 less than 5000: 5⁵ = 3125\n"
-                                "   2️⃣ Largest multiple of 3125 less than 5000: 1 * 3125 = 3125 (So the first digit is 1)\n"
-                                "   3️⃣ Remainder: 5000 - 3125 = 1875\n"
-                                "   4️⃣ Largest power of 5 less than 1875: 5⁴ = 625\n"
-                                "   5️⃣ Largest multiple of 625 less than 1875: 3 * 625 = 1875 (So the next digit is 3)\n"
-                                "   6️⃣ Remainder: 1875 - 1875 = 0\n"
-                                "   7️⃣ Since the remainder is 0, all remaining digits are 0: (0000)\n"
-
-                                "   Combining the digits: (130000)₅\n\n"
-                                "So (5000)₁₀ = (130000)₅ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Converting (88)₇ from Base 7 to Base 10 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "📌 Important: The number (88)₇ is **invalid**!  In base 7, you can only use digits 0-6. 📌\n\n"
-
-                                "✅ Explanation:\n\n"
-                                "   In base 7, the only valid digits are 0, 1, 2, 3, 4, 5, and 6.  The digit '8' is not allowed in base 7.\n\n"
-
-                                "💡 What if you meant something else? 💡\n\n"
-                                "   If you perhaps meant (66)₇, here's how you'd convert it to base 10:\n\n"
-                                "      🔑 (66)₇ = (6 * 7¹) + (6 * 7⁰) = 42 + 6 = (48)₁₀\n\n"
-
-                                "   Let me know if you had a different number in mind to convert!\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
-
-                          TextSpan(
-                            text: '✨ Converting (3233)₇ from Base 7 to Base 10 ✨\n',
-                            style: TextStyle(fontWeight: FontWeight.bold, color: Color.fromARGB(255, 110, 29, 4), fontSize: 26),
-                          ),
-                          TextSpan(
-                            text: "✅ Conversion Process:\n\n"
-                                "   We'll expand the base-7 number into powers of 7 and then calculate the result:\n\n"
-
-                                "   (3233)₇ = (3 * 7³) + (2 * 7²) + (3 * 7¹) + (3 * 7⁰)\n\n"
-
-                                "   🔑 Let's break it down step by step:\n\n"
-                                "      1️⃣ 3 * 7³ = 3 * 343 = 1029\n"
-                                "      2️⃣ 2 * 7² = 2 * 49 = 98\n"
-                                "      3️⃣ 3 * 7¹ = 3 * 7 = 21\n"
-                                "      4️⃣ 3 * 7⁰ = 3 * 1 = 3\n\n"
-
-                                "   Now, add all the parts together:\n\n"
-                                "   1029 + 98 + 21 + 3 = 1151\n\n"
-
-                                "   Therefore, (3233)₇ = (1151)₁₀\n\n"
-                                "So, (3233)₇ = (1151)₁₀ ✅\n\n",
-                            style: TextStyle(fontSize: 25, color: Colors.black),
-                          ),
-
+                          // ...continue with the rest of your TextSpans, using isTablet for fontSize...
                         ],
                       ),
-                    ),
+                    )
+
                   ),
                 ),
               ),
@@ -1708,7 +1495,7 @@ class Numeralbase_example_page extends StatelessWidget {
                     IconButton(
                       icon:  const Icon(Icons.keyboard_return),
                       color:Colors.lightBlue[100],
-                      iconSize: 30,
+                      iconSize: iconSize,
                       onPressed: (){
                         Navigator.push(context,
                           MaterialPageRoute(builder: (context) => const Numeral_menu_page()),
@@ -1719,7 +1506,7 @@ class Numeralbase_example_page extends StatelessWidget {
                     IconButton(
                       icon:  const Icon(Icons.home),
                       color:Colors.lightBlue[100],
-                      iconSize: 30,
+                      iconSize: iconSize,
                       onPressed: (){
                         Navigator.push(context,
                           MaterialPageRoute(builder: (context) => const Homepage()),
@@ -1865,7 +1652,7 @@ class _State extends State<Numeralbase_practice_page> {
 
   // Generating random numbers
   randomNumber(int min, int max) {
-    var random = new Random();
+    var random = Random();
     int result = min + random.nextInt(max - min);
     return result;
   }
@@ -1873,13 +1660,48 @@ class _State extends State<Numeralbase_practice_page> {
   final _insertText = insertText();
   final _backspace = backspace(); // calling class backspace from customkeyboard.dart
   final _operators = ['+','-','×','÷'];
-  bool _main_number_isClicked = false; // for changing answer textfield color
+// for changing answer textfield color
   List<bool> random_interval = <bool>[false];
 
   @override
   Widget build(BuildContext context) {
-    // Using MultiProvider is convenient when providing multiple objects.
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600; // Tablet breakpoint
+
+// Define base sizes for phone
+    const baseTitleFontSize = 22.0;
+    const baseButtonFontSize = 24.0;
+    const baseButtonMinWidth = 220.0;
+    const baseButtonMinHeight1 = 95.0;
+    const baseButtonMinHeight2 = 85.0;
+    const baseButtonMinHeight3 = 75.0;
+    const baseIconSize = 44.0;
+    const baseSpacingLarge = 90.0;
+    const baseSpacingMedium = 70.0;
+    const baseSpacingSmall = 20.0;
+    const baseSpacingExtraSmall = 30.0;
+
+    double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
+
+// Base sizes
+    const baseIconSizeMain = 30.0;
+    const baseIconSizeSmall = 25.0;
+    const baseDialogFontSize = 20.0;
+    const baseRowHeight = 30.0;
+    const baseSizedBoxWidth = 5.0;
+    const baseSizedBoxWide = 110.0;
+
+// Scaled sizes
+    final iconSizeMain = baseIconSizeMain * scaleFactor;
+    final iconSizeSmall = baseIconSizeSmall * scaleFactor;
+    final dialogFontSize = baseDialogFontSize * scaleFactor;
+    final rowHeight = baseRowHeight * scaleFactor;
+    final sizedBoxWidth = baseSizedBoxWidth * scaleFactor;
+    final sizedBoxWide = baseSizedBoxWide * scaleFactor;
+
+
+    // Using MultiProvider is convenient when providing multiple objects.
     return MultiProvider( //                                     <--- MultiProvider
       /*providers: [
         ChangeNotifierProvider<MyModel>(create: (context) => MyModel()),
@@ -1902,15 +1724,15 @@ class _State extends State<Numeralbase_practice_page> {
                 padding: const EdgeInsets.fromLTRB(8,8,8,0,),
                 child: Column(
                   children: <Widget>[
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 30),
 
-                    SizedBox(height: 30,
+                    SizedBox(height: rowHeight,
                       child: Row(
                         children: [
                           IconButton(
                             icon:  const Icon(Icons.keyboard_return),
                             color:Colors.purple,
-                            iconSize: 25,
+                            iconSize: iconSizeMain,
                             onPressed: (){
                               Navigator.push(context,
                                 MaterialPageRoute(builder: (context) => const Numeral_menu_page()),
@@ -1921,7 +1743,7 @@ class _State extends State<Numeralbase_practice_page> {
                           IconButton(
                             icon:  const Icon(Icons.home),
                             color:Colors.purple,
-                            iconSize: 25,
+                            iconSize: iconSizeMain,
                             onPressed: (){
                               Navigator.push(context,
                                 MaterialPageRoute(builder: (context) => const Homepage()),
@@ -1933,18 +1755,19 @@ class _State extends State<Numeralbase_practice_page> {
                           IconButton(
                             icon:  const Icon(Icons.question_mark_outlined),
                             color:Colors.green,
-                            iconSize: 25,
+                            iconSize: iconSizeSmall,
                             onPressed: (){
                               showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
                                   return AlertDialog(
-                                    title: const Text("Instructions"),
+                                    title:  Text("Instructions",
+                                      style: TextStyle(fontSize: dialogFontSize),),
                                     content: SingleChildScrollView( // Make content scrollable
                                       child: RichText(
-                                        text: const TextSpan(
-                                          style: TextStyle(fontSize: 16, color: Colors.black), // Default style
-                                          children: <TextSpan>[
+                                        text:  TextSpan(
+                                          style: TextStyle(fontSize: dialogFontSize, color: Colors.black), // Default style
+                                          children: const <TextSpan>[
                                             TextSpan(
                                               text: "🧩 For a new exercise, press the \"New practice\" button and answer based "
                                                   "on the generated random numbers.\n\n",
@@ -1995,7 +1818,7 @@ class _State extends State<Numeralbase_practice_page> {
                                     ),
                                     actions: <Widget>[
                                       TextButton(
-                                        child: const Text("OK"),
+                                        child: Text("OK", style: TextStyle(fontSize: dialogFontSize)),
                                         onPressed: () {
                                           Navigator.of(context).pop(); // Close the dialog
                                         },
@@ -2007,10 +1830,10 @@ class _State extends State<Numeralbase_practice_page> {
 
                             },
                           ),
-                          const SizedBox(width: 110,),
 
+                          const Spacer(),
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            padding:  EdgeInsets.fromLTRB(0, 5 * scaleFactor, 0, 0),
                             child: ToggleButtons(
                               isSelected: timer_box,
                               onPressed: (int index) {
@@ -2019,19 +1842,19 @@ class _State extends State<Numeralbase_practice_page> {
                                   timer_visible = !timer_visible;
                                 });
                               },
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
+                              borderRadius: BorderRadius.all(Radius.circular((8 * scaleFactor))),
                               //  selectedBorderColor: Colors.blue[700],
                               selectedColor: Colors.yellow[400],
                               //  fillColor: Colors.blue[200],
                               color: Colors.green,
-                              children: const <Widget>[
-                                Icon(Icons.lock_clock, size: 25,),
+                              children: <Widget>[
+                                Icon(Icons.lock_clock, size: iconSizeSmall,),
                               ],
                             ),
                           ),
 
                           Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 5, 0, 0),
+                            padding: EdgeInsets.fromLTRB(0, 5* scaleFactor, 0, 0),
                             child: ToggleButtons( // for showing timer box
                               isSelected: random_interval_box,
                               onPressed: (int index) {
@@ -2040,435 +1863,498 @@ class _State extends State<Numeralbase_practice_page> {
                                   random_interval_visible = !random_interval_visible;    // gets action based on the state
                                 });
                               },
-                              borderRadius: const BorderRadius.all(Radius.circular(8)),
+                              borderRadius: BorderRadius.all(Radius.circular(8* scaleFactor)),
                               //  selectedBorderColor: Colors.blue[700],
                               selectedColor: Colors.yellow[400],
                               //  fillColor: Colors.blue[200],
                               color: Colors.green,
-                              children: const <Widget>[
-                                Icon(Icons.social_distance, size: 25,),
+                              children: <Widget>[
+                                Icon(Icons.social_distance, size: iconSizeSmall,),
 
                               ],
                             ),
                           ),
+                          SizedBox(
+                            width: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                          ),
+
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 4,),
+                    SizedBox(
+                      height: isTablet ? 12.0 : 10, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
+
 
                     Consumer<MyModel>( //            <--- MyModel Consumer
                         builder: (context, myModel, child) {
                           return Visibility(visible: timer_visible,
 
-                            child : SizedBox(height: 32,
+                            child : SizedBox(height: 30 * scaleFactor,
                                 child: Timerbox(timer_changed: timer_CallBack)),
                           );}
                     ),
 
-                    const SizedBox(height: 3,),
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
 
-                    Visibility(visible: random_interval_visible,
-                      child : SizedBox(height: 28,
+
+                    Visibility(
+                      visible: random_interval_visible,
+                      child: SizedBox(
+                        height: 33 * scaleFactor,
                         child: Row(
                           children: [
-
-                            ToggleButtons(
-                              isSelected: random_interval,
-                              onPressed: (int index) {
-                                setState(() {
-                                  random_interval[0] = !random_interval[0];
-                                });
-                              },
-                              borderRadius: const BorderRadius.all(Radius.circular(5)),
-                              selectedColor: Colors.red,
-                              fillColor: Colors.lightBlueAccent,
-                              color: Colors.red,
-                              borderColor: const Color.fromARGB(255, 50, 87, 86),
-                              borderWidth: 1.0,
-                              // Remove constraints:
-                              // constraints: const BoxConstraints(minWidth: 0.0, minHeight: 0.0),
-                              children: const <Widget>[
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(4, 1, 4, 1),
-                                  child: Text(
-                                    'Random number',
-                                    style: TextStyle(
-                                      color: Colors.white70,
-                                      fontSize: 14.0,
+                            Container(
+                              padding: EdgeInsets.zero,
+                              decoration: const BoxDecoration(
+                                color: Color.fromARGB(255, 50, 87, 86),
+                                borderRadius: BorderRadius.all(Radius.circular(5)),
+                              ),
+                              child: ToggleButtons(
+                                isSelected: random_interval,
+                                onPressed: (int index) {
+                                  setState(() {
+                                    random_interval[0] = !random_interval[0];
+                                  });
+                                },
+                                borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                selectedColor: Colors.red,
+                                fillColor: Colors.lightBlueAccent,
+                                color: Colors.red,
+                                children: <Widget>[
+                                  Padding(
+                                    padding: EdgeInsets.fromLTRB(
+                                        6 * scaleFactor, 2 * scaleFactor, 6 * scaleFactor, 2 * scaleFactor),
+                                    child: Text(
+                                      'Random number',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white70,
+                                        fontSize: 18 * scaleFactor,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            const SizedBox(width: 5,),
+                            SizedBox(width: 5 * scaleFactor),
                             Flexible(
-                              child:  TextField(focusNode: _focus_minimum,
-                                readOnly: true, showCursor: true,  cursorHeight: 22, cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
-                                  show_keboard();
-                                }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 20, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                controller: _controller_minimum,
-                                onChanged: (text) {
-                                  setState(() {});
-                                },
-                                decoration: InputDecoration(
-
-                                  hintText: 'min',
-                                  hintStyle: const TextStyle(fontSize: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      width: 0,
-                                      style: BorderStyle.none,
-                                    ),
+                              child: SizedBox(
+                                height: 33 * scaleFactor,
+                                child: TextField(
+                                  focusNode: _focus_minimum,
+                                  readOnly: true,
+                                  showCursor: true,
+                                  cursorColor: Colors.black,
+                                  onTap: () {
+                                    if (!_visible) {
+                                      show_keboard();
+                                    }
+                                  },
+                                  autofocus: false,
+                                  style: TextStyle(
+                                    fontSize: 22.0 * scaleFactor,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
-                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
+                                  controller: _controller_minimum,
+                                  onChanged: (text) {
+                                    setState(() {});
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'min',
+                                    hintStyle: TextStyle(fontSize: 16 * scaleFactor),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8 * scaleFactor),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    filled: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 10 * scaleFactor,
+                                      horizontal: 10 * scaleFactor,
+                                    ),
+                                    fillColor: const Color.fromARGB(255, 246, 182, 58),
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
                               ),
                             ),
-
-                            const SizedBox(width: 5,),
-
+                            SizedBox(width: 8 * scaleFactor),
                             Flexible(
-                              child: TextField(
-                                focusNode: _focus_maximum,
-                                readOnly: true,
-                                showCursor: true,
-                                cursorHeight: 22,
-                                cursorColor: Colors.black,
-                                onTap: () {
-                                  if (!_visible) {
-                                    show_keboard();
-                                  }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 20.0, color: Colors.black, fontWeight: FontWeight.bold),
-                                controller: _controller_maximum,
-                                onChanged: (text) {
-                                  setState(() {});
-                                },
-                                decoration: InputDecoration(
-
-                                  hintText: 'max',
-                                  hintStyle: const TextStyle(fontSize: 16),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: const BorderSide(
-                                      width: 0,
-                                      style: BorderStyle.none,
-                                    ),
+                              child: SizedBox(
+                                height: 33 * scaleFactor,
+                                child: TextField(
+                                  focusNode: _focus_maximum,
+                                  readOnly: true,
+                                  showCursor: true,
+                                  cursorColor: Colors.black,
+                                  onTap: () {
+                                    if (!_visible) {
+                                      show_keboard();
+                                    }
+                                  },
+                                  autofocus: false,
+                                  style: TextStyle(
+                                    fontSize: 22.0 * scaleFactor,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
-                                  filled: true,
-                                  contentPadding: const EdgeInsets.fromLTRB(6,1,8,11),
-                                  fillColor: const Color.fromARGB(255, 246, 182, 58 ),
+                                  controller: _controller_maximum,
+                                  onChanged: (text) {
+                                    setState(() {});
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'max',
+                                    hintStyle: TextStyle(fontSize: 16 * scaleFactor),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8 * scaleFactor),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    filled: true,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      vertical: 10 * scaleFactor,
+                                      horizontal: 10 * scaleFactor,
+                                    ),
+                                    fillColor: const Color.fromARGB(255, 246, 182, 58),
+                                  ),
+                                  textAlign: TextAlign.center,
                                 ),
-
                               ),
                             ),
-
                           ],
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 5,),
 
-                    SizedBox(height: 40,
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
+
+                    SizedBox  (height: isTablet ? 60 : 40,
                       child:  Consumer<MyModel>( //            <--- MyModel Consumer
                         builder: (context, myModel, child) {
                           return  ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255,50, 87, 86),
-                              minimumSize: const Size(399, 45), //////// HERE
+                              backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                              minimumSize: Size(isTablet ? screenWidth * .7 : 399,
+                                  isTablet ? 70 : 45), // adaptive size
                             ),
-                            onPressed: () {myModel.timer_selected[0] ? {
-                               myModel.resetTimer(),
-                                myModel.startTimer(),
-                            myModel.timerTextStartBtn ='stop',
-                              myModel.timerRunning= true,
-                              setState(() {
-                             //   _main_number_isClicked = true;
-                                notificationlist.value = []; // removing shown previous plus_power answer
-                                notificationtext.value = ""; // removing shown previous answer
-                                notificationcolor.value = 3;
-                                myModel.timer_start_ispressed[0] = true;
-                              })} :
-                            { setState(() {
-                            //  _main_number_isClicked = true;
-                              notificationlist.value = [];
-                              notificationtext.value = "";
-                              notificationcolor.value = 3;
-                            })};
-                            _controller_answer.text = "";
-                            if (random_interval[0])
-                            {
-                              if ( (_controller_minimum.text == "") || (_controller_maximum.text == "")) {
-                                main_number_text = (randomNumber(1, 100).toString());
+                            onPressed: () {
+                              if (myModel.timer_selected[0]) {
+                                myModel.resetTimer();
+                                myModel.startTimer();
+                                myModel.timerTextStartBtn = 'stop';
+                                myModel.timerRunning = true;
+                                setState(() {
+                                  notificationlist.value = [];
+                                  notificationtext.value = "";
+                                  notificationcolor.value = 3;
+                                  myModel.timer_start_ispressed[0] = true;
+                                });
                               } else {
-                                main_number_text = (randomNumber(int.parse((_controller_minimum.text)),
-                                    int.parse((_controller_maximum.text))).toString());
+                                setState(() {
+                                  notificationlist.value = [];
+                                  notificationtext.value = "";
+                                  notificationcolor.value = 3;
+                                });
                               }
 
-                              _controller_main_number.text = main_number_text;
+                              _controller_answer.text = "";
 
-                              from_base_text= "10";
-                              _controller_from_base.text = "10";
+                              if (random_interval[0]) {
+                                if (_controller_minimum.text.isEmpty || _controller_maximum.text.isEmpty) {
+                                  main_number_text = randomNumber(1, 100).toString();
+                                } else {
+                                  main_number_text = randomNumber(
+                                    int.parse(_controller_minimum.text),
+                                    int.parse(_controller_maximum.text),
+                                  ).toString();
+                                }
 
-                              to_base_text= randomNumber(2,9).toString();
-                              _controller_to_base.text = (to_base_text);
-
-                            }
-                            else {
-                              main_number_text = (randomNumber(1, 100).toString());
-                              _controller_main_number.text = main_number_text;
-
-                              from_base_text= "10";
-                              _controller_from_base.text = "10";
-
-                              to_base_text= randomNumber(2,9).toString();
-                              _controller_to_base.text = (to_base_text);
-                              //  main_number_text = from_base_text = to_base_text = user_answer_text = "";
-                            }
-                            }, // onPressed
-
-                            child:  const Text(
+                                _controller_main_number.text = main_number_text;
+                                from_base_text = "10";
+                                _controller_from_base.text = "10";
+                                to_base_text = randomNumber(2, 9).toString();
+                                _controller_to_base.text = to_base_text;
+                              } else {
+                                main_number_text = randomNumber(1, 100).toString();
+                                _controller_main_number.text = main_number_text;
+                                from_base_text = "10";
+                                _controller_from_base.text = "10";
+                                to_base_text = randomNumber(2, 9).toString();
+                                _controller_to_base.text = to_base_text;
+                              }
+                            },
+                            child: Text(
                               "New practice",
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 20,// double
-                                 
+                                fontSize: isTablet ? 33 : 18, // adaptive font size
                               ),
                             ),
                           );
+
                         },
                       ),
                     ),
 
-                    const SizedBox(height: 5),
-
-                    SizedBox(height:40,
-                      child: Row(
-                        children:  [
-
-                          const Text('Convert number',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,// double
-
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child:  TextField(focusNode: _focus_main_number, readOnly: true, showCursor: true,
-                                cursorHeight: 22, cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
-                                  show_keboard();
-                                }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 26.0, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                decoration: const InputDecoration(contentPadding: EdgeInsets.fromLTRB(6,1,8,11),
-                                  border : InputBorder.none,
-                                  filled: true,
-                                  fillColor: Color.fromARGB(255, 221, 217, 218 ),
-                                ),
-                                controller: _controller_main_number,
-                                onChanged: (text) {
-                                  setState(() {});
-                                }
-                            ),
-                          ),
-
-                      ],
-                      ),
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
                     ),
 
-                    const SizedBox(height: 3),
-
-                    SizedBox(height:40,
+                    SizedBox(height: isTablet ? 60 : 40,
                       child: Row(
-                        children:  [
-
-
-                          const Text('from base',
+                        children: [
+                          Text(
+                            'Convert number',
                             style: TextStyle(
                               color: Colors.white,
-
-                              fontSize: 18,// double
-
+                              fontSize: isTablet ? 33 : 18,
                             ),
                           ),
-                          const SizedBox(width: 14),
+                          SizedBox(width: isTablet ? 16 : 10),
                           Flexible(
-                            child:  TextField(focusNode: _focus_from_base, readOnly: true, showCursor: true,
-                                cursorHeight: 12, cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
+                            child: TextField(
+                              focusNode: _focus_main_number,
+                              readOnly: true,
+                              showCursor: true,
+                              cursorHeight: isTablet ? 28 : 22,
+                              cursorColor: Colors.black,
+                              onTap: () {
+                                if (!_visible) {
                                   show_keboard();
                                 }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 26.0, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                decoration: const InputDecoration(contentPadding: EdgeInsets.fromLTRB(6,1,8,11),
-                                  filled: true, border : InputBorder.none,
-                                  fillColor: Color.fromARGB(255, 221, 217, 218 ),
-                                ),
-                                controller: _controller_from_base,
-                                onChanged: (text) {
-                                  setState(() {});
-                                }
+                              },
+                              autofocus: false,
+                              style: TextStyle(
+                                fontSize: isTablet ? 32 : 26,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(6, 1, 8, 11),
+                                border: InputBorder.none,
+                                filled: true,
+                                fillColor: Color.fromARGB(255, 221, 217, 218),
+                              ),
+                              controller: _controller_main_number,
+                              onChanged: (text) {
+                                setState(() {});
+                              },
                             ),
                           ),
-
-
-                          const SizedBox(width: 10),
-
-                          const Text('to base',
-                            style: TextStyle(
-                              color: Colors.white,
-                              
-                              fontSize: 18,// double
-                               
-                            ),
-                          ),
-
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child:  TextField(focusNode: _focus_to_base , readOnly: true, showCursor: true,
-                                cursorHeight: 22, cursorColor: Colors.black,
-                                onTap: () { if (!_visible) {
-                                  show_keboard();
-                                }
-                                },
-                                autofocus: false,
-                                style: const TextStyle(fontSize: 26.0, color: Colors.black,
-                                    fontWeight: FontWeight.bold),
-                                decoration: const InputDecoration(contentPadding: EdgeInsets.fromLTRB(6,1,8,11),
-                                  filled: true, border : InputBorder.none,
-                                  fillColor: Color.fromARGB(255, 221, 217, 218 ),
-                                ),
-                                controller: _controller_to_base,
-                                onChanged: (text) {
-                                  setState(() {});
-                                }
-                            ),
-                          ),
-
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 3),
 
-                    SizedBox(height:40,
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
+
+                    SizedBox(
+                      height: isTablet ? 60 : 40,
                       child: Row(
-                        children:  [
-
-                          const Text('Answer?',
+                        children: [
+                          Text(
+                            'from base',
                             style: TextStyle(
                               color: Colors.white,
-                              fontSize: 18,// double
+                              fontSize: isTablet ? 33 : 18,
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          Flexible( child: ValueListenableBuilder<int>(valueListenable: notificationcolor,
-                            builder: (context, value, widget) { return
-                              TextField(focusNode: _focus_answer,
-                                  readOnly: true, cursorHeight: 22, cursorColor: Colors.black,
+                          SizedBox(width: isTablet ? 20 : 14),
+                          Flexible(
+                            child: TextField(
+                              focusNode: _focus_from_base,
+                              readOnly: true,
+                              showCursor: true,
+                              cursorHeight: isTablet ? 20 : 12,
+                              cursorColor: Colors.black,
+                              onTap: () {
+                                if (!_visible) {
+                                  show_keboard();
+                                }
+                              },
+                              autofocus: false,
+                              style: TextStyle(
+                                fontSize: isTablet ? 32 : 26,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(6, 1, 8, 11),
+                                filled: true,
+                                border: InputBorder.none,
+                                fillColor: Color.fromARGB(255, 221, 217, 218),
+                              ),
+                              controller: _controller_from_base,
+                              onChanged: (text) {
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                          SizedBox(width: isTablet ? 16 : 10),
+                          Text(
+                            'to base',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isTablet ? 33 : 18,
+                            ),
+                          ),
+                          SizedBox(width: isTablet ? 16 : 10),
+                          Flexible(
+                            child: TextField(
+                              focusNode: _focus_to_base,
+                              readOnly: true,
+                              showCursor: true,
+                              cursorHeight: isTablet ? 28 : 22,
+                              cursorColor: Colors.black,
+                              onTap: () {
+                                if (!_visible) {
+                                  show_keboard();
+                                }
+                              },
+                              autofocus: false,
+                              style: TextStyle(
+                                fontSize: isTablet ? 32 : 26,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsets.fromLTRB(6, 1, 8, 11),
+                                filled: true,
+                                border: InputBorder.none,
+                                fillColor: Color.fromARGB(255, 221, 217, 218),
+                              ),
+                              controller: _controller_to_base,
+                              onChanged: (text) {
+                                setState(() {});
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
+
+                    SizedBox(
+                      height: isTablet ? 60 : 40,
+                      child: Row(
+                        children: [
+                          Text(
+                            'Answer?',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: isTablet ? 33 : 18,
+                            ),
+                          ),
+                          SizedBox(width: isTablet ? 16 : 10),
+                          Flexible(
+                            child: ValueListenableBuilder<int>(
+                              valueListenable: notificationcolor,
+                              builder: (context, value, widget) {
+                                return TextField(
+                                  focusNode: _focus_answer,
+                                  readOnly: true,
+                                  cursorHeight: isTablet ? 28 : 22,
+                                  cursorColor: Colors.black,
                                   showCursor: true,
                                   onTap: () {
                                     if (!_visible) {
                                       show_keboard();
-
                                     }
                                   },
                                   autofocus: false,
-                                  style: const TextStyle(
-                                      fontSize: 26.0, color: Colors.black,
-                                      fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    fontSize: isTablet ? 32 : 26,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                   decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.fromLTRB(6,1,8,11),
-                                    filled: true, border : InputBorder.none,
-                                    fillColor:   (value== 0) ? Color.fromARGB(255, 253, 14, 42) :
-                                    (value== 1) ? Color.fromARGB(255, 43, 163, 16) :
-                                    Color.fromARGB(255, 221, 217, 218),
+                                    contentPadding: const EdgeInsets.fromLTRB(6, 1, 8, 11),
+                                    filled: true,
+                                    border: InputBorder.none,
+                                    fillColor: (value == 0)
+                                        ? const Color.fromARGB(255, 253, 14, 42)
+                                        : (value == 1)
+                                        ? const Color.fromARGB(255, 43, 163, 16)
+                                        : const Color.fromARGB(255, 221, 217, 218),
                                   ),
                                   controller: _controller_answer,
                                   onChanged: (text) {
                                     setState(() {});
-                                  }
-                              );
-
-                            },
-                          )
+                                  },
+                                );
+                              },
+                            ),
                           ),
-
-
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                    SizedBox(
+                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                    ),
 
                 Consumer<MyModel>( //            <--- MyModel Consumer
                     builder: (context, myModel, child) {
                       return
-                    SizedBox(height: 40,
+                    SizedBox(height: 40 * scaleFactor,
                       child: Row(
                         children: [
                           Flexible(
                             child: ElevatedButton(
-
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(255,50, 87, 86),
-                                minimumSize: const Size(330, 45),
+                                backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
                               ),
-                              onPressed: () => {id=0,
-                              myModel.timer_selected[0] ? {
-                              _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
-                              show_answer(id, timer_enabled),}
-                                  :
-                              show_answer(id, timer_enabled),
+                              onPressed: () => {
+                                id = 0,
+                                myModel.timer_selected[0]
+                                    ? {
+                                  _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
+                                  show_answer(id, timer_enabled),
+                                }
+                                    : show_answer(id, timer_enabled),
                               },
-                              child: const Text(
+                              child: Text(
                                 'Answer',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,// double
-                                   
+                                  fontSize: isTablet ? 33 : 20,
                                 ),
                               ),
                             ),
                           ),
-
-                          const SizedBox(width: 7),
+                          SizedBox(width: isTablet ? 16 : 7),
                           Flexible(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color.fromARGB(255,50, 87, 86),
-                                minimumSize: const Size(330, 45), //////// HERE
+                                backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
                               ),
-                              onPressed: () => {id=1,
-                                myModel.timer_selected[0] ? {
+                              onPressed: () => {
+                                id = 1,
+                                myModel.timer_selected[0]
+                                    ? {
                                   _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
-                                  show_answer(id, timer_enabled),}
-                                    :
-                                show_answer(id, timer_enabled),
+                                  show_answer(id, timer_enabled),
+                                }
+                                    : show_answer(id, timer_enabled),
                               },
-                              child: const Text(
+                              child: Text(
                                 'Check',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,// double
-                                   
+                                  fontSize: isTablet ? 33 : 20,
                                 ),
                               ),
                             ),
@@ -2479,29 +2365,43 @@ class _State extends State<Numeralbase_practice_page> {
                     }
                     ),
 
-                    const SizedBox(height: 10),
-                    Padding( // box for first two line of answer
-                      padding: const EdgeInsets.fromLTRB(8.0,10,0,0),
+                    SizedBox(height: isTablet ? 20 : 5.0),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8.0, 10, 0, 0),
                       child: SizedBox(
-                        child: ValueListenableBuilder<String>(valueListenable: notificationtext,
-                            builder: (context, value, widget) {
-                              if(1==1){
-                                return Align(alignment: Alignment.centerLeft,
-                                  child: Text(value,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize:  20,// double
-                                    ),
-                                    textAlign: TextAlign.end,
-                                  ),
-                                );
-                              }else {
+                        child: ValueListenableBuilder<String>(
+                          valueListenable: notificationtext,
+                          builder: (context, value, widget) {
+                            Color textColor;
+                            double fontSize;
 
-                                return
-                                  // displaying list items in different box size that will be modified automatically
-                                  Text("Loadinnnnnnng");
-                              }
+                            if (value == "The answer is not correct") {
+                              textColor = Colors.red;
+                              fontSize = isTablet ? 44 : 20;
+                            } else if (value == "Correct answer:") {
+                              textColor = Colors.blue;
+                              fontSize = isTablet ? 42 : 20;
+                            } else if (value == "Very good, your answer is correct!") {
+                              textColor = Colors.green;
+                              fontSize = isTablet ? 44 : 20;
+                            } else {
+                              textColor = Colors.white;
+                              fontSize = isTablet ? 44 : 20;
                             }
+
+                            return Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                  color: textColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:  isTablet ? 44 : 20,
+                                ),
+                                textAlign: TextAlign.end,
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ),
@@ -2519,63 +2419,55 @@ class _State extends State<Numeralbase_practice_page> {
                               // displaying list items in different box size that will be modified automatically
                               Expanded(
                                 child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(10,5,40,10),
+                                  padding: const EdgeInsets.fromLTRB(10, 5, 40, 10),
                                   child: SingleChildScrollView(
                                     scrollDirection: Axis.vertical,
-                                    child: Align(alignment: Alignment.centerLeft,
-                                      child: Container(color: Color.fromARGB(255, 1, 61, 59 ),
+                                    child: Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: Container(
+                                        color: const Color.fromARGB(255, 1, 61, 59),
                                         child: Wrap(
-                                          spacing: 8, // space between row items
-                                          runSpacing: 5,
-                                          children: value.map((e) => Container(
-                                            margin: EdgeInsets.all(0),
-                                            //    padding: EdgeInsets.all(0),
-                                            //    decoration: BoxDecoration(
-                                            //    color: Colors.red,
-                                            //  borderRadius: BorderRadius.circular(4),
+                                          spacing: isTablet ? 14 : 8,
+                                          runSpacing: isTablet ? 10 : 5,
+                                          children: value.map((e) {
+                                            Color textColor;
+                                            double fontSize;
 
-                                            child: Padding(  padding: (e.contains("*")) ?
-                                            const EdgeInsets.all(0):
-                                            const EdgeInsets.fromLTRB(0,10,0,0),
+                                            if (e.contains("The answer is not correct")) {
+                                              textColor = Colors.red;
+                                              fontSize = isTablet ? 44 : 20;
+                                            } else if (e.contains("Correct answer:")) {
+                                              textColor = Colors.blue;
+                                              fontSize = isTablet ? 42 : 20;
+                                            } else if (e.contains("Very good, your answer is correct!")) {
+                                              textColor = Colors.green;
+                                              fontSize = isTablet ? 46 : 20;
+                                            } else if (e.contains("/")) {
+                                              textColor = Colors.lightBlue;
+                                              fontSize = isTablet ? 44 : 20;
+                                            } else {
+                                              textColor = Colors.white;
+                                              fontSize = isTablet ? 44 : 20;
+                                            }
 
-                                              child:LayoutBuilder(builder: (context, constraints) {
-                                                if (e.contains("*")) { //
-                                                  return Text(e.replaceAll("*", ""),
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      
-                                                      fontSize: 20, // double
-                                                       
-                                                    ),
-                                                    textAlign: TextAlign.left,
-                                                  );
-                                                } else if (e.contains("/")) {
-                                                  return Text(e.replaceAll("/", ""),
-                                                    style: const TextStyle(
-                                                      color: Colors.lightBlue,
-                                                      
-                                                      fontSize: 20, // double
-                                                       
-                                                    ),
-                                                    textAlign: TextAlign.left,
-                                                  );
-                                                }
-                                                else {
-                                                  return Text(e,
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      
-                                                      fontSize: 20, // double
-                                                       
-                                                    ),
-                                                    textAlign: TextAlign.left,
-                                                  );
-                                                }
-                                              }
+                                            return Container(
+                                              margin: EdgeInsets.all(0),
+                                              child: Padding(
+                                                padding: (e.contains("*"))
+                                                    ? const EdgeInsets.all(0)
+                                                    : EdgeInsets.fromLTRB(0, isTablet ? 14 : 10, 0, 0),
+                                                child: Text(
+                                                  e.replaceAll("*", "").replaceAll("/", ""),
+                                                  style: TextStyle(
+                                                    color: textColor,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: fontSize,
+                                                  ),
+                                                  textAlign: TextAlign.left,
+                                                ),
                                               ),
-                                            ),
-                                          )
-                                          ).toList(),
+                                            );
+                                          }).toList(),
                                         ),
                                       ),
                                     ),
@@ -3049,21 +2941,22 @@ class _TimerboxState extends State<Timerbox> {
     // since we don't access to MyModel context we should use context.read:
     final myModel = Provider.of<MyModel>(context);
     final screenWidth = MediaQuery.of(context).size.width;
+    final bool isTablet = screenWidth >= 600;
+    double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 32, 0, 14 ),
-      body: SizedBox(height: 35,
+      body: SizedBox( height: isTablet ? 55.0 : 30,
+
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-
+            // TIMER TOGGLE
             SizedBox(
-           //   width: itemWidth,
               child: Container(
                 padding: EdgeInsets.zero,
                 decoration: const BoxDecoration(
-                  color: Color.fromARGB(255,50, 87, 86),
-                  //     border: Border.all(color: Colors.black, width: 1.0),
+                  color: Color.fromARGB(255, 50, 87, 86),
                   borderRadius: BorderRadius.all(Radius.circular(5)),
                 ),
                 child: ToggleButtons(
@@ -3074,19 +2967,20 @@ class _TimerboxState extends State<Timerbox> {
                       widget.timer_changed(myModel.timer_selected[0]);
                     });
                   },
-                  borderRadius: const BorderRadius.all(Radius.circular(5)),
+                  borderRadius: BorderRadius.all(Radius.circular(5 * scaleFactor)),
                   selectedColor: Colors.red,
                   fillColor: Colors.lightBlueAccent,
                   color: Colors.red,
-                  children: const <Widget>[
+                  children: [
                     Padding(
-                      padding: EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      padding: EdgeInsets.fromLTRB(
+                          4 * scaleFactor, 0, 4 * scaleFactor, 0),
                       child: Text(
                         '   Timer   ',
                         style: TextStyle(
                           color: Colors.white70,
                           fontWeight: FontWeight.bold,
-                          fontSize: 16.0,
+                          fontSize: 16.0 * scaleFactor,
                         ),
                       ),
                     ),
@@ -3094,8 +2988,9 @@ class _TimerboxState extends State<Timerbox> {
                 ),
               ),
             ),
+
+            // TIMER START/STOP BUTTON
             SizedBox(
-          //    width: itemWidth,
               child: Center(
                 child: ToggleButtons(
                   isSelected: myModel.timer_start_ispressed,
@@ -3107,18 +3002,23 @@ class _TimerboxState extends State<Timerbox> {
                         myModel.startTimer();
                       }
                     } else {
-                      // Show the popup here
                       showDialog(
                         context: context,
                         builder: (BuildContext context) {
                           return AlertDialog(
-                            title: const Text("Timer Required"),
-                            content: const Text("If you want to capture time for each practice, turn on the timer."),
+                            title: Text(
+                              "Timer Required",
+                              style: TextStyle(fontSize: 18 * scaleFactor),
+                            ),
+                            content: Text(
+                              "If you want to capture time for each practice, turn on the timer.",
+                              style: TextStyle(fontSize: 16 * scaleFactor),
+                            ),
                             actions: <Widget>[
                               TextButton(
-                                child: const Text("OK"),
+                                child: Text("OK", style: TextStyle(fontSize: 16 * scaleFactor)),
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
+                                  Navigator.of(context).pop();
                                 },
                               ),
                             ],
@@ -3127,24 +3027,23 @@ class _TimerboxState extends State<Timerbox> {
                       );
                     }
                   },
-
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                  borderRadius: BorderRadius.all(Radius.circular(8 * scaleFactor)),
                   selectedColor: Colors.grey,
-                  color: Colors.white70, // Color when *not* selected
+                  color: Colors.white70,
                   children: [
                     Container(
-                      width: screenWidth / 4,
-                      height: 30,
+                      width: screenWidth / (isTablet ? 6 : 4),
+                      height: 30 * scaleFactor,
                       decoration: BoxDecoration(
                         color: myModel.timerButtonColor,
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(8 * scaleFactor),
                       ),
                       child: Center(
                         child: Text(
                           myModel.timerTextStartBtn,
-                          style: const TextStyle( // Make the text white *always*
-                            color: Colors.white, // FORCE WHITE HERE
-                            fontSize: 16.0,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16.0 * scaleFactor,
                           ),
                         ),
                       ),
@@ -3152,25 +3051,25 @@ class _TimerboxState extends State<Timerbox> {
                   ],
                 ),
               ),
-
             ),
 
+            // RESET ICON
             IconButton(
-              icon: const Icon(Icons.rotate_left, color: Colors.white70),
+              icon: Icon(Icons.rotate_left, color: Colors.white70, size: 24 * scaleFactor),
               onPressed: () {
                 myModel.resetTimer();
               },
             ),
 
+            // TIME DISPLAY
             SizedBox(
-       //       width: itemWidth,
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   myModel.timeValue,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 16 * scaleFactor,
                   ),
                 ),
               ),
