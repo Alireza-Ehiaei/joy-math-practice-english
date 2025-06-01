@@ -2,7 +2,7 @@
     <application
         android:label="math_joy_practice_english"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/math_app_icon">
         <activity
             android:name=".MainActivity"
             android:exported="true"
