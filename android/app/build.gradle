@@ -43,8 +43,8 @@ android {
         applicationId = "com.tech4dev.math_joy_practice_english"
         minSdkVersion 21
         targetSdkVersion 35
-        versionCode 3
-        versionName "1.3"
+        versionCode 1
+        versionName "1.0.1"
         multiDexEnabled true
 
     }
