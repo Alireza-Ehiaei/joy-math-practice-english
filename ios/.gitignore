@@ -1,3 +1,14 @@
+**/*.mobileprovision
+**/*.p12
+**/*.cer
+**/*.key
+**/*.pem
+build/
+.dart_tool/
+.pub-cache/
+.pub/
+.DS_Store
+
 # Xcode
 **/dgph
 *.mode1v3

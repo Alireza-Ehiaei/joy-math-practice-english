@@ -4,12 +4,25 @@
 <dict>
     <key>method</key>
     <string>app-store</string>
+
+    <key>teamID</key>
+    <string>AHVM2Z8TDL</string>
+
+    <key>signingCertificate</key>
+    <string>iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)</string>
+
     <key>provisioningProfiles</key>
     <dict>
         <key>com.tech4dev.mathjoypracticeenglish</key>
         <string>MathJoyAppStore2025</string>
     </dict>
-    <key>signingCertificate</key>
-    <string>iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)</string>
+
+        <!-- Optional: strip Swift symbols to reduce app size -->
+    <key>stripSwiftSymbols</key>
+    <true/>
+
+    <!-- Optional: no app thinning -->
+    <key>thinning</key>
+    <string><none></string>
 </dict>
 </plist>
