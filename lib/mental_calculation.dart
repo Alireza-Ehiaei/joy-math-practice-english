@@ -2,7 +2,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/gestures.dart';
@@ -12,8 +11,8 @@ import 'main.dart';
 
 //////////////////////////////////////////////////////////// Mental calculation page
 
-class Mental_calculation_page extends StatelessWidget {
-  const Mental_calculation_page({super.key});
+class MentalCalculationPage extends StatelessWidget {
+  const MentalCalculationPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +24,7 @@ class Mental_calculation_page extends StatelessWidget {
     const baseFontSizeText = 20.0;
     const baseButtonWidth = 300.0;
     const baseButtonFontSize = 22.0;
-    const baseIconSize = 46.0;
+    const baseIconSize = 38.0;
     const baseSpacingLarge = 70.0;
     const baseSpacingSmall = 20.0;
 
@@ -51,120 +50,122 @@ class Mental_calculation_page extends StatelessWidget {
             image: const AssetImage('assets/images/back4.JPEG'),
             fit: BoxFit.fill,
             colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.3), // Adjust opacity here (0.0 to 1.0)
+              Colors.black.withValues(alpha: 0.3), // Adjust opacity here (0.0 to 1.0)
               BlendMode.darken, // Use BlendMode to control how the color is applied
             ),
           ),
         ),
 
 
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: spacingLarge),
-
-            Center(
-              child: Container(
-                width: containerWidth,
-                padding: EdgeInsets.all(16.0 * scaleFactor),
-
+        child: SafeArea(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: spacingLarge),
+          
+              Center(
                 child: Container(
-                  padding: EdgeInsets.all(8.0 * scaleFactor),
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(120, 66, 4, 4),
-                    borderRadius: BorderRadius.circular(10.0 * scaleFactor),
-                  ),
-                  child: Text(
-                    "Mathematics fosters the abilities of logical argumentation, "
-                        "problem-solving, innovation, abstract thinking, and critical thinking",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: fontSizeText,
+                  width: containerWidth,
+                  padding: EdgeInsets.all(16.0 * scaleFactor),
+          
+                  child: Container(
+                    padding: EdgeInsets.all(8.0 * scaleFactor),
+                    decoration: BoxDecoration(
+                      color: const Color.fromARGB(120, 66, 4, 4),
+                      borderRadius: BorderRadius.circular(10.0 * scaleFactor),
                     ),
-                    textAlign: TextAlign.center,
+                    child: Text(
+                      "Mathematics fosters the abilities of logical argumentation, "
+                          "problem-solving, innovation, abstract thinking, and critical thinking",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: fontSizeText,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
               ),
-            ),
-
-            SizedBox(height: spacingLarge),
-
-            SizedBox(
-              width: buttonWidth,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 129, 3, 32),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24.0 * scaleFactor),
+          
+              SizedBox(height: spacingLarge),
+          
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 129, 3, 32),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24.0 * scaleFactor),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 32 * scaleFactor,
+                      vertical: 16 * scaleFactor,
+                    ),
+                    textStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: buttonFontSize,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 32 * scaleFactor,
-                    vertical: 16 * scaleFactor,
-                  ),
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: buttonFontSize,
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MentalCalculationExplainPage()),
+                    );
+                  },
+                  child: const Text('Basic Arithmetic'),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Mental_calculation_explain_page()),
-                  );
-                },
-                child: const Text('Basic Arithmetic'),
               ),
-            ),
-
-            SizedBox(height: spacingSmall),
-
-            SizedBox(
-              width: buttonWidth,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 129, 3, 32),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(24.0 * scaleFactor),
+          
+              SizedBox(height: spacingSmall),
+          
+              SizedBox(
+                width: buttonWidth,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 129, 3, 32),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24.0 * scaleFactor),
+                    ),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 32 * scaleFactor,
+                      vertical: 16 * scaleFactor,
+                    ),
+                    textStyle: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: buttonFontSize,
+                    ),
                   ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 32 * scaleFactor,
-                    vertical: 16 * scaleFactor,
-                  ),
-                  textStyle: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: buttonFontSize,
-                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MentalCalculationPracticePage()),
+                    );
+                  },
+                  child: const Text('Practice'),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => Mental_calculation_practice_page()),
-                  );
-                },
-                child: const Text('Practice'),
               ),
-            ),
-
-            const Spacer(),
-
-            Align(
-              alignment: Alignment.centerLeft,
-              child: IconButton(
-                icon: const Icon(Icons.keyboard_return),
-                color: Colors.white,
-                iconSize: iconSize,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Homepage()),
-                  );
-                },
+          
+              const Spacer(),
+          
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: const Icon(Icons.keyboard_return),
+                  color: Colors.white,
+                  iconSize: iconSize,
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Homepage()),
+                    );
+                  },
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
 
       ),
@@ -179,27 +180,29 @@ class Mental_calculation_page extends StatelessWidget {
 
 /////////////////////////////////////////:://////////////////////////// Mental calculation explain page
 
-class AdvancedTile_mental {
+class AdvancedTileMental {
   final String title;
   final Widget body;
 
-  AdvancedTile_mental({required this.title, required this.body  });
+  AdvancedTileMental({required this.title, required this.body  });
 }
 
-class Mental_calculation_explain_page extends StatefulWidget {
+class MentalCalculationExplainPage extends StatefulWidget {
+  const MentalCalculationExplainPage({super.key});
+
   @override
-  State<Mental_calculation_explain_page> createState() => _Mental_calculation_explain_page();
+  State<MentalCalculationExplainPage> createState() => _MentalCalculationExplainPage();
 }
 
-class _Mental_calculation_explain_page extends State<Mental_calculation_explain_page>
+class _MentalCalculationExplainPage extends State<MentalCalculationExplainPage>
     with TickerProviderStateMixin {
   late List<GlobalKey> expansionTile;
   int selected = -1;
   bool get isTablet => MediaQuery.of(context).size.width >= 600;
 
-  List<AdvancedTile_mental> buildItems(bool isTablet) {
+  List<AdvancedTileMental> buildItems(bool isTablet) {
     return  [
-    AdvancedTile_mental(
+    AdvancedTileMental(
       title: '+',
       body:  Container(
         padding: const EdgeInsets.all(15),
@@ -223,7 +226,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                 text: 'Addition in smaller parts\n ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 220, 29, 4),
+                  color: const Color.fromARGB(255, 220, 29, 4),
                   fontSize: isTablet ? 32 : 26,
                 ),
               ),
@@ -243,7 +246,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                 text: 'Round the numbers\n ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 220, 29, 4),
+                  color: const Color.fromARGB(255, 220, 29, 4),
                   fontSize: isTablet ? 32 : 26,
                 ),
               ),
@@ -263,7 +266,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                 text: 'Begin with simpler sums\n ',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 220, 29, 4),
+                  color: const Color.fromARGB(255, 220, 29, 4),
                   fontSize: isTablet ? 32 : 26,
                 ),
               ),
@@ -281,7 +284,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
                 text: 'Simplify Addition by Ignoring Zeros\n',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(255, 220, 29, 4),
+                  color: const Color.fromARGB(255, 220, 29, 4),
                   fontSize: isTablet ? 32 : 26,
                 ),
               ),
@@ -301,10 +304,10 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
         ),
       ),
     ),
-    AdvancedTile_mental(
+    AdvancedTileMental(
       title: '-',
       body: Container(
-        padding: EdgeInsets.all(15),
+        padding: const EdgeInsets.all(15),
         decoration: const BoxDecoration(
           color: Color.fromARGB(255, 230, 228, 204),
           borderRadius: BorderRadius.all(Radius.circular(5)),
@@ -401,7 +404,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
       ),
     ),
 
-    AdvancedTile_mental(
+    AdvancedTileMental(
       title: 'x',
       body: Container(
         padding: const EdgeInsets.all(15),
@@ -560,7 +563,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
       ),
     ),
 
-    AdvancedTile_mental(
+    AdvancedTileMental(
       title: '÷',
       body: Container(
         padding: const EdgeInsets.all(15),
@@ -700,7 +703,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
   void initState(){
     super.initState();
     // Generating key for each item of items list
-  //  expansionTile = List<GlobalKey<_Mental_calculation_explain_page>>.generate(items.length, (index) => GlobalKey());
+  //  expansionTile = List<GlobalKey<_MentalCalculationExplainPage>>.generate(items.length, (index) => GlobalKey());
   }
 
   void _changeFontSize(double fontSize) {
@@ -716,7 +719,7 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
 
     final items = buildItems(isTablet);// Scale factor (increase sizes on tablets)
     double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
-    const baseIconSize = 44.0;
+    const baseIconSize = 38.0;
     final iconSize = baseIconSize * scaleFactor;
 
     return Scaffold(
@@ -726,344 +729,346 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
         decoration:  BoxDecoration(
 
             image: DecorationImage(
-            image: AssetImage('assets/images/back3.JPEG'),
+            image: const AssetImage('assets/images/back3.JPEG'),
             fit: BoxFit.fill,
             colorFilter: ColorFilter.mode(
-          Colors.black.withOpacity(0.3), // Adjust opacity here (0.0 to 1.0)
+          Colors.black.withValues(alpha: 0.3), // Adjust opacity here (0.0 to 1.0)
           BlendMode.darken, // Use BlendMode to control how the color is applied
         ),
       ),
         ),
 
-        child: Column(
-          children: [
-            SizedBox(
-              child: Column(
-                children: [
-                  SingleChildScrollView(
-                    child : Column(
-                      children : <Widget>[
-                        ListView.builder(
-                          key: Key('builder ${selected.toString()}'), //attention
-                          padding: EdgeInsets.only(left: 10.0, right: 10.0, top:  selected==-1 ? 120 :20),
-                          shrinkWrap: true, //the builder is called only for those children that are actually visible.
-                          //   physics: NeverScrollableScrollPhysics(),
-                          itemCount: items.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal:8.0, vertical: 2.0),
-                              child: Card( color:Colors.purple[900],
-                                shadowColor: Colors.blueGrey,
-                                elevation: 0.0,
-                                shape:  const RoundedRectangleBorder(
-                                  //     side: BorderSide(color: Colors.purple, width:2),
-                                    borderRadius: BorderRadius.only(
-                                        bottomLeft: Radius.zero,
-                                        topLeft:   Radius.circular(25),
-                                        bottomRight: Radius.zero,
-                                        topRight:Radius.zero
-                                    )
-                                ),
-                                child: ExpansionTile(
-                                  key: Key(index.toString()),
-                                  initiallyExpanded: index == selected,
-                                  onExpansionChanged: (newState) {
-                                    if (newState) {
-                                      setState(() {
-                                        selected = index;
-                                        _changeFontSize(isTablet ? 25 : 10); // larger font size on tablets
-                                      });
-                                    } else {
-                                      setState(() {
-                                        selected = -1;
-                                        _changeFontSize(isTablet ? 40 : 35); // adjust back on collapse
-                                      });
-                                    }
-                                  },
-                                  title: Text(
-                                    items[index].title,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: selected == -1
-                                          ? (isTablet ? 35 : 30)
-                                          : (isTablet ? 28 : 21), // larger font sizes on tablets
-                                    ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              SizedBox(
+                child: Column(
+                  children: [
+                    SingleChildScrollView(
+                      child : Column(
+                        children : <Widget>[
+                          ListView.builder(
+                            key: Key('builder ${selected.toString()}'), //attention
+                            padding: EdgeInsets.only(left: 10.0, right: 10.0, top:  selected==-1 ? 120 :20),
+                            shrinkWrap: true, //the builder is called only for those children that are actually visible.
+                            //   physics: NeverScrollableScrollPhysics(),
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(horizontal:8.0, vertical: 2.0),
+                                child: Card( color:Colors.purple[900],
+                                  shadowColor: Colors.blueGrey,
+                                  elevation: 0.0,
+                                  shape:  const RoundedRectangleBorder(
+                                    //     side: BorderSide(color: Colors.purple, width:2),
+                                      borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.zero,
+                                          topLeft:   Radius.circular(25),
+                                          bottomRight: Radius.zero,
+                                          topRight:Radius.zero
+                                      )
                                   ),
-                                  children: <Widget>[
-                                    AspectRatio(
-                                      aspectRatio: isTablet ? 1.2 : 0.8, // smaller height ratio on tablets
-                                      child: ListView.builder(
-                                        itemCount: 1,
-                                        itemBuilder: (context, item) {
-                                          return items[index].body;
-                                        },
+                                  child: ExpansionTile(
+                                    key: Key(index.toString()),
+                                    initiallyExpanded: index == selected,
+                                    onExpansionChanged: (newState) {
+                                      if (newState) {
+                                        setState(() {
+                                          selected = index;
+                                          _changeFontSize(isTablet ? 25 : 10); // larger font size on tablets
+                                        });
+                                      } else {
+                                        setState(() {
+                                          selected = -1;
+                                          _changeFontSize(isTablet ? 40 : 35); // adjust back on collapse
+                                        });
+                                      }
+                                    },
+                                    title: Text(
+                                      items[index].title,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: selected == -1
+                                            ? (isTablet ? 35 : 30)
+                                            : (isTablet ? 28 : 21), // larger font sizes on tablets
                                       ),
-                                    )
-                                  ],
+                                    ),
+                                    children: <Widget>[
+                                      AspectRatio(
+                                        aspectRatio: isTablet ? 1.2 : 0.8, // smaller height ratio on tablets
+                                        child: ListView.builder(
+                                          itemCount: 1,
+                                          itemBuilder: (context, item) {
+                                            return items[index].body;
+                                          },
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Row(
+                  children: [
+                    const SizedBox(width: 10,),
+                    IconButton(
+                      icon:  const Icon(Icons.keyboard_return),
+                      color:Colors.white,
+                      iconSize: iconSize,
+                      onPressed: (){
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const MentalCalculationPage()),
+                        );
+                      },
+                    ),
+          
+                    IconButton(
+                      icon:  const Icon(Icons.home),
+                      color:Colors.white,
+                      iconSize: iconSize,
+                      onPressed: (){
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => const Homepage()),
+                        );
+                      },
+                    ),
+                    const Spacer(),
+                    IconButton(
+                      icon: const Icon(Icons.source),
+                      color: Colors.white,
+                      iconSize: iconSize,
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('References'),
+                              content: SingleChildScrollView(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: const TextStyle(fontSize: 18.0, color: Colors.black),
+                                    children: [
+          
+                                      // 1. Art of Memory
+                                      TextSpan(
+                                        text: '\nArt of Memory - Mental Math\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://artofmemory.com/blog/category/mental-math/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 2. Mathigon
+                                      TextSpan(
+                                        text: '\nMathigon - Mental Math\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://mathigon.org/mental-math');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 3. Cut-the-Knot
+                                      TextSpan(
+                                        text: '\nCut-the-Knot - Mental Math\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://www.cut-the-knot.org/arithmetic/mental/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 4. Brilliant
+                                      TextSpan(
+                                        text: '\nBrilliant - Mental Math Course\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://brilliant.org/courses/mental-math/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 5. Vedic Maths Academy
+                                      TextSpan(
+                                        text: '\nVEDIC Maths Academy\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://www.vedicmaths.org/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 6. Ofpad Math Tricks
+                                      TextSpan(
+                                        text: '\nMath Tricks - Ofpad\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://ofpad.com/math-tricks/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 7. Numberphile
+                                      TextSpan(
+                                        text: '\nNumberphile - Math Tricks\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://www.numberphile.com/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 8. Math Shortcut Tricks
+                                      TextSpan(
+                                        text: '\nMath Shortcut Tricks\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://www.math-shortcut-tricks.com/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 9. QuickMathTricks
+                                      TextSpan(
+                                        text: '\nQuickMathTricks\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://quickmathtricks.com/');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+          
+                                      // 10. Khan Academy Arithmetic
+                                      TextSpan(
+                                        text: '\nKhan Academy - Arithmetic\n\n',
+                                        style: const TextStyle(
+                                          fontSize: 18.0,
+                                          color: Colors.blue,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                        recognizer: TapGestureRecognizer()
+                                          ..onTap = () async {
+                                            final url = Uri.parse('https://www.khanacademy.org/math/arithmetic');
+                                            if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(content: Text('Failed to open link')),
+                                              );
+                                            }
+                                          },
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
+                              actions: [
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Ok'),
+                                ),
+                              ],
                             );
                           },
-                        )
-                      ],
+                        );
+                      },
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 10,)
+          
+                  ]
               ),
-            ),
-            const Spacer(),
-            Row(
-                children: [
-                  const SizedBox(width: 10,),
-                  IconButton(
-                    icon:  const Icon(Icons.keyboard_return),
-                    color:Colors.white,
-                    iconSize: iconSize,
-                    onPressed: (){
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Mental_calculation_page()),
-                      );
-                    },
-                  ),
-
-                  IconButton(
-                    icon:  const Icon(Icons.home),
-                    color:Colors.white,
-                    iconSize: iconSize,
-                    onPressed: (){
-                      Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => const Homepage()),
-                      );
-                    },
-                  ),
-                  const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.source),
-                    color: Colors.white,
-                    iconSize: iconSize,
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: const Text('References'),
-                            content: SingleChildScrollView(
-                              child: RichText(
-                                text: TextSpan(
-                                  style: const TextStyle(fontSize: 18.0, color: Colors.black),
-                                  children: [
-
-                                    // 1. Art of Memory
-                                    TextSpan(
-                                      text: '\nArt of Memory - Mental Math\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://artofmemory.com/blog/category/mental-math/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 2. Mathigon
-                                    TextSpan(
-                                      text: '\nMathigon - Mental Math\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://mathigon.org/mental-math');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 3. Cut-the-Knot
-                                    TextSpan(
-                                      text: '\nCut-the-Knot - Mental Math\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://www.cut-the-knot.org/arithmetic/mental/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 4. Brilliant
-                                    TextSpan(
-                                      text: '\nBrilliant - Mental Math Course\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://brilliant.org/courses/mental-math/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 5. Vedic Maths Academy
-                                    TextSpan(
-                                      text: '\nVEDIC Maths Academy\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://www.vedicmaths.org/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 6. Ofpad Math Tricks
-                                    TextSpan(
-                                      text: '\nMath Tricks - Ofpad\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://ofpad.com/math-tricks/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 7. Numberphile
-                                    TextSpan(
-                                      text: '\nNumberphile - Math Tricks\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://www.numberphile.com/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 8. Math Shortcut Tricks
-                                    TextSpan(
-                                      text: '\nMath Shortcut Tricks\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://www.math-shortcut-tricks.com/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 9. QuickMathTricks
-                                    TextSpan(
-                                      text: '\nQuickMathTricks\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://quickmathtricks.com/');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-
-                                    // 10. Khan Academy Arithmetic
-                                    TextSpan(
-                                      text: '\nKhan Academy - Arithmetic\n\n',
-                                      style: const TextStyle(
-                                        fontSize: 18.0,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () async {
-                                          final url = Uri.parse('https://www.khanacademy.org/math/arithmetic');
-                                          if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('Failed to open link')),
-                                            );
-                                          }
-                                        },
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            actions: [
-                              ElevatedButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Ok'),
-                              ),
-                            ],
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 10,)
-
-                ]
-            ),
-            const SizedBox(height: 5,)
-          ],
+              const SizedBox(height: 5,)
+            ],
+          ),
         ),
       ),
     );
@@ -1074,13 +1079,15 @@ class _Mental_calculation_explain_page extends State<Mental_calculation_explain_
 ///////////////////////////////////////////////////////////////////////////
 
 
-/////////////////////////////////////////:://////////////////////////// Mental_calculation_practice_page
-class Mental_calculation_practice_page extends StatefulWidget {
+/////////////////////////////////////////:://////////////////////////// MentalCalculationPracticePage
+class MentalCalculationPracticePage extends StatefulWidget {
+  const MentalCalculationPracticePage({super.key});
+
   @override
   _State createState() => _State();
 }
 
-class _State extends State<Mental_calculation_practice_page> {
+class _State extends State<MentalCalculationPracticePage> {
 
   final  ValueNotifier<int> notification_operationindex = ValueNotifier(-1); // <type> variable= initialisation
   final  ValueNotifier<List<String>> notificationlist = ValueNotifier(<String>[]);
@@ -1133,31 +1140,36 @@ class _State extends State<Mental_calculation_practice_page> {
 
   int index = -1;
 
-  final List<bool> random_interval_box = <bool>[false];
-  late bool random_interval_visible = false;
+  final List<bool> randomIntervalBox = <bool>[false];
+  late bool randomIntervalVisible = false;
 
   get digit1 => null;
 
 
-  calculator_textfield_focus_(calculatorFocused) {
+  calculatorTextFieldFocus_(calculatorFocused) {
     setState(() {
       // if calculator_focused is focused _calculateor_textfield_focus will be true and
       // gets text of buttons
 });
   }
 
-  calculator_textfield_controller_(ControllerAddress,) {
+  calculatorTextFieldController_(ControllerAddress,) {
     setState(() {  // _controller_calculator goes to Controller_address and goes to _controller_calc
       _controller_calc = ControllerAddress;    }, );
   }
+// In your widget's build method or where you handle math operations:
+//  late final timerController = Provider.of<TimerController>(context, listen: false);
 
-  timer_CallBack(bool? toggleTimer, ) {
+
+  timerCallBack(bool? toggleTimer, ) {
     if (toggleTimer != null) {
       setState(() {
         timer_enabled = toggleTimer;
       });
     }
   }
+
+
 
   @override
   void initState() {
@@ -1215,7 +1227,7 @@ class _State extends State<Mental_calculation_practice_page> {
   final _insertText = insertText();
   final _backspace = backspace(); // calling class backspace from customkeyboard.dart
   final _operators = ['+','-','×','÷'];
-  List<bool> random_interval = <bool>[false];
+  List<bool> randomInterval = <bool>[false];
 
   @override
   Widget build(BuildContext context) {
@@ -1237,954 +1249,965 @@ class _State extends State<Mental_calculation_practice_page> {
     const baseIconSizeSmall = 25.0;
     const baseDialogFontSize = 20.0;
     const baseRowHeight = 30.0;
-    const baseSizedBoxWidth = 5.0;
-    const baseSizedBoxWide = 110.0;
 
 // Scaled sizes
     final iconSizeMain = baseIconSizeMain * scaleFactor;
     final iconSizeSmall = baseIconSizeSmall * scaleFactor;
     final dialogFontSize = baseDialogFontSize * scaleFactor;
     final rowHeight = baseRowHeight * scaleFactor;
-    final sizedBoxWidth = baseSizedBoxWidth * scaleFactor;
-    final sizedBoxWide = baseSizedBoxWide * scaleFactor;
 
 
-    return MultiProvider(
-
+    return MultiProvider( //                                     <--- MultiProvider
+      /*providers: [
+        ChangeNotifierProvider<MyModel>(create: (context) => MyModel()),
+        ChangeNotifierProvider<TimerBox>( // ChangeNotifierProxyProvider helps if
+          // CatalogModel were to update, then CartModel will be able to update accordingly.
+          create: (context) =>TimerBox(timerChanged: timer_CallBack),
+        ),
+      ]*/
       providers: [
         ChangeNotifierProvider<MyModel>(create: (context) => MyModel()),
-        ChangeNotifierProvider<Timerbox>( // ChangeNotifierProxyProvider helps if
+        ChangeNotifierProvider<TimerBox>( // ChangeNotifierProxyProvider helps if
           // CatalogModel were to update, then CartModel will be able to update accordingly.
-          create: (context) =>Timerbox(timer_changed: timer_CallBack),
+          create: (context) =>TimerBox(timerChanged: timerCallBack),
         ),
       ],
-      child: MaterialApp(
-
-        home:Scaffold(
+      child: Scaffold(
             backgroundColor: const Color.fromARGB(255, 32, 0, 14 ),
             body: Padding(
                 padding: const EdgeInsets.fromLTRB(8,8,8,0,),
-                child: Column(
-                  children: <Widget>[
-                    const SizedBox(height: 30),
-
-                    SizedBox(
-                      height: rowHeight,
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.keyboard_return),
-                            color: Colors.purple,
-                            iconSize: iconSizeMain,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const Mental_calculation_page()),
-                              );
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.home),
-                            color: Colors.purple,
-                            iconSize: iconSizeMain,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const Homepage()),
-                              );
-                            },
-                          ),
-                          SizedBox(width: sizedBoxWidth),
-                          IconButton(
-                            icon: const Icon(Icons.question_mark_outlined),
-                            color: Colors.green,
-                            iconSize: iconSizeSmall,
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                      "Instructions",
-                                      style: TextStyle(fontSize: dialogFontSize),
-                                    ),
-                                    content: SingleChildScrollView(
-                                      child: RichText(
-                                        text: TextSpan(
-                                          style: TextStyle(fontSize: dialogFontSize, color: Colors.black),
-                                          children: const <TextSpan>[
-                                            TextSpan(
-                                              text: "🧩 For a new exercise, press the One of the buttons  "
-                                                  "\"Addition\", \"Subtraction\", \"Multiplication\" or \"Division\" and "
-                                                  "answer based on the generated random numbers.\n\n",
-                                            ),
-                                            TextSpan(
-                                              text: "✅ To check if your answer is correct, press the \"Check\" button."
-                                                  " To see the correct answer, press the \"Answer\" button.\n\n",
-                                            ),
-                                            TextSpan(
-                                              text: "⏱️ Tap the clock icon in the top right corner to activate the timer. "
-                                                  "The timer automatically resets each time you start a new practice, "
-                                                  "displaying the time passed. Use the controls to manually stop, resume, "
-                                                  "or reset the timer as needed.",
-                                            ),
-                                            TextSpan(
-                                              text: "🔢 A random number between 1 and 100 will be generated for each new practice. "
-                                                  "If you want more challenging exercises, adjust the minimum and maximum values by "
-                                                  "clicking on the icon next to ⏱️.\n\n",
-                                            ),
-                                            TextSpan(
-                                              text: "🛠️ You can change the given random numbers manually and "
-                                                  "answer questions based on your custom inputs.\n\n",
-                                            ),
-                                            TextSpan(
-                                              text: "⚙️ You can close the timer and random number range windows "
-                                                  "without losing your settings to make the screen more readable. However, "
-                                                  "if you close the app, your settings will be reset.\n\n",
-                                            ),
-                                            TextSpan(
-                                              text: "🎓 When you're first learning, it's not necessary to use a"
-                                                  " timer. Once you're comfortable with the concepts, you can use "
-                                                  "the timer to improve your speed.\n\n",
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        child: Text("OK", style: TextStyle(fontSize: dialogFontSize)),
-                                        onPressed: () {
-                                          Navigator.of(context).pop();
-                                        },
-                                      ),
-                                    ],
+                child: SafeArea(
+                  child: SafeArea(
+                    child: Column(
+                      children: <Widget>[
+                    
+                    
+                        SizedBox(height: rowHeight,
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon:  const Icon(Icons.keyboard_return),
+                                color:Colors.purple,
+                                iconSize: iconSizeMain,
+                                onPressed: (){
+                                  Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => const NumeralBaseExplainPage()),
                                   );
                                 },
+                              ),
+                    
+                              IconButton(
+                                icon:  const Icon(Icons.home),
+                                color:Colors.purple,
+                                iconSize: iconSizeMain,
+                                onPressed: (){
+                                  Navigator.push(context,
+                                    MaterialPageRoute(builder: (context) => const Homepage()),
+                                  );
+                                },
+                              ),
+                    
+                              const SizedBox(width: 5,),
+                              IconButton(
+                                icon:  const Icon(Icons.question_mark_outlined),
+                                color:Colors.green,
+                                iconSize: iconSizeSmall,
+                                onPressed: (){
+                                  showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title:  Text("Instructions",
+                                          style: TextStyle(fontSize: dialogFontSize),),
+                                        content: SingleChildScrollView( // Make content scrollable
+                                          child: RichText(
+                                            text:  TextSpan(
+                                              style: TextStyle(fontSize: dialogFontSize, color: Colors.black), // Default style
+                                              children: const <TextSpan>[
+                                                TextSpan(
+                                                  text: "🧩 For a new exercise, press the \"New practice\" button and answer based "
+                                                      "on the generated random numbers.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text: "✅ To check if your answer is correct, press the \"Check\" button. "
+                                                      "To see the correct answer, press the \"Answer\" button.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                    
+                    
+                                                TextSpan(
+                                                  text: "⏱️ Tap the clock icon in the top right corner to activate the timer. "
+                                                      "The timer automatically resets each time you start a new practice, "
+                                                      "displaying the time passed. Use the controls to manually stop, resume, "
+                                                      "or reset the timer as needed.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text: "🔢 A random number between 1 and 100 will be generated for each new practice. "
+                                                      "If you want more challenging exercises, adjust the minimum and maximum values "
+                                                      "by clicking on the icon next to ⏱️.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text: "🛠️ You can change the given random numbers manually and answer questions based on your custom inputs. "
+                                                      "When you want to convert a number from one numerical base to another, "
+                                                      "none of the bases can be greater than 10.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                    
+                                                TextSpan(
+                                                  text: "⚙️ You can close the timer and random number range windows without losing "
+                                                      "your settings to declutter the screen. However, if you close the app, "
+                                                      "your settings will be reset.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                                                TextSpan(
+                                                  text: "🎓 When you're first learning, it's not necessary to use a timer. "
+                                                      "Once you're comfortable with the concepts, you can use "
+                                                      "the timer to improve your speed.\n\n",
+                                                  style: TextStyle(fontSize: 20, color: Colors.black),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text("OK", style: TextStyle(fontSize: dialogFontSize)),
+                                            onPressed: () {
+                                              Navigator.of(context).pop(); // Close the dialog
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+                    
+                                },
+                              ),
+                    
+                              const Spacer(),
+                              Padding(
+                                padding:  EdgeInsets.fromLTRB(0, 5 * scaleFactor, 0, 0),
+                                child: ToggleButtons(
+                                  isSelected: timer_box,
+                                  onPressed: (int index) {
+                                    setState(() {
+                                      timer_box[index] = !timer_box[index];
+                                      timer_visible = !timer_visible;
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.all(Radius.circular((8 * scaleFactor))),
+                                  //  selectedBorderColor: Colors.blue[700],
+                                  selectedColor: Colors.yellow[400],
+                                  //  fillColor: Colors.blue[200],
+                                  color: Colors.green,
+                                  children: <Widget>[
+                                    Icon(Icons.lock_clock, size: iconSizeSmall,),
+                                  ],
+                                ),
+                              ),
+                    
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(0, 5* scaleFactor, 0, 0),
+                                child: ToggleButtons( // for showing timer box
+                                  isSelected: randomIntervalBox,
+                                  onPressed: (int index) {
+                                    setState(() {
+                                      randomIntervalBox[index] = !randomIntervalBox[index]; // changes the state of the button
+                                      randomIntervalVisible = !randomIntervalVisible;    // gets action based on the state
+                                    });
+                                  },
+                                  borderRadius: BorderRadius.all(Radius.circular(8* scaleFactor)),
+                                  //  selectedBorderColor: Colors.blue[700],
+                                  selectedColor: Colors.yellow[400],
+                                  //  fillColor: Colors.blue[200],
+                                  color: Colors.green,
+                                  children: <Widget>[
+                                    Icon(Icons.social_distance, size: iconSizeSmall,),
+                    
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                width: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                              ),
+                    
+                            ],
+                          ),
+                        ),
+                    
+                        SizedBox(
+                          height: isTablet ? 12.0 : 10, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                    
+                        Consumer<MyModel>( //            <--- MyModel Consumer
+                            builder: (context, myModel, child) {
+                              return Visibility(visible: timer_visible,
+                    
+                                child : SizedBox(height: 30 * scaleFactor,
+                                    child: TimerBox(timerChanged: timerCallBack)),
+                              );}
+                        ),
+                    
+                        SizedBox(
+                          height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                    
+                        Visibility(
+                          visible: randomIntervalVisible,
+                          child: SizedBox(
+                            height: 33 * scaleFactor,
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.zero,
+                                  decoration: const BoxDecoration(
+                                    color: Color.fromARGB(255, 50, 87, 86),
+                                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                                  ),
+                                  child: ToggleButtons(
+                                    isSelected: randomInterval,
+                                    onPressed: (int index) {
+                                      setState(() {
+                                        randomInterval[0] = !randomInterval[0];
+                                      });
+                                    },
+                                    borderRadius: const BorderRadius.all(Radius.circular(5)),
+                                    selectedColor: Colors.red,
+                                    fillColor: Colors.lightBlueAccent,
+                                    color: Colors.red,
+                                    children: <Widget>[
+                                      Padding(
+                                        padding: EdgeInsets.fromLTRB(
+                                            6 * scaleFactor, 2 * scaleFactor, 6 * scaleFactor, 2 * scaleFactor),
+                                        child: Text(
+                                          'Random number',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white70,
+                                            fontSize: 18 * scaleFactor,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(width: 5 * scaleFactor),
+                                Flexible(
+                                  child: SizedBox(
+                                    height: 33 * scaleFactor,
+                                    child: TextField(
+                                      focusNode: _focus_minimum,
+                                      readOnly: true,
+                                      showCursor: true,
+                                      cursorColor: Colors.black,
+                                      onTap: () {
+                                        if (!_visible) {
+                                          show_keboard();
+                                        }
+                                      },
+                                      autofocus: false,
+                                      style: TextStyle(
+                                        fontSize: 22.0 * scaleFactor,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      controller: _controller_minimum,
+                                      onChanged: (text) {
+                                        setState(() {});
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'min',
+                                        hintStyle: TextStyle(fontSize: 16 * scaleFactor),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8 * scaleFactor),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        filled: true,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          vertical: 10 * scaleFactor,
+                                          horizontal: 10 * scaleFactor,
+                                        ),
+                                        fillColor: const Color.fromARGB(255, 246, 182, 58),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 8 * scaleFactor),
+                                Flexible(
+                                  child: SizedBox(
+                                    height: 33 * scaleFactor,
+                                    child: TextField(
+                                      focusNode: _focus_maximum,
+                                      readOnly: true,
+                                      showCursor: true,
+                                      cursorColor: Colors.black,
+                                      onTap: () {
+                                        if (!_visible) {
+                                          show_keboard();
+                                        }
+                                      },
+                                      autofocus: false,
+                                      style: TextStyle(
+                                        fontSize: 22.0 * scaleFactor,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      controller: _controller_maximum,
+                                      onChanged: (text) {
+                                        setState(() {});
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'max',
+                                        hintStyle: TextStyle(fontSize: 16 * scaleFactor),
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(8 * scaleFactor),
+                                          borderSide: BorderSide.none,
+                                        ),
+                                        filled: true,
+                                        contentPadding: EdgeInsets.symmetric(
+                                          vertical: 10 * scaleFactor,
+                                          horizontal: 10 * scaleFactor,
+                                        ),
+                                        fillColor: const Color.fromARGB(255, 246, 182, 58),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    
+                    
+                        SizedBox(
+                          height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                        SizedBox(
+                          width: screenWidth,
+                          child: Consumer<MyModel>(
+                            builder: (context, myModel, child) {
+                              return Container(
+                                padding: EdgeInsets.zero,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(255, 51, 117, 115),
+                                  border: Border.all(color: Colors.black, width: 1.0),
+                                  borderRadius: BorderRadius.all(Radius.circular(5.0 * scaleFactor)),
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final buttonWidth = (screenWidth) / (isTablet ? 5.5 : 6);
+                    
+                                    return ToggleButtons(
+                                      direction: Axis.horizontal,
+                                      onPressed: (index) {
+                                        myModel.timerSelected[0]
+                                            ? () {
+                                          myModel.resetTimer();
+                                          myModel.startTimer();
+                                          myModel.timerTextStartBtn = 'stop';
+                    
+                                          setState(() {
+                                            for (int buttonIndex = 0;
+                                            buttonIndex < _selectedmathoperation.length;
+                                            buttonIndex++) {
+                                              _selectedmathoperation[buttonIndex] =
+                                              (buttonIndex == index);
+                                            }
+                    
+                                            notification_operationindex.value = index;
+                                            notificationtext.value = "";
+                                            notificationlist.value = [];
+                                            notificationcolor.value = 3;
+                                            notificationcolor_remainder.value = 3;
+                                            myModel.timerStartIsPressed[0] = true;
+                                          });
+                                        }()
+                                            : () {
+                                          setState(() {
+                                            for (int buttonIndex = 0;
+                                            buttonIndex < _selectedmathoperation.length;
+                                            buttonIndex++) {
+                                              _selectedmathoperation[buttonIndex] =
+                                              (buttonIndex == index);
+                                            }
+                    
+                                            notification_operationindex.value = index;
+                                            notificationtext.value = "";
+                                            notificationlist.value = [];
+                                            notificationcolor.value = 3;
+                                            notificationcolor_remainder.value = 3;
+                                          });
+                                        }();
+                    
+                                        _controller_answer.text = "";
+                                        _controller_answer_remainder.text = "";
+                                        if (randomInterval[0]) {
+                                          if ((_controller_minimum.text == "") ||
+                                              (_controller_maximum.text == "")) {
+                                            first_number = (randomNumber(20, 200));
+                                            second_number = (randomNumber(6, first_number - 1));
+                                          } else {
+                                            first_number = (randomNumber(
+                                                int.parse(number_toenglish(_controller_minimum.text)),
+                                                int.parse(
+                                                    number_toenglish(_controller_maximum.text))));
+                                            second_number = (randomNumber(
+                                                int.parse(number_toenglish(_controller_minimum.text)),
+                                                first_number));
+                                          }
+                    
+                                          _controller_first_number.text = (first_number.toString());
+                                          _controller_second_number.text =
+                                          (second_number.toString());
+                                        } else {
+                                          first_number = (randomNumber(20, 200));
+                                          second_number = (randomNumber(6, first_number - 1));
+                    
+                                          _controller_first_number.text = (first_number.toString());
+                                          _controller_second_number.text =
+                                          (second_number.toString());
+                                        }
+                                      },
+                                      textStyle: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18 * scaleFactor,
+                                      ),
+                                      selectedColor: Colors.white,
+                                      fillColor: Colors.lightBlueAccent,
+                                      disabledColor: Colors.yellow[200],
+                                      color: Colors.white,
+                                      constraints: BoxConstraints(
+                                        minHeight: 44.0 * scaleFactor,
+                                        minWidth: buttonWidth,
+                                      ),
+                                      isSelected: _selectedmathoperation,
+                                      children: paddedMathOper,
+                                    );
+                                  },
+                                ),
                               );
                             },
                           ),
-                          const Spacer(),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 5 * scaleFactor, 0, 0),
-                            child: ToggleButtons(
-                              isSelected: timer_box,
-                              onPressed: (int index) {
-                                setState(() {
-                                  timer_box[index] = !timer_box[index];
-                                  timer_visible = !timer_visible;
-                                });
-                              },
-                              borderRadius: BorderRadius.all(Radius.circular(8 * scaleFactor)),
-                              selectedColor: Colors.yellow[400],
-                              color: Colors.green,
-                              children: [
-                                Icon(Icons.lock_clock, size: iconSizeSmall),
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(0, 5 * scaleFactor, 0, 0),
-                            child: ToggleButtons(
-                              isSelected: random_interval_box,
-                              onPressed: (int index) {
-                                setState(() {
-                                  random_interval_box[index] = !random_interval_box[index];
-                                  random_interval_visible = !random_interval_visible;
-                                });
-                              },
-                              borderRadius: BorderRadius.all(Radius.circular(8 * scaleFactor)),
-                              selectedColor: Colors.yellow[400],
-                              color: Colors.green,
-                              children: [
-                                Icon(Icons.social_distance, size: iconSizeSmall),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 10,),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 10, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-                    Consumer<MyModel>( //            <--- MyModel Consumer
-                        builder: (context, myModel, child) {
-                          return Visibility(visible: timer_visible,
-                            child : SizedBox(height:  33 * scaleFactor,
-                                child: Timerbox(timer_changed: timer_CallBack)),
-                          );}
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-                    Visibility(
-                      visible: random_interval_visible,
-                      child: SizedBox(
-                        height: 33 * scaleFactor, // Increased height for better usability
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: EdgeInsets.zero,
-                              decoration: const BoxDecoration(
-                                color: Color.fromARGB(255, 50, 87, 86),
-                                borderRadius: BorderRadius.all(Radius.circular(5)),
-                              ),
-                              child: ToggleButtons(
-                                isSelected: random_interval,
-                                onPressed: (int index) {
-                                  setState(() {
-                                    random_interval[0] = !random_interval[0];
-                                  });
-                                },
-                                borderRadius: const BorderRadius.all(Radius.circular(5)),
-                                selectedColor: Colors.red,
-                                fillColor: Colors.lightBlueAccent,
-                                color: Colors.red,
-                                children: <Widget>[
-                                  Padding(
-                                    padding: EdgeInsets.fromLTRB(
-                                        6 * scaleFactor, 2 * scaleFactor, 6 * scaleFactor, 2 * scaleFactor),
-                                    child: Text(
-                                      'Random number',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white70,
-                                        fontSize: 18 * scaleFactor,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            SizedBox(width: 5 * scaleFactor),
-                            Flexible(
-                              child: SizedBox(
-                                height: 33 * scaleFactor,
-                                child: TextField(
-                                  focusNode: _focus_minimum,
-                                  readOnly: true,
-                                  showCursor: true,
-                                  cursorColor: Colors.black,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: TextStyle(
-                                    fontSize: 22.0 * scaleFactor,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  controller: _controller_minimum,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: 'min',
-                                    hintStyle: TextStyle(fontSize: 16 * scaleFactor),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8 * scaleFactor),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    filled: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 10 * scaleFactor,
-                                      horizontal: 10 * scaleFactor,
-                                    ),
-                                    fillColor: const Color.fromARGB(255, 246, 182, 58),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8 * scaleFactor),
-                            Flexible(
-                              child: SizedBox(
-                                height: 33 * scaleFactor,
-                                child: TextField(
-                                  focusNode: _focus_maximum,
-                                  readOnly: true,
-                                  showCursor: true,
-                                  cursorColor: Colors.black,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: TextStyle(
-                                    fontSize: 22.0 * scaleFactor,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  controller: _controller_maximum,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: 'max',
-                                    hintStyle: TextStyle(fontSize: 16 * scaleFactor),
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(8 * scaleFactor),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    filled: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 10 * scaleFactor,
-                                      horizontal: 10 * scaleFactor,
-                                    ),
-                                    fillColor: const Color.fromARGB(255, 246, 182, 58),
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ),
-                          ],
                         ),
-                      ),
-                    ),
-
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-// Instruction text
-                    Text(
-                      'Try to answer the following exercises mentally',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16 * scaleFactor,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5.0,
-                    ),
-
-                    SizedBox(
-                      width: screenWidth,
-                      child: Consumer<MyModel>(
-                        builder: (context, myModel, child) {
-                          return Container(
-                            padding: EdgeInsets.zero,
-                            decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 51, 117, 115),
-                              border: Border.all(color: Colors.black, width: 1.0),
-                              borderRadius: BorderRadius.all(Radius.circular(5.0 * scaleFactor)),
-                            ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                final buttonWidth = (screenWidth) / (isTablet ? 5.5 : 6);
-
-                                return ToggleButtons(
-                                  direction: Axis.horizontal,
-                                  onPressed: (index) {
-                                    myModel.timer_selected[0]
-                                        ? () {
-                                      myModel.resetTimer();
-                                      myModel.startTimer();
-                                      myModel.timerTextStartBtn = 'stop';
-
-                                      setState(() {
-                                        for (int buttonIndex = 0;
-                                        buttonIndex < _selectedmathoperation.length;
-                                        buttonIndex++) {
-                                          _selectedmathoperation[buttonIndex] =
-                                          (buttonIndex == index);
-                                        }
-
-                                        notification_operationindex.value = index;
-                                        notificationtext.value = "";
-                                        notificationlist.value = [];
-                                        notificationcolor.value = 3;
-                                        notificationcolor_remainder.value = 3;
-                                        myModel.timer_start_ispressed[0] = true;
-                                      });
-                                    }()
-                                        : () {
-                                      setState(() {
-                                        for (int buttonIndex = 0;
-                                        buttonIndex < _selectedmathoperation.length;
-                                        buttonIndex++) {
-                                          _selectedmathoperation[buttonIndex] =
-                                          (buttonIndex == index);
-                                        }
-
-                                        notification_operationindex.value = index;
-                                        notificationtext.value = "";
-                                        notificationlist.value = [];
-                                        notificationcolor.value = 3;
-                                        notificationcolor_remainder.value = 3;
-                                      });
-                                    }();
-
-                                    _controller_answer.text = "";
-                                    _controller_answer_remainder.text = "";
-                                    if (random_interval[0]) {
-                                      if ((_controller_minimum.text == "") ||
-                                          (_controller_maximum.text == "")) {
-                                        first_number = (randomNumber(20, 200));
-                                        second_number = (randomNumber(6, first_number - 1));
-                                      } else {
-                                        first_number = (randomNumber(
-                                            int.parse(number_toenglish(_controller_minimum.text)),
-                                            int.parse(
-                                                number_toenglish(_controller_maximum.text))));
-                                        second_number = (randomNumber(
-                                            int.parse(number_toenglish(_controller_minimum.text)),
-                                            first_number));
-                                      }
-
-                                      _controller_first_number.text = (first_number.toString());
-                                      _controller_second_number.text =
-                                      (second_number.toString());
-                                    } else {
-                                      first_number = (randomNumber(20, 200));
-                                      second_number = (randomNumber(6, first_number - 1));
-
-                                      _controller_first_number.text = (first_number.toString());
-                                      _controller_second_number.text =
-                                      (second_number.toString());
-                                    }
-                                  },
-                                  textStyle: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18 * scaleFactor,
-                                  ),
-                                  selectedColor: Colors.white,
-                                  fillColor: Colors.lightBlueAccent,
-                                  disabledColor: Colors.yellow[200],
-                                  color: Colors.white,
-                                  constraints: BoxConstraints(
-                                    minHeight: 44.0 * scaleFactor,
-                                    minWidth: buttonWidth,
-                                  ),
-                                  isSelected: _selectedmathoperation,
-                                  children: paddedMathOper,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-
-                    SizedBox(
-                      height: 40 * scaleFactor, // Responsive height for the row
-                      child: Row(
-                        children: [
-                          Flexible(
-                            child: TextField(
-                              focusNode: _focus_first_number,
-                              readOnly: true,
-                              showCursor: true,
-                              cursorColor: Colors.black,
-                              onTap: () {
-                                if (!_visible) {
-                                  show_keboard();
-                                }
-                              },
-                              autofocus: false,
-                              style: TextStyle(
-                                fontSize: 22 * scaleFactor,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(
-                                    8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 13 * scaleFactor),
-                                border: InputBorder.none,
-                                filled: true,
-                                fillColor: const Color.fromARGB(255, 221, 217, 218),
-                              ),
-                              controller: _controller_first_number,
-                              onChanged: (text) {
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 10 * scaleFactor),
-                          Text(
-                            notification_operationindex.value == 0
-                                ? '÷'
-                                : notification_operationindex.value == 2
-                                ? '-'
-                                : notification_operationindex.value == 1
-                                ? '×'
-                                : '+',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 24 * scaleFactor, // Responsive operator size
-                            ),
-                          ),
-                          SizedBox(width: 10 * scaleFactor),
-                          Flexible(
-                            child: TextField(
-                              focusNode: _focus_second_number,
-                              readOnly: true,
-                              showCursor: true,
-                              cursorColor: Colors.black,
-                              onTap: () {
-                                if (!_visible) {
-                                  show_keboard();
-                                }
-                              },
-                              autofocus: false,
-                              style: TextStyle(
-                                fontSize: 22 * scaleFactor,
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              decoration: InputDecoration(
-                                contentPadding: EdgeInsets.fromLTRB(
-                                    8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 13 * scaleFactor),
-                                border: InputBorder.none,
-                                filled: true,
-                                fillColor: const Color.fromARGB(255, 221, 217, 218),
-                              ),
-                              controller: _controller_second_number,
-                              onChanged: (text) {
-                                setState(() {});
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-
-                    SizedBox(
-                      height: 40 * scaleFactor, // Responsive height
-                      child: notification_operationindex.value != 0
-                          ? Row(
-                        children: [
-                          Text(
-                            'Answer?',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 22 * scaleFactor,
-                            ),
-                          ),
-                          SizedBox(width: 10 * scaleFactor),
-                          Flexible(
-                            child: ValueListenableBuilder<int>(
-                              valueListenable: notificationcolor,
-                              builder: (context, value, widget) {
-                                return TextField(
-                                  focusNode: _focus_answer,
-                                  readOnly: true,
-                                  cursorColor: Colors.black,
-                                  showCursor: true,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: TextStyle(
-                                    fontSize: 22 * scaleFactor,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  decoration: InputDecoration(
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                        8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
-                                    filled: true,
-                                    border: InputBorder.none,
-                                    fillColor: (value == 0)
-                                        ? const Color.fromARGB(255, 253, 14, 42)
-                                        : (value == 1)
-                                        ? const Color.fromARGB(255, 43, 163, 16)
-                                        : const Color.fromARGB(255, 221, 217, 218),
-                                  ),
-                                  controller: _controller_answer,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      )
-                          : Row(
-                        children: [
-                          Text(
-                            'Answer?',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18 * scaleFactor,
-                            ),
-                          ),
-                          SizedBox(width: 10 * scaleFactor),
-                          Flexible(
-                            child: ValueListenableBuilder<int>(
-                              valueListenable: notificationcolor,
-                              builder: (context, value, widget) {
-                                return TextField(
-                                  focusNode: _focus_answer,
-                                  readOnly: true,
-                                  cursorColor: Colors.black,
-                                  showCursor: true,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: TextStyle(
-                                    fontSize: 22 * scaleFactor,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'quotient',
-                                    hintStyle: TextStyle(fontSize: 18 * scaleFactor),
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                        8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
-                                    filled: true,
-                                    border: InputBorder.none,
-                                    fillColor: (value == 0)
-                                        ? const Color.fromARGB(255, 253, 14, 42)
-                                        : (value == 1)
-                                        ? const Color.fromARGB(255, 43, 163, 16)
-                                        : const Color.fromARGB(255, 221, 217, 218),
-                                  ),
-                                  controller: _controller_answer,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                          SizedBox(width: 6 * scaleFactor),
-                          Flexible(
-                            child: ValueListenableBuilder<int>(
-                              valueListenable: notificationcolor_remainder,
-                              builder: (context, value, widget) {
-                                return TextField(
-                                  focusNode: _focus_answer_remainder,
-                                  readOnly: true,
-                                  cursorColor: Colors.black,
-                                  showCursor: true,
-                                  onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
-                                    }
-                                  },
-                                  autofocus: false,
-                                  style: TextStyle(
-                                    fontSize: 22 * scaleFactor,
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  decoration: InputDecoration(
-                                    hintText: 'Remainder',
-                                    hintStyle: TextStyle(fontSize: 19 * scaleFactor),
-                                    contentPadding: EdgeInsets.fromLTRB(
-                                        8 * scaleFactor, 6 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
-                                    filled: true,
-                                    border: InputBorder.none,
-                                    fillColor: (value == 0)
-                                        ? const Color.fromARGB(255, 253, 14, 42)
-                                        : (value == 1)
-                                        ? const Color.fromARGB(255, 43, 163, 16)
-                                        : const Color.fromARGB(255, 221, 217, 218),
-                                  ),
-                                  controller: _controller_answer_remainder,
-                                  onChanged: (text) {
-                                    setState(() {});
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-                Consumer<MyModel>( //            <--- MyModel Consumer
-                    builder: (context, myModel, child) {
-                      return
                         SizedBox(
-                          height: 40 * scaleFactor, // Responsive height
+                          height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                    
+                        SizedBox(
+                          height: 40 * scaleFactor, // Responsive height for the row
                           child: Row(
                             children: [
                               Flexible(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(255, 50, 87, 86),
-                                    minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
-                                  ),
-                                  onPressed: () {
-                                    id = 0;
-                                    if (myModel.timer_selected[0]) {
-                                      if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
-                                      show_answer(id, timer_enabled);
-                                    } else {
-                                      show_answer(id, timer_enabled);
+                                child: TextField(
+                                  focusNode: _focus_first_number,
+                                  readOnly: true,
+                                  showCursor: true,
+                                  cursorColor: Colors.black,
+                                  onTap: () {
+                                    if (!_visible) {
+                                      show_keboard();
                                     }
                                   },
-                                  child: Text(
-                                    'Answer',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isTablet ? 33 : 20,
-                                    ),
+                                  autofocus: false,
+                                  style: TextStyle(
+                                    fontSize: 22 * scaleFactor,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                        8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 13 * scaleFactor),
+                                    border: InputBorder.none,
+                                    filled: true,
+                                    fillColor: const Color.fromARGB(255, 221, 217, 218),
+                                  ),
+                                  controller: _controller_first_number,
+                                  onChanged: (text) {
+                                    setState(() {});
+                                  },
                                 ),
                               ),
-                              SizedBox(width: isTablet ? 16 : 7),
+                              SizedBox(width: 10 * scaleFactor),
+                              Text(
+                                notification_operationindex.value == 0
+                                    ? '÷'
+                                    : notification_operationindex.value == 2
+                                    ? '-'
+                                    : notification_operationindex.value == 1
+                                    ? '×'
+                                    : '+',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24 * scaleFactor, // Responsive operator size
+                                ),
+                              ),
+                              SizedBox(width: 10 * scaleFactor),
                               Flexible(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(255, 50, 87, 86),
-                                    minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
-                                  ),
-                                  onPressed: () {
-                                    id = 1;
-                                    show_answer(id, timer_enabled);
-                                    if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
+                                child: TextField(
+                                  focusNode: _focus_second_number,
+                                  readOnly: true,
+                                  showCursor: true,
+                                  cursorColor: Colors.black,
+                                  onTap: () {
+                                    if (!_visible) {
+                                      show_keboard();
+                                    }
                                   },
-                                  child: Text(
-                                    'Check',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: isTablet ? 33 : 20,
-                                    ),
+                                  autofocus: false,
+                                  style: TextStyle(
+                                    fontSize: 22 * scaleFactor,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
                                   ),
+                                  decoration: InputDecoration(
+                                    contentPadding: EdgeInsets.fromLTRB(
+                                        8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 13 * scaleFactor),
+                                    border: InputBorder.none,
+                                    filled: true,
+                                    fillColor: const Color.fromARGB(255, 221, 217, 218),
+                                  ),
+                                  controller: _controller_second_number,
+                                  onChanged: (text) {
+                                    setState(() {});
+                                  },
                                 ),
                               ),
                             ],
                           ),
-                        );
-                    }
-                    ),
-                    //      SizedBox(isTablet ? 350 : 250;
-                    //           child: MyStatefulWidget()),
-                    SizedBox(
-                      height: isTablet ? 20 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
+                        ),
 
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 0, 10),
-                      child: SizedBox(
-                        height: 60,
-                        child: ValueListenableBuilder<String>(
-                          valueListenable: notificationtext,
+                        SizedBox(
+                          height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+
+
+                        SizedBox(
+                          height: 40 * scaleFactor, // Responsive height
+                          child: notification_operationindex.value != 0
+                              ? Row(
+                            children: [
+                              Text(
+                                'Answer?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 22 * scaleFactor,
+                                ),
+                              ),
+                              SizedBox(width: 10 * scaleFactor),
+                              Flexible(
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable: notificationcolor,
+                                  builder: (context, value, widget) {
+                                    return TextField(
+                                      focusNode: _focus_answer,
+                                      readOnly: true,
+                                      cursorColor: Colors.black,
+                                      showCursor: true,
+                                      onTap: () {
+                                        if (!_visible) {
+                                          show_keboard();
+                                        }
+                                      },
+                                      autofocus: false,
+                                      style: TextStyle(
+                                        fontSize: 22 * scaleFactor,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
+                                        filled: true,
+                                        border: InputBorder.none,
+                                        fillColor: (value == 0)
+                                            ? const Color.fromARGB(255, 253, 14, 42)
+                                            : (value == 1)
+                                            ? const Color.fromARGB(255, 43, 163, 16)
+                                            : const Color.fromARGB(255, 221, 217, 218),
+                                      ),
+                                      controller: _controller_answer,
+                                      onChanged: (text) {
+                                        setState(() {});
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          )
+                              : Row(
+                            children: [
+                              Text(
+                                'Answer?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18 * scaleFactor,
+                                ),
+                              ),
+                              SizedBox(width: 10 * scaleFactor),
+                              Flexible(
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable: notificationcolor,
+                                  builder: (context, value, widget) {
+                                    return TextField(
+                                      focusNode: _focus_answer,
+                                      readOnly: true,
+                                      cursorColor: Colors.black,
+                                      showCursor: true,
+                                      onTap: () {
+                                        if (!_visible) {
+                                          show_keboard();
+                                        }
+                                      },
+                                      autofocus: false,
+                                      style: TextStyle(
+                                        fontSize: 22 * scaleFactor,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'quotient',
+                                        hintStyle: TextStyle(fontSize: 18 * scaleFactor),
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            8 * scaleFactor, 8 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
+                                        filled: true,
+                                        border: InputBorder.none,
+                                        fillColor: (value == 0)
+                                            ? const Color.fromARGB(255, 253, 14, 42)
+                                            : (value == 1)
+                                            ? const Color.fromARGB(255, 43, 163, 16)
+                                            : const Color.fromARGB(255, 221, 217, 218),
+                                      ),
+                                      controller: _controller_answer,
+                                      onChanged: (text) {
+                                        setState(() {});
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 6 * scaleFactor),
+                              Flexible(
+                                child: ValueListenableBuilder<int>(
+                                  valueListenable: notificationcolor_remainder,
+                                  builder: (context, value, widget) {
+                                    return TextField(
+                                      focusNode: _focus_answer_remainder,
+                                      readOnly: true,
+                                      cursorColor: Colors.black,
+                                      showCursor: true,
+                                      onTap: () {
+                                        if (!_visible) {
+                                          show_keboard();
+                                        }
+                                      },
+                                      autofocus: false,
+                                      style: TextStyle(
+                                        fontSize: 22 * scaleFactor,
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      decoration: InputDecoration(
+                                        hintText: 'Remainder',
+                                        hintStyle: TextStyle(fontSize: 19 * scaleFactor),
+                                        contentPadding: EdgeInsets.fromLTRB(
+                                            8 * scaleFactor, 6 * scaleFactor, 8 * scaleFactor, 12 * scaleFactor),
+                                        filled: true,
+                                        border: InputBorder.none,
+                                        fillColor: (value == 0)
+                                            ? const Color.fromARGB(255, 253, 14, 42)
+                                            : (value == 1)
+                                            ? const Color.fromARGB(255, 43, 163, 16)
+                                            : const Color.fromARGB(255, 221, 217, 218),
+                                      ),
+                                      controller: _controller_answer_remainder,
+                                      onChanged: (text) {
+                                        setState(() {});
+                                      },
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    
+                        SizedBox(
+                          height: isTablet ? 12.0 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                        Consumer<MyModel>( //            <--- MyModel Consumer
+                            builder: (context, myModel, child) {
+                              return
+                                SizedBox(
+                                  height: 40 * scaleFactor, // Responsive height
+                                  child: Center(
+                                    child: Row(
+                                      children: [
+                                        Flexible(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                              minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
+                                            ),
+                                            onPressed: () {
+                                              id = 0;
+                                              if (myModel.timerSelected[0]) {
+                                                if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
+                                                show_answer(id, timer_enabled);
+                                              } else {
+                                                show_answer(id, timer_enabled);
+                                              }
+                                            },
+                                            child: Text(
+                                              'Answer',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: isTablet ? 33 : 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: isTablet ? 16 : 7),
+                                        Flexible(
+                                          child: ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                              minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
+                                            ),
+                                            onPressed: () {
+                                              id = 1;
+                                              show_answer(id, timer_enabled);
+                                              if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
+                                            },
+                                            child: Text(
+                                              'Check',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: isTablet ? 33 : 20,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                            }
+                        ),
+                        //      SizedBox(isTablet ? 350 : 250;
+                        //           child: MyStatefulWidget()),
+                        SizedBox(
+                          height: isTablet ? 20 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 10, 0, 10),
+                          child: SizedBox(
+                            height: 60,
+                            child: ValueListenableBuilder<String>(
+                              valueListenable: notificationtext,
+                              builder: (context, value, widget) {
+                                // Responsive font size logic
+                                final screenWidth = MediaQuery.of(context).size.width;
+                                final bool isTablet = screenWidth >= 600;
+                    
+                                // Choose color based on notificationcolor.value
+                                Color textColor;
+                                if (notificationcolor.value == 1) {
+                                  textColor = Colors.green;
+                                } else if (notificationcolor.value == 0) {
+                                  textColor = Colors.red;
+                                } else {
+                                  textColor = Colors.white;
+                                }
+                    
+                                // Choose font size based on the message
+                                if (value == "The answer is not correct") {
+                                  textColor = Colors.red;
+                                } else if (value == "Correct answer:") {
+                                  textColor = Colors.blue;
+                                } else if (value == "Very good, your answer is correct!") {
+                                  textColor = Colors.green;
+                                } else {
+                                  textColor = Colors.white;
+                                }
+                    
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    value,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: isTablet ? 44 : 20,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                    
+                        SizedBox(
+                          height: isTablet ? 20 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
+                        ),
+                    
+                        // box for the correct answer
+                        //      SizedBox(height: calculator_visible ?  135 : 220, child:
+                        ValueListenableBuilder<List<String>>(
+                          valueListenable: notificationlist,
                           builder: (context, value, widget) {
                             // Responsive font size logic
                             final screenWidth = MediaQuery.of(context).size.width;
                             final bool isTablet = screenWidth >= 600;
-
-                            // Choose color based on notificationcolor.value
-                            Color textColor;
-                            if (notificationcolor.value == 1) {
-                              textColor = Colors.green;
-                            } else if (notificationcolor.value == 0) {
-                              textColor = Colors.red;
-                            } else {
-                              textColor = Colors.white;
-                            }
-
-                            // Choose font size based on the message
-                            double fontSize;
-                            if (value == "The answer is not correct") {
-                              textColor = Colors.red;
-                              fontSize = isTablet ? 44 : 20;
-                            } else if (value == "Correct answer:") {
-                              textColor = Colors.blue;
-                              fontSize = isTablet ? 42 : 20;
-                            } else if (value == "Very good, your answer is correct!") {
-                              textColor = Colors.green;
-                              fontSize = isTablet ? 44 : 20;
-                            } else {
-                              textColor = Colors.white;
-                              fontSize = isTablet ? 44 : 20;
-                            }
-
-                            return Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                value,
-                                style: TextStyle(
-                                  color: textColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: isTablet ? 44 : 20,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: isTablet ? 20 : 5.0, // or use 5.0 * scaleFactor if you want proportional scaling
-                    ),
-
-                    // box for the correct answer
-                    //      SizedBox(height: calculator_visible ?  135 : 220, child:
-                    ValueListenableBuilder<List<String>>(
-                      valueListenable: notificationlist,
-                      builder: (context, value, widget) {
-                        // Responsive font size logic
-                        final screenWidth = MediaQuery.of(context).size.width;
-                        final bool isTablet = screenWidth >= 600;
-
-                        double fontSize = isTablet ? 44 : 24;
-
-                        return Expanded(
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.vertical,
-                            child: Align(
-                              alignment: Alignment.center,
-                              child: Container(
-                                color: const Color.fromARGB(255, 1, 61, 59),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Wrap(
-                                    spacing: 10, // space between row items
-                                    runSpacing: 5,
-                                    children: value.map((e) => Container(
-                                      margin: const EdgeInsets.all(0),
-                                      child: Padding(
-                                        padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                                        child: Text(
-                                          e,
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: fontSize, // Responsive!
+                    
+                            double fontSize = isTablet ? 44 : 24;
+                    
+                            return Expanded(
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.vertical,
+                                child: Align(
+                                  alignment: Alignment.center,
+                                  child: Container(
+                                    color: const Color.fromARGB(255, 1, 61, 59),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Wrap(
+                                        spacing: 10, // space between row items
+                                        runSpacing: 5,
+                                        children: value.map((e) => Container(
+                                          margin: const EdgeInsets.all(0),
+                                          child: Padding(
+                                            padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                                            child: Text(
+                                              e,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: fontSize, // Responsive!
+                                              ),
+                                              textAlign: TextAlign.left,
+                                            ),
                                           ),
-                                          textAlign: TextAlign.left,
-                                        ),
+                                        )).toList(),
                                       ),
-                                    )).toList(),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-
-
-                    const SizedBox(height: 10,),
-
-
-                    Visibility(
-                      visible: _visible,
-                      child: SizedBox(
-                        // Optionally set a responsive height for the keyboard if needed:
-                        // height: 250 * scaleFactor,
-                        width: double.infinity,
-                        child: CustomKeyboard(
-                          key: const ValueKey('custom_keyboard'),
-                          onTextInput: (myText) {
-                            _insertText(
-                              _focus_first_number.hasFocus
-                                  ? _controller_first_number
-                                  : _focus_second_number.hasFocus
-                                  ? _controller_second_number
-                                  : _focus_answer_remainder.hasFocus
-                                  ? _controller_answer_remainder
-                                  : _focus_answer.hasFocus
-                                  ? _controller_answer
-                                  : _focus_minimum.hasFocus
-                                  ? _controller_minimum
-                                  : _focus_maximum.hasFocus
-                                  ? _controller_maximum
-                                  : _controller_calc,
-                              myText,
                             );
                           },
-                          onBackspace_: () {
-                            _focus_first_number.hasFocus
-                                ? _backspace(_controller_first_number)
-                                : _focus_second_number.hasFocus
-                                ? _backspace(_controller_second_number)
-                                : _focus_answer.hasFocus
-                                ? _backspace(_controller_answer)
-                                : _focus_answer_remainder.hasFocus
-                                ? _backspace(_controller_answer_remainder)
-                                : _focus_minimum.hasFocus
-                                ? _backspace(_controller_minimum)
-                                : _focus_maximum.hasFocus
-                                ? _backspace(_controller_maximum)
-                                : _backspace(_controller_calc);
-                          },
-                          callbackFunction: () {
-                            show_keboard();
-                          },
-                          calculator_callbackFunction: () {
-                            show_keboard_calculator();
-                          },
-                          // If your CustomKeyboard widget supports font or button size, pass scaleFactor here:
-                          // scaleFactor: scaleFactor,
                         ),
-                      ),
+                    
+                    
+                        const SizedBox(height: 10,),
+                    
+                    
+                        const SizedBox(height: 10,),
+                    
+                    
+                        Visibility(
+                          visible: _visible,
+                          child: SizedBox(
+                            // Optionally set a responsive height for the keyboard if needed:
+                            // height: 250 * scaleFactor,
+                            width: double.infinity,
+                            child: CustomKeyboard(
+                              key: const ValueKey('custom_keyboard'),
+                              onTextInput: (myText) {
+                                _insertText(
+                                  _focus_first_number.hasFocus
+                                      ? _controller_first_number
+                                      : _focus_second_number.hasFocus
+                                      ? _controller_second_number
+                                      : _focus_answer_remainder.hasFocus
+                                      ? _controller_answer_remainder
+                                      : _focus_answer.hasFocus
+                                      ? _controller_answer
+                                      : _focus_minimum.hasFocus
+                                      ? _controller_minimum
+                                      : _focus_maximum.hasFocus
+                                      ? _controller_maximum
+                                      : _controller_calc,
+                                  myText,
+                                );
+                              },
+                              onBackspace_: () {
+                                _focus_first_number.hasFocus
+                                    ? _backspace(_controller_first_number)
+                                    : _focus_second_number.hasFocus
+                                    ? _backspace(_controller_second_number)
+                                    : _focus_answer.hasFocus
+                                    ? _backspace(_controller_answer)
+                                    : _focus_answer_remainder.hasFocus
+                                    ? _backspace(_controller_answer_remainder)
+                                    : _focus_minimum.hasFocus
+                                    ? _backspace(_controller_minimum)
+                                    : _focus_maximum.hasFocus
+                                    ? _backspace(_controller_maximum)
+                                    : _backspace(_controller_calc);
+                              },
+                              callbackFunction: () {
+                                show_keboard();
+                              },
+                              calculator_callbackFunction: () {
+                                show_keboard_calculator();
+                              },
+                              // If your CustomKeyboard widget supports font or button size, pass scaleFactor here:
+                              // scaleFactor: scaleFactor,
+                            ),
+                          ),
+                        ),
+                    
+                        Visibility(visible: calculator_visible ,
+                          child: Align(alignment: Alignment.bottomCenter,
+                            child: Calculator_Keyboard(
+                              // we don't have access to _calculateor_textfield_focus directly so we use
+                              // below methods
+                                calculator_textfield_focus: calculatorTextFieldFocus_
+                                ,
+                                calculator_textfield_controller: calculatorTextFieldController_
+                                ,
+                                onTextInput: (myText) {checkCalculatorInput(_controller_calc.text, myText);},
+                    
+                                onBackspace: () {
+                                  _backspace(_controller_calc);
+                                } ,
+                                calculator_callbackFunction: () {
+                                  show_keboard_calculator();
+                                }
+                            ),
+                          ),
+                        )
+                      ],
                     ),
-
-                    Visibility(visible: calculator_visible ,
-                      child: Align(alignment: Alignment.bottomCenter,
-                        child: Calculator_Keyboard(
-                          // we don't have access to _calculateor_textfield_focus directly so we use
-                          // below methods
-                            calculator_textfield_focus: calculator_textfield_focus_
-                            ,
-                            calculator_textfield_controller: calculator_textfield_controller_
-                            ,
-                            onTextInput: (myText) {check_calculator_input(_controller_calc.text, myText);},
-
-                            onBackspace: () {
-                              _backspace(_controller_calc);
-                            } ,
-                            calculator_callbackFunction: () {
-                              show_keboard_calculator();
-                            }
-                        ),
-                      ),
-                    )
-                  ],
+                  ),
                 )
             )
         ),
-      ),
     );
   }
 
 
   // ////////////////////////////////////  Functions for numeral practice page
 
-  void check_calculator_input(current , myText) {
+  void checkCalculatorInput(current , myText) {
     // current is _controller_calc.text that is just numbers
     final textSelection = _controller_calc.selection;
     if (myText != "=") {
@@ -2254,7 +2277,6 @@ class _State extends State<Mental_calculation_practice_page> {
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isTablet = screenWidth >= 600;
 // You can use scaleFactor for finer scaling if you want:
-    final double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
 
     // updating random numbers if user manually change them
     first_number_text =number_toenglish(_controller_first_number.text);
@@ -2272,11 +2294,11 @@ class _State extends State<Mental_calculation_practice_page> {
     // after initializing first and second number check if text inputs are removed:
     if ((_controller_first_number.text == "") || (_controller_second_number.text == "") ||
         (_controller_answer.text == "")) {
-      showAlertDialog_empty_input(context);
+      showAlertDialogEmptyInput(context);
     }
     else if ((notification_operationindex.value == -1) &
     (int.parse(first_number_text) < int.parse(first_number_text))) {
-      showAlertDialog_empty_input(context);
+      showAlertDialogEmptyInput(context);
     }
 
     else {
