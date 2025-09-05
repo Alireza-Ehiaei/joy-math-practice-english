@@ -5,30 +5,182 @@ on:
 
 jobs:
   build-and-upload:
-    runs-on: macos-15  # Uses Xcode 16 with iOS 18 SDK
+    runs-on: macos-15
+    env:
+      MD_APPLE_SDK_ROOT: /Applications/Xcode.app
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Ensure AppDelegate.swift exists
+        run: |
+          mkdir -p ios/Runner
+          cat > ios/Runner/AppDelegate.swift << EOL
+          import UIKit
+          import Flutter
+
+          @main
+          @objc class AppDelegate: FlutterAppDelegate {
+            override func application(
+              _ application: UIApplication,
+              didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+            ) -> Bool {
+              GeneratedPluginRegistrant.register(with: self)
+              return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+            }
+          }
+          EOL
+          ls -l ios/Runner/AppDelegate.swift
+          echo "AppDelegate.swift content:"
+          cat ios/Runner/AppDelegate.swift
+
+      - name: Ensure Runner.entitlements exists
+        run: |
+          mkdir -p ios/Runner
+          cat > ios/Runner/Runner.entitlements << EOL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>com.apple.developer.in-app-payments</key>
+              <array>
+                  <string>com.tech4dev.mathjoypracticeenglish</string>
+              </array>
+          </dict>
+          </plist>
+          EOL
+          ls -l ios/Runner/Runner.entitlements
+          echo "Runner.entitlements content:"
+          cat ios/Runner/Runner.entitlements
+
+      - name: Install xcodeproj gem
+        run: gem install xcodeproj
+
+      - name: Add Files to Xcode Project
+        run: |
+          echo "Adding AppDelegate.swift and Runner.entitlements to Xcode project"
+          cat > add_files_to_xcode.rb << EOL
+          #!/usr/bin/env ruby
+          require 'xcodeproj'
+          project_path = 'ios/Runner.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+          target = project.targets.find { |t| t.name == 'Runner' }
+          unless target
+            puts "Error: Runner target not found"
+            exit 1
+          end
+          files = ['AppDelegate.swift', 'Runner.entitlements']
+          group = project.main_group['Runner'] || project.main_group.new_group('Runner', 'Runner')
+          files.each do |file|
+            unless project.files.find { |f| f.path == file }
+              file_ref = group.new_file(file)
+              if file.end_with?('.entitlements')
+                target.add_file_references([file_ref])
+                project.add_build_setting_to_target(target, 'CODE_SIGN_ENTITLEMENTS', file)
+              else
+                target.add_file_references([file_ref])
+                build_phase = target.source_build_phase
+                build_phase.add_file_reference(file_ref)
+              end
+              puts "Added #{file} to project"
+            else
+              puts "#{file} already exists in project"
+            end
+          end
+          project.save
+          puts "Project saved successfully"
+          EOL
+          ruby add_files_to_xcode.rb
+
+      - name: Verify files were added to Xcode project
+        run: |
+          echo "Checking if files were properly added..."
+          if [ -f "ios/Runner/AppDelegate.swift" ] && [ -f "ios/Runner/Runner.entitlements" ]; then
+            echo "✓ Both files exist physically"
+          else
+            echo "✗ Files missing physically"
+            exit 1
+          fi
+          if grep -q "AppDelegate.swift" ios/Runner.xcodeproj/project.pbxproj && \
+             grep -q "Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
+            echo "✓ Both files referenced in Xcode project"
+          else
+            echo "✗ Files missing from Xcode project"
+            exit 1
+          fi
+
+      - name: Set up Xcode 16
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Initialize Xcode and Download iOS SDK
+        run: |
+          sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+          sudo xcodebuild -runFirstLaunch
+          echo "Downloading iOS platform..."
+          timeout 10m sudo xcodebuild -downloadPlatform ios -allowProvisioningUpdates > sdk_install_log.txt 2>&1 || { 
+            echo "SDK download may have failed or timed out, but continuing..."
+            cat sdk_install_log.txt
+          }
+          echo "Available SDKs:"
+          xcodebuild -showsdks
+          defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
+          echo "Xcode setup completed"
+
+      - name: Verify Xcode setup
+        run: |
+          echo "Xcode version: $(xcodebuild -version)"
+          echo "Available SDKs:"
+          xcodebuild -showsdks | grep -E "(iphoneos|ios-simulator)"
+
+      - name: Update iOS deployment target
+        run: |
+          echo "Updating Info.plist MinimumOSVersion to 16.0"
+          plutil -replace MinimumOSVersion -string "16.0" ios/Runner/Info.plist
+          plutil -p ios/Runner/Info.plist | grep MinimumOSVersion
+
+      - name: Verify ExportOptions.plist
+        run: |
+          echo "Verifying ExportOptions.plist for manual code signing"
+          if [ -f "ios/ExportOptions.plist" ]; then
+            echo "ExportOptions.plist content:"
+            plutil -p ios/ExportOptions.plist
+            if plutil -p ios/ExportOptions.plist | grep -q "AHVM2Z8TDL" && \
+               plutil -p ios/ExportOptions.plist | grep -q "app-store" && \
+               plutil -p ios/ExportOptions.plist | grep -q "manual"; then
+              echo "✓ ExportOptions.plist has correct teamID, method, and signingStyle"
+            else
+              echo "✗ ExportOptions.plist missing expected teamID, method, or signingStyle"
+              exit 1
+            fi
+          else
+            echo "✗ ExportOptions.plist not found in ios/ directory"
+            exit 1
+          fi
+
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.29.3'
           channel: 'stable'
           architecture: arm64
+          cache: true
+          cache-key: flutter-3.29.3
+          cache-path: /Users/runner/hostedtoolcache/flutter
+
+      - name: Clean DerivedData
+        run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
 
-      - name: Set up Ruby for Fastlane
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.2'
-          bundler-cache: true
-
-      - name: Install Fastlane
-        run: gem install fastlane
+      - name: Generate Flutter iOS config
+        run: |
+          flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
+          ls -l ios/Flutter/
 
       - name: Create temporary keychain
         env:
@@ -46,6 +198,10 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          if [ ! -s certificate.p12 ]; then
+            echo "Error: certificate.p12 is empty or invalid"
+            exit 1
+          fi
           security import certificate.p12 -k build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           security find-identity -v -p codesigning build.keychain | grep "AHVM2Z8TDL" || { echo "Certificate import failed"; exit 1; }
@@ -57,34 +213,51 @@ jobs:
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
+          echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
-
-      - name: Install CocoaPods dependencies
+      - name: Debug Code Signing Setup
         run: |
-          cd ios
-          pod install --repo-update
-          cd ..
+          echo "=== Code Signing Debug ==="
+          security find-identity -v -p codesigning build.keychain
+          echo "Provisioning profiles:"
+          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
+          echo "Xcode version:"
+          xcodebuild -version
 
       - name: Build IPA
         run: |
+          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
+          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)"
+          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025"
+          export FLUTTER_XCODE_DEVELOPMENT_TEAM="AHVM2Z8TDL"
           flutter build ipa \
             --release \
             --export-options-plist=ios/ExportOptions.plist \
-            --verbose > build_log.txt 2>&1
-          ls -l build/ios/ipa/ || echo "IPA directory not found"
-          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
+            --no-tree-shake-icons > build_log.txt 2>&1 || { cat build_log.txt | grep -i "error:"; exit 1; }
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
+        env:
+          DEVELOPMENT_TEAM: AHVM2Z8TDL
+          PROFILE_NAME: MathJoyAppStore2025
+          MD_APPLE_SDK_ROOT: /Applications/Xcode.app
+
+      - name: Set up Ruby for Fastlane
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+
+      - name: Install Fastlane
+        run: gem install fastlane
 
       - name: Set up Fastlane configuration
         run: |
           mkdir -p ./fastlane
-          cat > ./fastlane/Fastfile << 'EOL'
+          cat > ./fastlane/Fastfile << EOL
           default_platform(:ios)
           platform :ios do
             lane :upload_to_app_store_connect do
-              ENV["SPACESHIP_LOGGER"] = "nil"
               app_store_connect_api_key(
                 key_id: ENV["APP_STORE_CONNECT_KEY_ID"],
                 issuer_id: ENV["APP_STORE_CONNECT_ISSUER_ID"],
@@ -98,7 +271,6 @@ jobs:
                 skip_app_version_update: true,
                 force: true,
                 precheck_include_in_app_purchases: false
-                
               )
             end
           end
@@ -109,32 +281,23 @@ jobs:
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
-        run: fastlane ios upload_to_app_store_connect
-        working-directory: ${{ github.workspace }}
+        run: fastlane ios upload_to_app_store_connect > fastlane_log.txt 2>&1 || { cat fastlane_log.txt | grep -i "error:"; exit 1; }
 
-      - name: Debug App Store Connect env vars
-        env:
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_KEY_CONTENT }}
-        run: |
-          echo "APP_STORE_CONNECT_KEY_ID is set: ${APP_STORE_CONNECT_KEY_ID:+yes}"
-          echo "APP_STORE_CONNECT_ISSUER_ID is set: ${APP_STORE_CONNECT_ISSUER_ID:+yes}"
-          echo "APP_STORE_CONNECT_KEY_CONTENT is set: ${APP_STORE_CONNECT_KEY_CONTENT:+yes}"
-        shell: bash
-
-      - name: Upload build log
+      - name: Upload build log and IPA
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-log
+          name: build-log-and-ipa
           path: |
+            pub_get_log.txt
+            flutter_config_log.txt
+            sdk_install_log.txt
             build_log.txt
+            fastlane_log.txt
             fastlane/report.xml
+            app-ipa/*.ipa
 
-      - name: Upload IPA
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-ipa
-          path: app-ipa/*.ipa
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
