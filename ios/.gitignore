@@ -41,13 +41,10 @@ Flutter/app.zip
 Flutter/flutter_assets/
 Flutter/flutter_export_environment.sh
 ServiceDefinitions.json
-Runner/GeneratedPluginRegistrant.*
+ios/Runner/GeneratedPluginRegistrant.*
 
 # Android Studio/Flutter metadata
 .metadata
-
-# Test directory (optional: remove if tests are needed)
-test/
 
 # Common macOS files
 .DS_Store
@@ -58,5 +55,14 @@ test/
 !default.pbxuser
 !default.perspectivev3
 
-# Ensure critical files are tracked
-!ios/ExportOptions.plist
+# Ensure critical iOS files are tracked
+!ios/Runner/Runner.entitlements
+!ios/Runner/*.swift
+!ios/Runner/Assets.xcassets/
+!ios/Runner/Info.plist
+!ios/Runner/Base.lproj/
+!ios/Runner.xcodeproj/project.pbxproj
+!ios/Runner.xcodeproj/project.xcworkspace/
+
+# Test directory (optional: remove if tests are needed)
+test/
