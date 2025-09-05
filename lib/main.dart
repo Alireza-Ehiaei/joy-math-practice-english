@@ -35,9 +35,6 @@ class Homepage extends StatelessWidget {
     );
   }*/
 
-
-
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -667,33 +664,17 @@ class _NumeralBaseExplainPage extends State<NumeralBaseExplainPage> with TickerP
     final items = buildItems(isTablet);
 
 // Define base sizes for phone
-    const baseTitleFontSize = 22.0;
-    const baseButtonFontSize = 24.0;
-    const baseButtonMinWidth = 220.0;
-    const baseButtonMinHeight1 = 95.0;
-    const baseButtonMinHeight2 = 85.0;
-    const baseButtonMinHeight3 = 75.0;
+
     const baseIconSize = 44.0;
-    const baseSpacingLarge = 90.0;
-    const baseSpacingMedium = 70.0;
-    const baseSpacingSmall = 20.0;
-    const baseSpacingExtraSmall = 30.0;
+
 
 // Scale factor (increase sizes on tablets)
     double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
 
 // Scaled sizes
-    final titleFontSize = baseTitleFontSize * scaleFactor;
-    final buttonFontSize = baseButtonFontSize * scaleFactor;
-    final buttonMinWidth = baseButtonMinWidth * scaleFactor;
-    final buttonMinHeight1 = baseButtonMinHeight1 * scaleFactor;
-    final buttonMinHeight2 = baseButtonMinHeight2 * scaleFactor;
-    final buttonMinHeight3 = baseButtonMinHeight3 * scaleFactor;
+
     final iconSize = baseIconSize * scaleFactor;
-    final spacingLarge = baseSpacingLarge * scaleFactor;
-    final spacingMedium = baseSpacingMedium * scaleFactor;
-    final spacingSmall = baseSpacingSmall * scaleFactor;
-    final spacingExtraSmall = baseSpacingExtraSmall * scaleFactor;
+
 
     return Scaffold(
 
