@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'mental_calculation.dart';
+import 'mentalCalculation.dart';
 import 'numericalBase.dart';
 
 
