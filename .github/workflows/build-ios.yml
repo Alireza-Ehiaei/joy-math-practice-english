@@ -35,12 +35,27 @@ jobs:
           cache-key: flutter-3.29.3
           cache-path: /Users/runner/hostedtoolcache/flutter
 
+      - name: Clean Flutter project
+        run: |
+          flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
+
       - name: Install dependencies
         run: |
           flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
           cd ios
           pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
           cd ..
+
+      - name: Regenerate Flutter iOS configs
+        run: |
+          flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
+          ls -l ios/Flutter/
+          if [ -f "ios/Flutter/Release.xcconfig" ]; then
+            echo "✓ Release.xcconfig generated"
+          else
+            echo "✗ Failed to generate Release.xcconfig"
+            exit 1
+          fi
 
       - name: Ensure Runner.entitlements exists
         run: |
@@ -114,13 +129,6 @@ jobs:
             echo "✗ Release.xcconfig missing"
             exit 1
           fi
-
-      - name: Regenerate Flutter iOS configs
-        run: |
-          flutter clean > flutter_clean_log.txt 2>&1
-          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
-          flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
-          ls -l ios/Flutter/
 
       - name: Create temporary keychain
         env:
@@ -218,9 +226,9 @@ jobs:
         with:
           name: build-log-and-ipa
           path: |
+            flutter_clean_log.txt
             pub_get_log.txt
             pod_install_log.txt
-            flutter_clean_log.txt
             flutter_config_log.txt
             build_log.txt
             fastlane_log.txt
