@@ -13,155 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Ensure AppDelegate.swift exists
-        run: |
-          mkdir -p ios/Runner
-          cat > ios/Runner/AppDelegate.swift << EOL
-          import UIKit
-          import Flutter
-
-          @main
-          @objc class AppDelegate: FlutterAppDelegate {
-            override func application(
-              _ application: UIApplication,
-              didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-            ) -> Bool {
-              GeneratedPluginRegistrant.register(with: self)
-              return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-            }
-          }
-          EOL
-          ls -l ios/Runner/AppDelegate.swift
-          echo "AppDelegate.swift content:"
-          cat ios/Runner/AppDelegate.swift
-
-      - name: Ensure Runner.entitlements exists
-        run: |
-          mkdir -p ios/Runner
-          cat > ios/Runner/Runner.entitlements << EOL
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>com.apple.developer.in-app-payments</key>
-              <array>
-                  <string>com.tech4dev.mathjoypracticeenglish</string>
-              </array>
-          </dict>
-          </plist>
-          EOL
-          ls -l ios/Runner/Runner.entitlements
-          echo "Runner.entitlements content:"
-          cat ios/Runner/Runner.entitlements
-
-      - name: Install xcodeproj gem
-        run: gem install xcodeproj
-
-      - name: Add Files to Xcode Project
-        run: |
-          echo "Adding AppDelegate.swift and Runner.entitlements to Xcode project"
-          cat > add_files_to_xcode.rb << EOL
-          #!/usr/bin/env ruby
-          require 'xcodeproj'
-          project_path = 'ios/Runner.xcodeproj'
-          project = Xcodeproj::Project.open(project_path)
-          target = project.targets.find { |t| t.name == 'Runner' }
-          unless target
-            puts "Error: Runner target not found"
-            exit 1
-          end
-          files = ['AppDelegate.swift', 'Runner.entitlements']
-          group = project.main_group['Runner'] || project.main_group.new_group('Runner', 'Runner')
-          files.each do |file|
-            unless project.files.find { |f| f.path == file }
-              file_ref = group.new_file(file)
-              if file.end_with?('.entitlements')
-                target.add_file_references([file_ref])
-                # FIXED: Use the correct method to set build settings
-                target.build_configurations.each do |config|
-                  config.build_settings['CODE_SIGN_ENTITLEMENTS'] = file
-                end
-              else
-                target.add_file_references([file_ref])
-                build_phase = target.source_build_phase
-                build_phase.add_file_reference(file_ref)
-              end
-              puts "Added #{file} to project"
-            else
-              puts "#{file} already exists in project"
-            end
-          end
-          project.save
-          puts "Project saved successfully"
-          EOL
-          ruby add_files_to_xcode.rb
-
-      - name: Verify files were added to Xcode project
-        run: |
-          echo "Checking if files were properly added..."
-          if [ -f "ios/Runner/AppDelegate.swift" ] && [ -f "ios/Runner/Runner.entitlements" ]; then
-            echo "✓ Both files exist physically"
-          else
-            echo "✗ Files missing physically"
-            exit 1
-          fi
-          if grep -q "AppDelegate.swift" ios/Runner.xcodeproj/project.pbxproj && \
-             grep -q "Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
-            echo "✓ Both files referenced in Xcode project"
-          else
-            echo "✗ Files missing from Xcode project"
-            exit 1
-          fi
-
       - name: Set up Xcode 16
         uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.0'
 
-      - name: Initialize Xcode and Download iOS SDK
+      - name: Initialize Xcode
         run: |
           sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
           sudo xcodebuild -runFirstLaunch
-          echo "Downloading iOS platform..."
-          timeout 10m sudo xcodebuild -downloadPlatform ios -allowProvisioningUpdates > sdk_install_log.txt 2>&1 || { 
-            echo "SDK download may have failed or timed out, but continuing..."
-            cat sdk_install_log.txt
-          }
-          echo "Available SDKs:"
           xcodebuild -showsdks
           defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
-          echo "Xcode setup completed"
-
-      - name: Verify Xcode setup
-        run: |
-          echo "Xcode version: $(xcodebuild -version)"
-          echo "Available SDKs:"
-          xcodebuild -showsdks | grep -E "(iphoneos|ios-simulator)"
-
-      - name: Update iOS deployment target
-        run: |
-          echo "Updating Info.plist MinimumOSVersion to 16.0"
-          plutil -replace MinimumOSVersion -string "16.0" ios/Runner/Info.plist
-          plutil -p ios/Runner/Info.plist | grep MinimumOSVersion
-
-      - name: Verify ExportOptions.plist
-        run: |
-          echo "Verifying ExportOptions.plist for manual code signing"
-          if [ -f "ios/ExportOptions.plist" ]; then
-            echo "ExportOptions.plist content:"
-            plutil -p ios/ExportOptions.plist
-            if plutil -p ios/ExportOptions.plist | grep -q "AHVM2Z8TDL" && \
-               plutil -p ios/ExportOptions.plist | grep -q "app-store" && \
-               plutil -p ios/ExportOptions.plist | grep -q "manual"; then
-              echo "✓ ExportOptions.plist has correct teamID, method, and signingStyle"
-            else
-              echo "✗ ExportOptions.plist missing expected teamID, method, or signingStyle"
-              exit 1
-            fi
-          else
-            echo "✗ ExportOptions.plist not found in ios/ directory"
-            exit 1
-          fi
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -173,17 +35,47 @@ jobs:
           cache-key: flutter-3.29.3
           cache-path: /Users/runner/hostedtoolcache/flutter
 
-      - name: Clean DerivedData
-        run: rm -rf ~/Library/Developer/Xcode/DerivedData/*
-
       - name: Install dependencies
         run: |
           flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+          cd ios
+          pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
+          cd ..
 
-      - name: Generate Flutter iOS config
+      - name: Update entitlements in Xcode project
         run: |
-          flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
-          ls -l ios/Flutter/
+          gem install xcodeproj
+          cat > update_entitlements.rb << EOL
+          require 'xcodeproj'
+          project_path = 'ios/Runner.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+          target = project.targets.find { |t| t.name == 'Runner' }
+          unless target
+            puts "Error: Runner target not found"
+            exit 1
+          end
+          target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Runner/Runner.entitlements'
+          end
+          project.save
+          puts "Updated CODE_SIGN_ENTITLEMENTS to Runner/Runner.entitlements"
+          EOL
+          ruby update_entitlements.rb
+
+      - name: Verify project settings
+        run: |
+          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-payments" ios/Runner/Runner.entitlements; then
+            echo "✓ Runner.entitlements exists with IAP"
+          else
+            echo "✗ Runner.entitlements missing or lacks IAP"
+            exit 1
+          fi
+          if grep -q "Runner/Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
+            echo "✓ Entitlements referenced in Xcode project"
+          else
+            echo "✗ Entitlements not referenced"
+            exit 1
+          fi
 
       - name: Create temporary keychain
         env:
@@ -216,24 +108,8 @@ jobs:
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
-          echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
-      - name: Debug Code Signing Setup
-        run: |
-          echo "=== Code Signing Debug ==="
-          security find-identity -v -p codesigning build.keychain
-          echo "Provisioning profiles:"
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
-          echo "Xcode version:"
-          xcodebuild -version
-
-      - name: Set Pods to automatic signing
-        run: |
-          cd ios
-          pod install
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release CODE_SIGN_STYLE=Automatic
-    
       - name: Build IPA
         run: |
           export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
@@ -249,7 +125,6 @@ jobs:
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
-          MD_APPLE_SDK_ROOT: /Applications/Xcode.app
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
@@ -299,8 +174,7 @@ jobs:
           name: build-log-and-ipa
           path: |
             pub_get_log.txt
-            flutter_config_log.txt
-            sdk_install_log.txt
+            pod_install_log.txt
             build_log.txt
             fastlane_log.txt
             fastlane/report.xml
@@ -308,5 +182,4 @@ jobs:
 
       - name: Clean up keychain
         if: always()
-        run: |
-          security delete-keychain build.keychain || true
+        run: security delete-keychain build.keychain || true
