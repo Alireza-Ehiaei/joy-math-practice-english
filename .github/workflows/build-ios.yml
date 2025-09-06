@@ -61,10 +61,10 @@ jobs:
           echo "Runner.entitlements content:"
           cat ios/Runner/Runner.entitlements
 
-      - name: Update entitlements in Xcode project
+      - name: Update Xcode project for entitlements and signing
         run: |
           gem install xcodeproj
-          cat > update_entitlements.rb << EOL
+          cat > update_project.rb << EOL
           require 'xcodeproj'
           project_path = 'ios/Runner.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
@@ -77,11 +77,22 @@ jobs:
           target.add_file_references([file_ref])
           target.build_configurations.each do |config|
             config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Runner/Runner.entitlements'
+            config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+            config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
+            config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
+          end
+          # Set automatic signing for Pods targets
+          project.targets.each do |t|
+            next if t.name == 'Runner'
+            t.build_configurations.each do |config|
+              config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+              config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+            end
           end
           project.save
-          puts "Updated CODE_SIGN_ENTITLEMENTS to Runner/Runner.entitlements"
+          puts "Updated project settings"
           EOL
-          ruby update_entitlements.rb
+          ruby update_project.rb
 
       - name: Verify project settings
         run: |
@@ -97,6 +108,19 @@ jobs:
             echo "✗ Entitlements not referenced"
             exit 1
           fi
+          if [ -f "ios/Flutter/Release.xcconfig" ]; then
+            echo "✓ Release.xcconfig exists"
+          else
+            echo "✗ Release.xcconfig missing"
+            exit 1
+          fi
+
+      - name: Regenerate Flutter iOS configs
+        run: |
+          flutter clean > flutter_clean_log.txt 2>&1
+          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+          flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
+          ls -l ios/Flutter/
 
       - name: Create temporary keychain
         env:
@@ -196,6 +220,8 @@ jobs:
           path: |
             pub_get_log.txt
             pod_install_log.txt
+            flutter_clean_log.txt
+            flutter_config_log.txt
             build_log.txt
             fastlane_log.txt
             fastlane/report.xml
