@@ -228,6 +228,12 @@ jobs:
           echo "Xcode version:"
           xcodebuild -version
 
+      - name: Set Pods to automatic signing
+        run: |
+          cd ios
+          pod install
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -configuration Release CODE_SIGN_STYLE=Automatic
+    
       - name: Build IPA
         run: |
           export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
