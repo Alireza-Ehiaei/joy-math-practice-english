@@ -38,6 +38,7 @@ jobs:
       - name: Clean Flutter project
         run: |
           flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
+          rm -rf ios/Flutter ios/Pods ios/Podfile.lock ~/Library/Developer/Xcode/DerivedData/*
 
       - name: Install dependencies
         run: |
@@ -96,7 +97,6 @@ jobs:
             config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
             config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
           end
-          # Set automatic signing for Pods targets
           project.targets.each do |t|
             next if t.name == 'Runner'
             t.build_configurations.each do |config|
