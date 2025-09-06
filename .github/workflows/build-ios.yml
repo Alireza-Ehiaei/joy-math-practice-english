@@ -22,7 +22,7 @@ jobs:
         run: |
           sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
           sudo xcodebuild -runFirstLaunch
-          xcodebuild -showsdks
+          xcodebuild -showsdks | grep -E "(iphoneos|ios-simulator)" || { echo "iOS SDK missing"; exit 1; }
           defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
 
       - name: Setup Flutter
@@ -39,16 +39,17 @@ jobs:
         run: |
           flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
           rm -rf ios/Flutter ios/Pods ios/Podfile.lock ~/Library/Developer/Xcode/DerivedData/*
-
-      - name: Install dependencies
-        run: |
           flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+
+      - name: Install CocoaPods dependencies
+        run: |
           cd ios
           pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
           cd ..
 
       - name: Regenerate Flutter iOS configs
         run: |
+          flutter pub run build_runner build --delete-conflicting-outputs > build_runner_log.txt 2>&1 || { cat build_runner_log.txt; exit 1; }
           flutter build ios --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
           ls -l ios/Flutter/
           if [ -f "ios/Flutter/Release.xcconfig" ]; then
@@ -229,6 +230,7 @@ jobs:
             flutter_clean_log.txt
             pub_get_log.txt
             pod_install_log.txt
+            build_runner_log.txt
             flutter_config_log.txt
             build_log.txt
             fastlane_log.txt
