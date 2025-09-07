@@ -299,13 +299,16 @@ jobs:
       - name: Build IPA with xcodebuild
         run: |
           cd ios
-          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -allowProvisioningUpdates || { echo "Clean failed"; cat xcode_clean_log.txt; exit 1; }
+          # Clean first
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -allowProvisioningUpdates > xcode_clean_log.txt 2>&1 || { echo "Clean failed"; cat xcode_clean_log.txt; exit 1; }
+          # Archive the app
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
             -configuration Release \
             -archivePath build/Runner.xcarchive \
             -allowProvisioningUpdates \
+            -sdk iphoneos \
             DEVELOPMENT_TEAM="AHVM2Z8TDL" \
             PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025" \
             CODE_SIGN_IDENTITY="iPhone Distribution" \
@@ -315,6 +318,7 @@ jobs:
             cat archive_log.txt
             exit 1
           fi
+          # Export the IPA
           xcodebuild -exportArchive \
             -archivePath build/Runner.xcarchive \
             -exportPath ../build/ios/ipa \
@@ -326,6 +330,7 @@ jobs:
             exit 1
           fi
           cd ..
+          # Copy the IPA
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
@@ -333,6 +338,8 @@ jobs:
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
+
+    
     
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
