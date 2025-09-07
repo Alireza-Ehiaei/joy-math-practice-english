@@ -50,22 +50,19 @@ jobs:
           if ! grep -q "IPHONEOS_DEPLOYMENT_TARGET.*=.*'$DEPLOYMENT_TARGET'" ios/Podfile; then
             echo "Adding or updating IPHONEOS_DEPLOYMENT_TARGET in post_install block"
             if grep -q "post_install do |installer|" ios/Podfile; then
-              sed -i '' "/post_install do |installer|/a\\
-                \ \ installer.pods_project.targets.each do |target|\\
+              sed -i '' "/flutter_additional_ios_build_settings(target)/a\\
                 \ \ \ \ target.build_configurations.each do |config|\\
                 \ \ \ \ \ \ config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\\
-                \ \ \ \ end\\
-                \ \ end" ios/Podfile
+                \ \ \ \ end" ios/Podfile
             else
-              echo "No post_install block found, adding one"
-              echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n    end\n  end\nend" >> ios/Podfile
+              echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    flutter_additional_ios_build_settings(target)\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n    end\n  end\nend" >> ios/Podfile
             fi
           fi
           echo "Podfile content after update:"
           cat ios/Podfile
           grep -n "platform :ios" ios/Podfile
           grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
-
+          
       - name: Install CocoaPods dependencies
         run: |
           cd ios
