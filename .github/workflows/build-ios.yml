@@ -77,16 +77,23 @@ jobs:
           if [ -f "ios/Podfile" ]; then cat ios/Podfile; else echo "Podfile missing"; fi
           echo "Checking pubspec.yaml dependencies:"
           grep -E "in_app_purchase" pubspec.yaml || echo "No in_app_purchase dependency found"
-
+     
       - name: Generate Flutter iOS configs
         run: |
           cd ios
           pod deintegrate > pod_deintegrate_log.txt 2>&1 || { cat pod_deintegrate_log.txt; exit 1; }
+          rm -rf Pods Podfile.lock
+          cd ..
+          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+          flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
+          rm -rf ios/Flutter ~/Library/Developer/Xcode/DerivedData/*
+          flutter create --platforms=ios . > flutter_create_log.txt 2>&1 || { cat flutter_create_log.txt; exit 1; }
+          cd ios
           pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
           xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
           cd ..
           flutter build ios --release --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
-          ls -l ios/Flutter/
+          ls -l ios/Flutter/ || { echo "ios/Flutter directory missing"; exit 1; }
           if [ -f "ios/Flutter/Release.xcconfig" ]; then
             echo "✓ Release.xcconfig generated"
           else
