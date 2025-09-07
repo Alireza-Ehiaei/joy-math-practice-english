@@ -53,6 +53,9 @@ jobs:
               sed -i '' "/flutter_additional_ios_build_settings(target)/a\\
                 \ \ \ \ target.build_configurations.each do |config|\\
                 \ \ \ \ \ \ config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\\
+                \ \ \ \ \ \ config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''\\
+                \ \ \ \ \ \ config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'\\
+                \ \ \ \ \ \ config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'\\
                 \ \ \ \ end" ios/Podfile
             else
               echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    flutter_additional_ios_build_settings(target)\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''\n      config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'\n      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'\n    end\n  end\nend" >> ios/Podfile
@@ -115,6 +118,10 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
+              <key>com.apple.developer.in-app-payments</key>
+              <array>
+                  <string>com.tech4dev.mathjoypracticeenglish</string>
+              </array>
           </dict>
           </plist>
           EOL
@@ -154,6 +161,8 @@ jobs:
           gem install xcodeproj
           cat > update_project.rb << EOL
           require 'xcodeproj'
+          
+          # Update Runner project
           project_path = 'ios/Runner.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
           target = project.targets.find { |t| t.name == 'Runner' }
@@ -162,7 +171,7 @@ jobs:
             exit 1
           end
           
-          # Add entitlements file reference if needed
+          # Add entitlements file reference
           entitlements_path = 'Runner/Runner.entitlements'
           file_ref = project.files.find { |f| f.path == entitlements_path } 
           unless file_ref
@@ -179,10 +188,9 @@ jobs:
             config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.tech4dev.mathjoypracticeenglish'
           end
           
-          # Configure ALL Pods targets to use Automatic signing
+          # Ensure no Pods targets in Runner project override signing
           project.targets.each do |t|
-            next if t.name == 'Runner' || t.name.include?('Pods-')
-            
+            next if t.name == 'Runner'
             t.build_configurations.each do |config|
               config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
               config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
@@ -192,7 +200,7 @@ jobs:
             end
           end
           
-          # Also configure Pods project targets
+          # Update Pods project
           pods_project_path = 'ios/Pods/Pods.xcodeproj'
           if File.exist?(pods_project_path)
             pods_project = Xcodeproj::Project.open(pods_project_path)
@@ -202,6 +210,10 @@ jobs:
                 config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
                 config.build_settings.delete('CODE_SIGN_IDENTITY')
                 config.build_settings.delete('DEVELOPMENT_TEAM')
+                config.build_settings.delete('CODE_SIGN_ENTITLEMENTS')
+                config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''
+                config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+                config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
               end
             end
             pods_project.save
@@ -214,10 +226,10 @@ jobs:
 
       - name: Verify project settings
         run: |
-          if [ -f "ios/Runner/Runner.entitlements" ]; then
-            echo "✓ Runner.entitlements exists"
+          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-payments" ios/Runner/Runner.entitlements; then
+            echo "✓ Runner.entitlements exists with IAP"
           else
-            echo "✗ Runner.entitlements missing"
+            echo "✗ Runner.entitlements missing or lacks IAP"
             exit 1
           fi
           if grep -q "Runner/Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
