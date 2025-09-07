@@ -282,11 +282,9 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*
-          # Reinstall the profile to ensure it's fresh
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
-          # Force Xcode to refresh profiles
           sudo /usr/bin/xcodebuild -runFirstLaunch
       
       - name: Verify Provisioning Profile Capabilities
@@ -301,9 +299,7 @@ jobs:
       - name: Build IPA with xcodebuild
         run: |
           cd ios
-          # Clean first
-          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -allowProvisioningUpdates || { echo "Clean failed"; exit 1; }
-          # Archive the app
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -allowProvisioningUpdates || { echo "Clean failed"; cat xcode_clean_log.txt; exit 1; }
           xcodebuild archive \
             -workspace Runner.xcworkspace \
             -scheme Runner \
@@ -319,7 +315,6 @@ jobs:
             cat archive_log.txt
             exit 1
           fi
-          # Export the IPA
           xcodebuild -exportArchive \
             -archivePath build/Runner.xcarchive \
             -exportPath ../build/ios/ipa \
@@ -331,7 +326,6 @@ jobs:
             exit 1
           fi
           cd ..
-          # Copy the IPA
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
@@ -340,7 +334,6 @@ jobs:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
     
-
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
