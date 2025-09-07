@@ -118,43 +118,21 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-              <key>com.apple.developer.in-app-payments</key>
-              <array>
-                  <string>com.tech4dev.mathjoypracticeenglish</string>
-              </array>
+              <!-- Empty: No entitlements needed for standard In-App Purchases -->
           </dict>
           </plist>
           EOL
-          ls -l ios/Runner/Runner.entitlements
           echo "Runner.entitlements content:"
           cat ios/Runner/Runner.entitlements
 
-      - name: Create ExportOptions.plist
+      - name: Verify Provisioning Profile Capabilities
         run: |
-          cat > ios/ExportOptions.plist << EOL
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>compileBitcode</key>
-              <true/>
-              <key>method</key>
-              <string>app-store</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>signingCertificate</key>
-              <string>iPhone Distribution</string>
-              <key>teamID</key>
-              <string>AHVM2Z8TDL</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>com.tech4dev.mathjoypracticeenglish</key>
-                  <string>MathJoyAppStore2025</string>
-              </dict>
-          </dict>
-          </plist>
-          EOL
-          cat ios/ExportOptions.plist
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist
+          echo "=== Entitlements in Provisioning Profile ==="
+          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
+          echo "=== App ID Features ==="
+          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
+          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
 
       - name: Update Xcode project for entitlements and signing
         run: |
