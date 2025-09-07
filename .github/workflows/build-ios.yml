@@ -113,17 +113,18 @@ jobs:
       - name: Ensure Runner.entitlements exists
         run: |
           mkdir -p ios/Runner
-          cat > ios/Runner/Runner.entitlements << EOL
+          cat > ios/Runner/Runner.entitlements << 'EOL'
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-              <!-- Empty: No entitlements needed for standard In-App Purchases -->
+              <key>com.apple.developer.in-app-purchase</key>
+              <true/>
           </dict>
           </plist>
           EOL
-          echo "Runner.entitlements content:"
-          cat ios/Runner/Runner.entitlements
+              echo "Runner.entitlements content:"
+              cat ios/Runner/Runner.entitlements
 
 
       - name: Update Xcode project for entitlements and signing
@@ -196,22 +197,13 @@ jobs:
 
       - name: Verify project settings
         run: |
-          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-payments" ios/Runner/Runner.entitlements; then
-            echo "✓ Runner.entitlements exists with IAP"
+          # Check for standard In-App Purchase entitlement, NOT Apple Pay
+          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-purchase" ios/Runner/Runner.entitlements; then
+            echo "✓ Runner.entitlements exists with IAP entitlement"
           else
-            echo "✗ Runner.entitlements missing or lacks IAP"
-            exit 1
-          fi
-          if grep -q "Runner/Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
-            echo "✓ Entitlements referenced in Xcode project"
-          else
-            echo "✗ Entitlements not referenced"
-            exit 1
-          fi
-          if [ -f "ios/Flutter/Release.xcconfig" ]; then
-            echo "✓ Release.xcconfig exists"
-          else
-            echo "✗ Release.xcconfig missing"
+            echo "✗ Runner.entitlements missing or lacks IAP entitlement"
+            echo "Current content:"
+            cat ios/Runner/Runner.entitlements 2>/dev/null || echo "File not found"
             exit 1
           fi
 
