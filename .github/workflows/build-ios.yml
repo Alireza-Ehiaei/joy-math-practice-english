@@ -254,13 +254,14 @@ jobs:
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/MathJoyAppStore2025.mobileprovision
+          echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
 
       - name: Verify Provisioning Profile Capabilities
         run: |
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/MathJoyAppStore2025.mobileprovision > profile.plist
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/MathJoyAppStore2025.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
           echo "=== Entitlements in Provisioning Profile ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
+          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist || echo "No entitlements found"
           echo "=== App ID Features ==="
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
@@ -275,7 +276,7 @@ jobs:
           # Verify provisioning profile installation
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/ | grep MathJoyAppStore2025 || { echo "Provisioning profile not found"; exit 1; }
           # Decode and inspect provisioning profile
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/MathJoyAppStore2025.mobileprovision > profile.plist
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/MathJoyAppStore2025.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
           cat profile.plist | grep -E "com.apple.developer.in-app-payments|com.apple.developer.payment-pass-provisioning|Entitlements|TeamIdentifier"
           cd ios
           xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -allowProvisioningUpdates > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
@@ -297,6 +298,7 @@ jobs:
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
+          
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
