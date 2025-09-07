@@ -311,24 +311,13 @@ jobs:
     
       - name: Build IPA
         run: |
-          # Clean and ensure fresh state
-          flutter clean
-          rm -rf ios/Pods ios/Podfile.lock
-          flutter pub get
-          
-          # Install pods
-          cd ios
-          pod install --repo-update
-          cd ..
-          
-          # Build with explicit signing configuration
+          # Just build - pods are already installed
           flutter build ipa \
             --release \
             --no-tree-shake-icons \
             --export-options-plist=ios/ExportOptions.plist \
             --verbose > build_log.txt 2>&1
           
-          # Check result
           if [ $? -eq 0 ]; then
             echo "Build successful!"
             mkdir -p app-ipa
