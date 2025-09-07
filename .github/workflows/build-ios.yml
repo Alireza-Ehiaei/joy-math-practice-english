@@ -125,14 +125,6 @@ jobs:
           echo "Runner.entitlements content:"
           cat ios/Runner/Runner.entitlements
 
-      - name: Verify Provisioning Profile Capabilities
-        run: |
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist
-          echo "=== Entitlements in Provisioning Profile ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
-          echo "=== App ID Features ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
 
       - name: Update Xcode project for entitlements and signing
         run: |
@@ -256,7 +248,8 @@ jobs:
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
           echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-      
+
+    
       - name: Verify Provisioning Profile Capabilities
         run: |
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
