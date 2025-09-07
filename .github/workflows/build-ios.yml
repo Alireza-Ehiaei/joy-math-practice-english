@@ -311,16 +311,35 @@ jobs:
             -sdk iphoneos \
             DEVELOPMENT_TEAM="AHVM2Z8TDL" \
             PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025" \
-            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            CODE_SIGN_IDENTITY="iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
             > archive_log.txt 2>&1
           if [ $? -ne 0 ]; then
             echo "Archive failed:"
             cat archive_log.txt
             exit 1
           fi
+          # Create ExportOptions.plist
+          cat > ios/ExportOptions.plist << EOL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>AHVM2Z8TDL</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.tech4dev.mathjoypracticeenglish</key>
+                  <string>MathJoyAppStore2025</string>
+              </dict>
+          </dict>
+          </plist>
+          EOL
           # Export the IPA
           xcodebuild -exportArchive \
             -archivePath build/Runner.xcarchive \
+            -exportOptionsPlist ExportOptions.plist \
             -exportPath ../build/ios/ipa \
             -allowProvisioningUpdates \
             > export_log.txt 2>&1
@@ -338,9 +357,7 @@ jobs:
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
-
-    
-    
+          
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
