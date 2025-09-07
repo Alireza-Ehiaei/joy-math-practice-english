@@ -80,12 +80,23 @@ jobs:
 
       - name: Generate Flutter iOS configs
         run: |
+          cd ios
+          pod deintegrate > pod_deintegrate_log.txt 2>&1 || { cat pod_deintegrate_log.txt; exit 1; }
+          pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
+          cd ..
           flutter build ios --release --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
           ls -l ios/Flutter/
           if [ -f "ios/Flutter/Release.xcconfig" ]; then
             echo "✓ Release.xcconfig generated"
           else
             echo "✗ Failed to generate Release.xcconfig"
+            exit 1
+          fi
+          if [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-input-files.xcfilelist" ] && [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-output-files.xcfilelist" ]; then
+            echo "✓ Pods file lists generated"
+          else
+            echo "✗ Pods file lists missing"
             exit 1
           fi
 
