@@ -151,13 +151,14 @@ jobs:
             t.build_configurations.each do |config|
               config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
               config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+              config.build_settings.delete('CODE_SIGN_IDENTITY')
             end
           end
           project.save
           puts "Updated project settings"
           EOL
           ruby update_project.rb
-
+          
       - name: Verify project settings
         run: |
           if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-payments" ios/Runner/Runner.entitlements; then
