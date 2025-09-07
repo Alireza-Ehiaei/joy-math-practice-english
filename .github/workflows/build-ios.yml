@@ -296,30 +296,11 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
       
-      - name: Build IPA with xcodebuild
+      - name: Build IPA
         run: |
           cd ios
-          # Clean first
-          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -sdk iphoneos -allowProvisioningUpdates > xcode_clean_log.txt 2>&1 || { echo "Clean failed"; cat xcode_clean_log.txt; exit 1; }
-          # Archive the app
-          xcodebuild archive \
-            -workspace Runner.xcworkspace \
-            -scheme Runner \
-            -configuration Release \
-            -archivePath build/Runner.xcarchive \
-            -allowProvisioningUpdates \
-            -sdk iphoneos \
-            DEVELOPMENT_TEAM="AHVM2Z8TDL" \
-            PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025" \
-            CODE_SIGN_IDENTITY="iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" \
-            > archive_log.txt 2>&1
-          if [ $? -ne 0 ]; then
-            echo "Archive failed:"
-            cat archive_log.txt
-            exit 1
-          fi
           # Create ExportOptions.plist
-          cat > ios/ExportOptions.plist << EOL
+          cat > ExportOptions.plist << EOL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -333,23 +314,27 @@ jobs:
                   <key>com.tech4dev.mathjoypracticeenglish</key>
                   <string>MathJoyAppStore2025</string>
               </dict>
+              <key>signingCertificate</key>
+              <string>Apple Distribution</string>
+              <key>signingStyle</key>
+              <string>manual</string>
           </dict>
           </plist>
           EOL
-          # Export the IPA
-          xcodebuild -exportArchive \
-            -archivePath build/Runner.xcarchive \
-            -exportOptionsPlist ExportOptions.plist \
-            -exportPath ../build/ios/ipa \
-            -allowProvisioningUpdates \
-            > export_log.txt 2>&1
+          cd ..
+          # Build IPA with Flutter
+          flutter build ipa \
+            --release \
+            --export-options-plist=ios/ExportOptions.plist \
+            --codesign \
+            --verbose > build_log.txt 2>&1
           if [ $? -ne 0 ]; then
-            echo "Export failed:"
-            cat export_log.txt
+            echo "IPA build failed:"
+            cat build_log.txt
             exit 1
           fi
-          cd ..
-          # Copy the IPA
+          ls -l build/ios/ipa/ || { echo "IPA directory not found"; exit 1; }
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
