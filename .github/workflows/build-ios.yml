@@ -266,7 +266,7 @@ jobs:
           security import certificate.p12 -k build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           security find-identity -v -p codesigning build.keychain | grep "AHVM2Z8TDL" || { echo "Certificate import failed"; exit 1; }
-      
+        
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
@@ -276,30 +276,10 @@ jobs:
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
           echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-
-    
-      - name: Verify Provisioning Profile Capabilities
-        run: |
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
-          echo "=== Entitlements in Provisioning Profile ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist || echo "No entitlements found"
-          echo "=== App ID Features ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
-
-      - name: Check network connectivity to Apple
-        run: |
-          echo "Testing connectivity to Apple services..."
-          # Test basic connectivity
-          ping -c 2 developer.apple.com && echo "✓ Connected to developer.apple.com" || echo "✗ Cannot reach developer.apple.com"
-          ping -c 2 appstoreconnect.apple.com && echo "✓ Connected to appstoreconnect.apple.com" || echo "✗ Cannot reach appstoreconnect.apple.com"
-          
-          # Test API endpoints (more important for provisioning)
-          curl -s -I https://api.appstoreconnect.apple.com --connect-timeout 10 > /dev/null && echo "✓ Connected to App Store Connect API" || echo "✗ Cannot reach App Store Connect API"
-          curl -s -I https://developer.apple.com/services/account --connect-timeout 10 > /dev/null && echo "✓ Connected to Apple Developer Services" || echo "✗ Cannot reach Apple Developer Services"
-
-    
+      
       - name: Clear Xcode provisioning profile cache
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*
           # Reinstall the profile to ensure it's fresh
@@ -308,50 +288,57 @@ jobs:
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
           # Force Xcode to refresh profiles
           sudo /usr/bin/xcodebuild -runFirstLaunch
-    
-      - name: Build IPA
+      
+      - name: Verify Provisioning Profile Capabilities
         run: |
-          export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
-          export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution"
-          export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025"
-          export FLUTTER_XCODE_DEVELOPMENT_TEAM="AHVM2Z8TDL"
-          
-          # Verify provisioning profile exists
-          ls -la ~/Library/MobileDevice/Provisioning\ Profiles/
-          
-          # Clean and build
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
+          echo "=== Entitlements in Provisioning Profile ==="
+          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist || echo "No entitlements found"
+          echo "=== App ID Features ==="
+          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
+          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
+      
+      - name: Build IPA with xcodebuild
+        run: |
           cd ios
-          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -allowProvisioningUpdates
-          cd ..
-          
-          # Build with retries
-          for i in {1..3}; do
-            echo "Build attempt $i/3"
-            flutter build ipa \
-              --release \
-              --no-tree-shake-icons \
-              --verbose > build_log.txt 2>&1 && break
-            
-            echo "Build attempt $i failed"
-            cat build_log.txt | grep -i "error:"
-            sleep 5
-          done
-          
-          # Check if build succeeded
-          if [ $? -eq 0 ]; then
-            echo "Build successful!"
-            mkdir -p app-ipa
-            cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
-            ls -la app-ipa/
-          else
-            echo "All build attempts failed"
-            cat build_log.txt
+          # Clean first
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -allowProvisioningUpdates || { echo "Clean failed"; exit 1; }
+          # Archive the app
+          xcodebuild archive \
+            -workspace Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -archivePath build/Runner.xcarchive \
+            -allowProvisioningUpdates \
+            DEVELOPMENT_TEAM="AHVM2Z8TDL" \
+            PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025" \
+            CODE_SIGN_IDENTITY="iPhone Distribution" \
+            > archive_log.txt 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Archive failed:"
+            cat archive_log.txt
             exit 1
           fi
+          # Export the IPA
+          xcodebuild -exportArchive \
+            -archivePath build/Runner.xcarchive \
+            -exportPath ../build/ios/ipa \
+            -allowProvisioningUpdates \
+            > export_log.txt 2>&1
+          if [ $? -ne 0 ]; then
+            echo "Export failed:"
+            cat export_log.txt
+            exit 1
+          fi
+          cd ..
+          # Copy the IPA
+          mkdir -p app-ipa
+          cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
+          echo "IPA generated successfully:"
+          ls -la app-ipa/
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
-
     
 
       - name: Set up Ruby for Fastlane
