@@ -284,14 +284,21 @@ jobs:
           export FLUTTER_XCODE_CODE_SIGN_IDENTITY="iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)"
           export FLUTTER_XCODE_PROVISIONING_PROFILE_SPECIFIER="MathJoyAppStore2025"
           export FLUTTER_XCODE_DEVELOPMENT_TEAM="AHVM2Z8TDL"
+          # Verify provisioning profile installation
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/ | grep 7e2e5608-7c77-45ff-ac95-b86f868dff8c || { echo "Provisioning profile not found"; exit 1; }
           cd ios
           xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
           cd ..
-          flutter build ipa \
-            --release \
-            --export-options-plist=ios/ExportOptions.plist \
-            --no-tree-shake-icons \
-            --verbose > build_log.txt 2>&1 || { cat build_log.txt | grep -i "error:"; exit 1; }
+          # Retry build to handle potential network issues for entitlement validation
+          for i in {1..3}; do
+            flutter build ipa \
+              --release \
+              --export-options-plist=ios/ExportOptions.plist \
+              --no-tree-shake-icons \
+              --verbose > build_log.txt 2>&1 && break
+            echo "Build attempt $i failed, retrying..."
+            sleep 5
+          done || { cat build_log.txt | grep -i "error:"; exit 1; }
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
         env:
