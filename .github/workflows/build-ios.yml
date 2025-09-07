@@ -286,16 +286,27 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
           sudo /usr/bin/xcodebuild -runFirstLaunch
-      
-      - name: Verify Provisioning Profile Capabilities
+
+      - name: Verify Provisioning Profile for In-App Purchase
         run: |
+          # Decode provisioning profile
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
-          echo "=== Entitlements in Provisioning Profile ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist || echo "No entitlements found"
-          echo "=== App ID Features ==="
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
-          /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
-      
+          # Check for In-App Purchase entitlement
+          if /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null | grep -q "true"; then
+            echo "✓ Provisioning profile includes In-App Purchase entitlement"
+          else
+            echo "❌ Provisioning profile 'MathJoyAppStore2025' does not include com.apple.developer.in-app-purchase entitlement"
+            echo "Please update the provisioning profile in your Apple Developer account to include In-App Purchase capability and re-upload it as IOS_PROVISIONING_PROFILE_BASE64 secret."
+            exit 1
+          fi
+          # Verify bundle ID
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" profile.plist | grep -q "AHVM2Z8TDL.com.tech4dev.mathjoypracticeenglish"; then
+            echo "✓ Bundle ID matches: com.tech4dev.mathjoypracticeenglish"
+          else
+            echo "❌ Bundle ID mismatch in provisioning profile"
+            exit 1
+          fi
+          
       - name: Build IPA
         run: |
           cd ios
@@ -327,6 +338,7 @@ jobs:
             --release \
             --export-options-plist=ios/ExportOptions.plist \
             --codesign \
+            --target-platform ios \
             --verbose > build_log.txt 2>&1
           if [ $? -ne 0 ]; then
             echo "IPA build failed:"
@@ -334,7 +346,7 @@ jobs:
             exit 1
           fi
           ls -l build/ios/ipa/ || { echo "IPA directory not found"; exit 1; }
-          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY|CODE_SIGN_ENTITLEMENTS"
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
@@ -342,7 +354,8 @@ jobs:
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
-          
+
+    
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
