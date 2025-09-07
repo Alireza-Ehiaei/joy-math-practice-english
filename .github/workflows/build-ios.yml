@@ -291,12 +291,19 @@ jobs:
         run: |
           # Decode provisioning profile
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
+          # Output profile details for debugging
+          echo "=== Provisioning Profile Details ==="
+          /usr/libexec/PlistBuddy -c "Print Name" profile.plist
+          /usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" profile.plist
+          /usr/libexec/PlistBuddy -c "Print AppIDName" profile.plist
+          /usr/libexec/PlistBuddy -c "Print Entitlements:application-identifier" profile.plist
+          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
           # Check for In-App Purchase entitlement
           if /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null | grep -q "true"; then
             echo "✓ Provisioning profile includes In-App Purchase entitlement"
           else
             echo "❌ Provisioning profile 'MathJoyAppStore2025' does not include com.apple.developer.in-app-purchase entitlement"
-            echo "Please update the provisioning profile in your Apple Developer account to include In-App Purchase capability and re-upload it as IOS_PROVISIONING_PROFILE_BASE64 secret."
+            echo "The IOS_PROVISIONING_PROFILE_BASE64 secret may be outdated. Please download the latest profile from Apple Developer, encode it to base64, and update the secret."
             exit 1
           fi
           # Verify bundle ID
@@ -306,6 +313,14 @@ jobs:
             echo "❌ Bundle ID mismatch in provisioning profile"
             exit 1
           fi
+          # Verify profile type and certificate
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.team-identifier" profile.plist | grep -q "AHVM2Z8TDL"; then
+            echo "✓ Team ID matches: AHVM2Z8TDL"
+          else
+            echo "❌ Team ID mismatch in provisioning profile"
+            exit 1
+          fi
+
       - name: Build IPA
         run: |
           cd ios
@@ -319,19 +334,25 @@ jobs:
               <string>app-store</string>
               <key>teamID</key>
               <string>AHVM2Z8TDL</string>
+              <key>signingCertificate</key>
+              <string>iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)</string>
+              <key>signingStyle</key>
+              <string>manual</string>
               <key>provisioningProfiles</key>
               <dict>
                   <key>com.tech4dev.mathjoypracticeenglish</key>
                   <string>MathJoyAppStore2025</string>
               </dict>
-              <key>signingCertificate</key>
-              <string>Apple Distribution</string>
-              <key>signingStyle</key>
-              <string>manual</string>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>thinning</key>
+              <string>&lt;none&gt;</string>
           </dict>
           </plist>
           EOL
           cd ..
+          # Verify certificate in keychain
+          security find-identity -v -p codesigning build.keychain | grep "iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" || { echo "Certificate not found in keychain"; exit 1; }
           # Build IPA with Flutter
           flutter build ipa \
             --release \
