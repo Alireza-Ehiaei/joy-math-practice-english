@@ -286,10 +286,13 @@ jobs:
           export FLUTTER_XCODE_DEVELOPMENT_TEAM="AHVM2Z8TDL"
           # Verify provisioning profile installation
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/ | grep 7e2e5608-7c77-45ff-ac95-b86f868dff8c || { echo "Provisioning profile not found"; exit 1; }
+          # Decode and inspect provisioning profile
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision > profile.plist
+          cat profile.plist | grep -E "com.apple.developer.in-app-payments|com.apple.developer.payment-pass-provisioning|Entitlements|TeamIdentifier"
           cd ios
-          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release -allowProvisioningUpdates > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
           cd ..
-          # Retry build to handle potential network issues for entitlement validation
+          # Retry build with detailed logging
           for i in {1..3}; do
             flutter build ipa \
               --release \
@@ -297,8 +300,11 @@ jobs:
               --no-tree-shake-icons \
               --verbose > build_log.txt 2>&1 && break
             echo "Build attempt $i failed, retrying..."
+            cat build_log.txt | grep -i "error:"
             sleep 5
           done || { cat build_log.txt | grep -i "error:"; exit 1; }
+          ls -l build/ios/ipa/ || { echo "IPA directory not found"; exit 1; }
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY"
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
         env:
