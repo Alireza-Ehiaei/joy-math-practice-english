@@ -285,10 +285,11 @@ jobs:
           pod install --repo-update
           cd ..
           
-          # Build with automatic provisioning
+          # Build with explicit signing configuration
           flutter build ipa \
             --release \
             --no-tree-shake-icons \
+            --export-options-plist=ios/ExportOptions.plist \
             --verbose > build_log.txt 2>&1
           
           # Check result
@@ -303,8 +304,9 @@ jobs:
             exit 1
           fi
         env:
-          DEVELOPMENT_TEAM: AHVM2Z8TDL
+          DEVELOPER_TEAM: AHVM2Z8TDL
           FLUTTER_XCODE_DEVELOPMENT_TEAM: AHVM2Z8TDL
+          PROVISIONING_PROFILE_SPECIFIER: MathJoyAppStore2025
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
