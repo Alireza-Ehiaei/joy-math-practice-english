@@ -66,12 +66,48 @@ jobs:
           grep -n "platform :ios" ios/Podfile
           grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
 
-      - name: Install CocoaPods dependencies
+      - name: Install CocoaPods dependencies with fixes
         run: |
           cd ios
-          pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
+          # Clean pod cache
+          pod cache clean --all
+          
+          # Install with verbose output
+          pod install --repo-update --verbose > pod_install_log.txt 2>&1
+          
+          # Check if installation succeeded despite warnings
+          if [ $? -eq 0 ]; then
+            echo "Pod installation completed (warnings are expected)"
+            # Continue even with warnings
+          else
+            echo "Pod installation failed:"
+            cat pod_install_log.txt | grep -i error
+            exit 1
+          fi
           cd ..
 
+      - name: Verify Xcode configuration
+        run: |
+          cd ios
+          # Check if xcconfig files exist
+          if [ -f "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig" ]; then
+            echo "✓ Pods xcconfig files generated"
+          else
+            echo "⚠️ Pods xcconfig files missing - attempting workaround"
+            # Try regenerating pods
+            pod deintegrate
+            pod install --repo-update
+          fi
+          
+          # Check workspace configuration
+          if [ -f "Runner.xcworkspace/contents.xcworkspacedata" ]; then
+            echo "✓ Workspace configuration exists"
+          else
+            echo "❌ Workspace configuration missing"
+            exit 1
+          fi
+          cd ..
+          
       - name: Debug project state
         run: |
           echo "Checking ios/Runner.xcodeproj/project.pbxproj:"
