@@ -55,14 +55,14 @@ jobs:
                 \ \ \ \ \ \ config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\\
                 \ \ \ \ end" ios/Podfile
             else
-              echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    flutter_additional_ios_build_settings(target)\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n    end\n  end\nend" >> ios/Podfile
+              echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    flutter_additional_ios_build_settings(target)\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''\n      config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'\n      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'\n    end\n  end\nend" >> ios/Podfile
             fi
           fi
           echo "Podfile content after update:"
           cat ios/Podfile
           grep -n "platform :ios" ios/Podfile
           grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
-          
+
       - name: Install CocoaPods dependencies
         run: |
           cd ios
@@ -77,7 +77,7 @@ jobs:
           if [ -f "ios/Podfile" ]; then cat ios/Podfile; else echo "Podfile missing"; fi
           echo "Checking pubspec.yaml dependencies:"
           grep -E "in_app_purchase" pubspec.yaml || echo "No in_app_purchase dependency found"
-     
+
       - name: Generate Flutter iOS configs
         run: |
           cd ios
@@ -115,16 +115,39 @@ jobs:
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
-              <key>com.apple.developer.in-app-payments</key>
-              <array>
-                  <string>com.tech4dev.mathjoypracticeenglish</string>
-              </array>
           </dict>
           </plist>
           EOL
           ls -l ios/Runner/Runner.entitlements
           echo "Runner.entitlements content:"
           cat ios/Runner/Runner.entitlements
+
+      - name: Create ExportOptions.plist
+        run: |
+          cat > ios/ExportOptions.plist << EOL
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>compileBitcode</key>
+              <true/>
+              <key>method</key>
+              <string>app-store</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>signingCertificate</key>
+              <string>iPhone Distribution</string>
+              <key>teamID</key>
+              <string>AHVM2Z8TDL</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.tech4dev.mathjoypracticeenglish</key>
+                  <string>MathJoyAppStore2025</string>
+              </dict>
+          </dict>
+          </plist>
+          EOL
+          cat ios/ExportOptions.plist
 
       - name: Update Xcode project for entitlements and signing
         run: |
@@ -138,17 +161,28 @@ jobs:
             puts "Error: Runner target not found"
             exit 1
           end
-          file_ref = project.files.find { |f| f.path == 'Runner/Runner.entitlements' } || project.main_group['Runner'].new_file('Runner.entitlements')
+          
+          # Add entitlements file reference if needed
+          entitlements_path = 'Runner/Runner.entitlements'
+          file_ref = project.files.find { |f| f.path == entitlements_path } 
+          unless file_ref
+            file_ref = project.main_group['Runner'].new_file(entitlements_path)
+          end
           target.add_file_references([file_ref])
+          
+          # Configure Runner target
           target.build_configurations.each do |config|
-            config.build_settings['CODE_SIGN_ENTITLEMENTS'] = 'Runner/Runner.entitlements'
+            config.build_settings['CODE_SIGN_ENTITLEMENTS'] = entitlements_path
             config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
             config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
             config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
             config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.tech4dev.mathjoypracticeenglish'
           end
+          
+          # Configure ALL Pods targets to use Automatic signing
           project.targets.each do |t|
-            next if t.name == 'Runner'
+            next if t.name == 'Runner' || t.name.include?('Pods-')
+            
             t.build_configurations.each do |config|
               config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
               config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
@@ -157,29 +191,33 @@ jobs:
               config.build_settings.delete('CODE_SIGN_ENTITLEMENTS')
             end
           end
+          
+          # Also configure Pods project targets
+          pods_project_path = 'ios/Pods/Pods.xcodeproj'
+          if File.exist?(pods_project_path)
+            pods_project = Xcodeproj::Project.open(pods_project_path)
+            pods_project.targets.each do |t|
+              t.build_configurations.each do |config|
+                config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+                config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+                config.build_settings.delete('CODE_SIGN_IDENTITY')
+                config.build_settings.delete('DEVELOPMENT_TEAM')
+              end
+            end
+            pods_project.save
+          end
+          
           project.save
           puts "Updated project settings"
           EOL
           ruby update_project.rb
-          # Ensure Runner.entitlements excludes Apple Pay
-          echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/Runner/Runner.entitlements
-          echo '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">' >> ios/Runner/Runner.entitlements
-          echo '<plist version="1.0">' >> ios/Runner/Runner.entitlements
-          echo '<dict>' >> ios/Runner/Runner.entitlements
-          echo '    <key>com.apple.developer.in-app-payments</key>' >> ios/Runner/Runner.entitlements
-          echo '    <array>' >> ios/Runner/Runner.entitlements
-          echo '        <string>com.tech4dev.mathjoypracticeenglish</string>' >> ios/Runner/Runner.entitlements
-          echo '    </array>' >> ios/Runner/Runner.entitlements
-          echo '</dict>' >> ios/Runner/Runner.entitlements
-          echo '</plist>' >> ios/Runner/Runner.entitlements
-          cat ios/Runner/Runner.entitlements
-          
+
       - name: Verify project settings
         run: |
-          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-payments" ios/Runner/Runner.entitlements; then
-            echo "✓ Runner.entitlements exists with IAP"
+          if [ -f "ios/Runner/Runner.entitlements" ]; then
+            echo "✓ Runner.entitlements exists"
           else
-            echo "✗ Runner.entitlements missing or lacks IAP"
+            echo "✗ Runner.entitlements missing"
             exit 1
           fi
           if grep -q "Runner/Runner.entitlements" ios/Runner.xcodeproj/project.pbxproj; then
