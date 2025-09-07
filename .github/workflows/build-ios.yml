@@ -47,9 +47,18 @@ jobs:
           pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
           cd ..
 
-      - name: Regenerate Flutter iOS configs
+      - name: Debug project state
         run: |
-          flutter build ios --release --config-only --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
+          echo "Checking ios/Runner.xcodeproj/project.pbxproj:"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "Release.xcconfig|Generated.xcconfig"
+          echo "Checking ios/Podfile:"
+          if [ -f "ios/Podfile" ]; then cat ios/Podfile; else echo "Podfile missing"; fi
+          echo "Checking pubspec.yaml dependencies:"
+          grep -E "in_app_purchase" pubspec.yaml || echo "No in_app_purchase dependency found"
+
+      - name: Generate Flutter iOS configs
+        run: |
+          flutter build ios --release --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
           ls -l ios/Flutter/
           if [ -f "ios/Flutter/Release.xcconfig" ]; then
             echo "✓ Release.xcconfig generated"
@@ -229,7 +238,6 @@ jobs:
             flutter_clean_log.txt
             pub_get_log.txt
             pod_install_log.txt
-            build_runner_log.txt
             flutter_config_log.txt
             build_log.txt
             fastlane_log.txt
