@@ -250,7 +250,29 @@ jobs:
           echo "=== App ID Features ==="
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-payments" profile.plist 2>/dev/null || echo "No Apple Pay entitlement (GOOD)"
           /usr/libexec/PlistBuddy -c "Print Entitlements:com.apple.developer.in-app-purchase" profile.plist 2>/dev/null || echo "No In-App Purchase entitlement (CHECK)"
-      
+
+      - name: Check network connectivity to Apple
+        run: |
+          echo "Testing connectivity to Apple services..."
+          # Test basic connectivity
+          ping -c 2 developer.apple.com && echo "✓ Connected to developer.apple.com" || echo "✗ Cannot reach developer.apple.com"
+          ping -c 2 appstoreconnect.apple.com && echo "✓ Connected to appstoreconnect.apple.com" || echo "✗ Cannot reach appstoreconnect.apple.com"
+          
+          # Test API endpoints (more important for provisioning)
+          curl -s -I https://api.appstoreconnect.apple.com --connect-timeout 10 > /dev/null && echo "✓ Connected to App Store Connect API" || echo "✗ Cannot reach App Store Connect API"
+          curl -s -I https://developer.apple.com/services/account --connect-timeout 10 > /dev/null && echo "✓ Connected to Apple Developer Services" || echo "✗ Cannot reach Apple Developer Services"
+
+    
+      - name: Clear Xcode provisioning profile cache
+        run: |
+          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*
+          # Reinstall the profile to ensure it's fresh
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
+          # Force Xcode to refresh profiles
+          sudo /usr/bin/xcodebuild -runFirstLaunch
+    
       - name: Build IPA
         run: |
           export FLUTTER_XCODE_CODE_SIGN_STYLE="Manual"
