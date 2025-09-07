@@ -41,6 +41,26 @@ jobs:
           rm -rf ios/Flutter ios/Pods ios/Podfile.lock ~/Library/Developer/Xcode/DerivedData/*
           flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
 
+      - name: Update iOS deployment target
+        run: |
+          DEPLOYMENT_TARGET="16.0"
+          echo "Updating Podfile platform to $DEPLOYMENT_TARGET"
+          sed -i '' "s/platform :ios, '.*'/platform :ios, '$DEPLOYMENT_TARGET'/" ios/Podfile
+          echo "Ensuring IPHONEOS_DEPLOYMENT_TARGET in Podfile"
+          if ! grep -q "IPHONEOS_DEPLOYMENT_TARGET.*=.*'$DEPLOYMENT_TARGET'" ios/Podfile; then
+            echo "Adding or updating IPHONEOS_DEPLOYMENT_TARGET in post_install block"
+            sed -i '' "/post_install do |installer|/a\\
+              \ \ installer.pods_project.targets.each do |target|\\
+              \ \ \ \ target.build_configurations.each do |config|\\
+              \ \ \ \ \ \ config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\\
+              \ \ \ \ end\\
+              \ \ end" ios/Podfile
+          fi
+          echo "Podfile content after update:"
+          cat ios/Podfile
+          grep -n "platform :ios" ios/Podfile
+          grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
+
       - name: Install CocoaPods dependencies
         run: |
           cd ios
