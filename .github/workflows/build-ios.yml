@@ -316,6 +316,10 @@ jobs:
                   <key>com.tech4dev.mathjoypracticeenglish</key>
                   <string>MathJoyAppStore2025</string>
               </dict>
+              <key>compileBitcode</key>
+              <false/>
+              <key>uploadBitcode</key>
+              <false/>
               <key>stripSwiftSymbols</key>
               <true/>
               <key>thinning</key>
@@ -324,7 +328,16 @@ jobs:
           </plist>
           EOL
           cd ..
+          echo "Checking ExportOptions.plist:"
+          cat ios/ExportOptions.plist
+          echo "Checking provisioning profile:"
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision
+          echo "Checking certificate:"
           security find-identity -v -p codesigning build.keychain | grep "iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" || { echo "Certificate not found in keychain"; exit 1; }
+          echo "Checking entitlements file:"
+          cat ios/Runner/Runner.entitlements
+          echo "Checking project settings:"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY|CODE_SIGN_ENTITLEMENTS"
           flutter build ipa \
             --release \
             --export-options-plist=ios/ExportOptions.plist \
@@ -337,7 +350,6 @@ jobs:
             exit 1
           fi
           ls -l build/ios/ipa/ || { echo "IPA directory not found"; exit 1; }
-          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY|CODE_SIGN_ENTITLEMENTS"
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
