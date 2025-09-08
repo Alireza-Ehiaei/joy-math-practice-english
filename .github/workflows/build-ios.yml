@@ -307,17 +307,17 @@ jobs:
               <true/>
               <key>thinning</key>
               <string>&lt;none&gt;</string>
-          </dict>
-          </plist>
-          EOL
-              cd ..
-              flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign > build_log.txt 2>&1 || {
-                echo "IPA build failed. Errors logged to build_log.txt"
-                grep -i "error:" build_log.txt || cat build_log.txt
-                exit 1
-              }
-              mkdir -p app-ipa
-              cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
+              </dict>
+              </plist>
+              EOL
+                  cd ..
+                  flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign > build_log.txt 2>&1 || {
+                    echo "IPA build failed. Errors logged to build_log.txt"
+                    grep -i "error:" build_log.txt || cat build_log.txt
+                    exit 1
+                  }
+                  mkdir -p app-ipa
+                  cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
 
       - name: Install Fastlane
         run: |
@@ -350,7 +350,7 @@ jobs:
             end
           end
           EOL
-      
+
       
       - name: Run Fastlane to upload IPA
         env:
