@@ -299,6 +299,8 @@ jobs:
       - name: Build IPA
         run: |
           cd ios
+          
+          # Create ExportOptions.plist with UUID
           cat > ExportOptions.plist << EOL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -315,7 +317,7 @@ jobs:
               <key>provisioningProfiles</key>
               <dict>
                   <key>com.tech4dev.mathjoypracticeenglish</key>
-                  <string>MathJoyAppStore2025</string>
+                  <string>5958cfe6-4d68-4858-82b9-107d3b2c64a2</string>
               </dict>
               <key>compileBitcode</key>
               <false/>
@@ -328,36 +330,30 @@ jobs:
           </dict>
           </plist>
           EOL
+          
+          echo "ExportOptions.plist content:"
+          cat ExportOptions.plist
           cd ..
-          echo "Checking ExportOptions.plist:"
-          cat ios/ExportOptions.plist
-          echo "Checking provisioning profile:"
-          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision
-          echo "Checking certificate:"
-          security find-identity -v -p codesigning build.keychain | grep "iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" || { echo "Certificate not found in keychain"; exit 1; }
-          echo "Checking entitlements file:"
-          cat ios/Runner/Runner.entitlements
-          echo "Checking project settings:"
-          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "PROVISIONING_PROFILE|CODE_SIGN_IDENTITY|CODE_SIGN_ENTITLEMENTS"
+          
+          # Build IPA with correct flags (REMOVE --target-platform)
           flutter build ipa \
             --release \
             --export-options-plist=ios/ExportOptions.plist \
             --codesign \
-            --target-platform ios \
-            --verbose > build_log.txt 2>&1
-          if [ $? -ne 0 ]; then
-            echo "IPA build failed:"
-            cat build_log.txt
+            --verbose 2>&1 | tee build_log.txt
+          
+          if [ ${PIPESTATUS[0]} -ne 0 ]; then
+            echo "IPA build failed. Checking for specific errors:"
+            grep -i "error:" build_log.txt || cat build_log.txt
             exit 1
           fi
-          ls -l build/ios/ipa/ || { echo "IPA directory not found"; exit 1; }
+          
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
           ls -la app-ipa/
         env:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
-          PROFILE_NAME: MathJoyAppStore2025
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
