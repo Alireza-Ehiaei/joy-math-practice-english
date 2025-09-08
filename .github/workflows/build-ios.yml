@@ -232,17 +232,57 @@ jobs:
           fi
           echo "Note: In-App Purchase entitlement is enabled by default and not explicitly listed."
 
+
+      - name: Verify LaunchScreen setup
+        run: |
+          if [ -f "ios/Runner/Base.lproj/LaunchScreen.storyboard" ]; then
+            echo "✅ LaunchScreen.storyboard exists"
+          else
+            echo "❌ LaunchScreen.storyboard missing - creating basic version for iOS/iPadOS"
+            mkdir -p ios/Runner/Base.lproj
+            cat > ios/Runner/Base.lproj/LaunchScreen.storyboard << 'EOL'
+            <?xml version="1.0" encoding="UTF-8"?>
+            <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+                <dependencies>
+                    <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+                </dependencies>
+                <scenes>
+                    <scene sceneID="EHf-IW-A2E">
+                        <objects>
+                            <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                                <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                                </view>
+                            </viewController>
+                            <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                        </objects>
+                        <point key="canvasLocation" x="53" y="375"/>
+                    </scene>
+                </scenes>
+            </document>
+            EOL
+          fi
+          if /usr/libexec/PlistBuddy -c "Print :UILaunchStoryboardName" ios/Runner/Info.plist | grep -q "LaunchScreen"; then
+            echo "✅ Info.plist references LaunchScreen"
+          else
+            echo "❌ Updating Info.plist to reference LaunchScreen"
+            /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchScreen" ios/Runner/Info.plist
+            /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
+          fi
+      
       - name: Build IPA
         run: |
           set -e
           PLIST_PATH="ios/Runner/Info.plist"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.1" "$PLIST_PATH"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 2" "$PLIST_PATH"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.2" "$PLIST_PATH"
+          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1" "$PLIST_PATH"
           /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.in-app-payments" "$PLIST_PATH" || true
           cd ios
           cat > ExportOptions.plist << EOL
           <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST  coleta1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
           <dict>
               <key>method</key>
@@ -297,6 +337,8 @@ jobs:
               )
               deliver(
                 ipa: "./app-ipa/math_joy_practice_english.ipa",
+                app_version: "1.0.2",
+                build_number: "1",
                 skip_screenshots: true,
                 skip_metadata: true,
                 skip_app_version_update: true,
