@@ -6,9 +6,9 @@
     <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
     <plist version="1.0">
     <dict>
-        <!-- Empty: No entitlements needed for standard In-App Purchases -->
+        <key>com.apple.developer.in-app-purchase</key>
+        <true/>
     </dict>
     </plist>
     EOL
-    echo "Runner.entitlements content:"
     cat ios/Runner/Runner.entitlements
