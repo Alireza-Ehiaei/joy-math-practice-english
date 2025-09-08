@@ -178,6 +178,7 @@ jobs:
             config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
             config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
             config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
+            config.build_settings['PROVISIONING_PROFILE'] = '5958cfe6-4d68-4858-82b9-107d3b2c64a2'
             config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.tech4dev.mathjoypracticeenglish'
           end
           
