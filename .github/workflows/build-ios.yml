@@ -69,16 +69,10 @@ jobs:
       - name: Install CocoaPods dependencies with fixes
         run: |
           cd ios
-          # Clean pod cache
           pod cache clean --all
-          
-          # Install with verbose output
           pod install --repo-update --verbose > pod_install_log.txt 2>&1
-          
-          # Check if installation succeeded despite warnings
           if [ $? -eq 0 ]; then
             echo "Pod installation completed (warnings are expected)"
-            # Continue even with warnings
           else
             echo "Pod installation failed:"
             cat pod_install_log.txt | grep -i error
@@ -89,17 +83,13 @@ jobs:
       - name: Verify Xcode configuration
         run: |
           cd ios
-          # Check if xcconfig files exist
           if [ -f "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig" ]; then
             echo "✓ Pods xcconfig files generated"
           else
             echo "⚠️ Pods xcconfig files missing - attempting workaround"
-            # Try regenerating pods
             pod deintegrate
             pod install --repo-update
           fi
-          
-          # Check workspace configuration
           if [ -f "Runner.xcworkspace/contents.xcworkspacedata" ]; then
             echo "✓ Workspace configuration exists"
           else
@@ -107,7 +97,7 @@ jobs:
             exit 1
           fi
           cd ..
-          
+
       - name: Debug project state
         run: |
           echo "Checking ios/Runner.xcodeproj/project.pbxproj:"
@@ -149,7 +139,7 @@ jobs:
       - name: Ensure Runner.entitlements exists
         run: |
           mkdir -p ios/Runner
-          cat > ios/Runner/Runner.entitlements << 'EOL'
+          cat > ios/Runner/Runner.entitlements << EOL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
           <plist version="1.0">
@@ -159,9 +149,8 @@ jobs:
           </dict>
           </plist>
           EOL
-              echo "Runner.entitlements content:"
-              cat ios/Runner/Runner.entitlements
-
+          echo "Runner.entitlements content:"
+          cat ios/Runner/Runner.entitlements
 
       - name: Update Xcode project for entitlements and signing
         run: |
@@ -169,7 +158,6 @@ jobs:
           cat > update_project.rb << EOL
           require 'xcodeproj'
           
-          # Update Runner project
           project_path = 'ios/Runner.xcodeproj'
           project = Xcodeproj::Project.open(project_path)
           target = project.targets.find { |t| t.name == 'Runner' }
@@ -178,7 +166,6 @@ jobs:
             exit 1
           end
           
-          # Add entitlements file reference
           entitlements_path = 'Runner/Runner.entitlements'
           file_ref = project.files.find { |f| f.path == entitlements_path } 
           unless file_ref
@@ -186,7 +173,6 @@ jobs:
           end
           target.add_file_references([file_ref])
           
-          # Configure Runner target
           target.build_configurations.each do |config|
             config.build_settings['CODE_SIGN_ENTITLEMENTS'] = entitlements_path
             config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
@@ -195,7 +181,6 @@ jobs:
             config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.tech4dev.mathjoypracticeenglish'
           end
           
-          # Ensure no Pods targets in Runner project override signing
           project.targets.each do |t|
             next if t.name == 'Runner'
             t.build_configurations.each do |config|
@@ -207,7 +192,6 @@ jobs:
             end
           end
           
-          # Update Pods project
           pods_project_path = 'ios/Pods/Pods.xcodeproj'
           if File.exist?(pods_project_path)
             pods_project = Xcodeproj::Project.open(pods_project_path)
@@ -233,7 +217,6 @@ jobs:
 
       - name: Verify project settings
         run: |
-          # Check for standard In-App Purchase entitlement, NOT Apple Pay
           if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-purchase" ios/Runner/Runner.entitlements; then
             echo "✓ Runner.entitlements exists with IAP entitlement"
           else
@@ -266,46 +249,44 @@ jobs:
           security import certificate.p12 -k build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
           security find-identity -v -p codesigning build.keychain | grep "AHVM2Z8TDL" || { echo "Certificate import failed"; exit 1; }
-        
+
       - name: Install provisioning profile
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision || { echo "Failed to decode IOS_PROVISIONING_PROFILE_BASE64"; exit 1; }
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision || { echo "Failed to move provisioning profile"; exit 1; }
           echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-      
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision > temp_profile.plist
+          /usr/libexec/PlistBuddy -c "Print UUID" temp_profile.plist
+
       - name: Clear Xcode provisioning profile cache
         env:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
         run: |
           rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision || { echo "Failed to decode IOS_PROVISIONING_PROFILE_BASE64"; exit 1; }
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/7e2e5608-7c77-45ff-ac95-b86f868dff8c.mobileprovision
-          sudo /usr/bin/xcodebuild -runFirstLaunch
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision || { echo "Failed to move provisioning profile"; exit 1; }
+          echo "Provisioning profile cache cleared and reinstalled"
 
-      - name: Verify Provisioning Profile for In-App Purchase
+      - name: Verify Provisioning Profile
         run: |
-          # Decode provisioning profile
           security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
-          # Output profile details for debugging
           echo "=== Provisioning Profile Details ==="
           /usr/libexec/PlistBuddy -c "Print Name" profile.plist
           /usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" profile.plist
           /usr/libexec/PlistBuddy -c "Print AppIDName" profile.plist
           /usr/libexec/PlistBuddy -c "Print Entitlements:application-identifier" profile.plist
           /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
-          # Verify bundle ID
           if /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" profile.plist | grep -q "AHVM2Z8TDL.com.tech4dev.mathjoypracticeenglish"; then
             echo "✓ Bundle ID matches: com.tech4dev.mathjoypracticeenglish"
           else
             echo "❌ Bundle ID mismatch in provisioning profile"
             exit 1
           fi
-          # Verify team ID
           if /usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.team-identifier" profile.plist | grep -q "AHVM2Z8TDL"; then
             echo "✓ Team ID matches: AHVM2Z8TDL"
           else
@@ -314,11 +295,9 @@ jobs:
           fi
           echo "Note: In-App Purchase entitlement is implied by default and may not appear explicitly."
 
-    
       - name: Build IPA
         run: |
           cd ios
-          # Create ExportOptions.plist
           cat > ExportOptions.plist << EOL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -345,9 +324,7 @@ jobs:
           </plist>
           EOL
           cd ..
-          # Verify certificate in keychain
           security find-identity -v -p codesigning build.keychain | grep "iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)" || { echo "Certificate not found in keychain"; exit 1; }
-          # Build IPA with Flutter
           flutter build ipa \
             --release \
             --export-options-plist=ios/ExportOptions.plist \
@@ -369,7 +346,6 @@ jobs:
           DEVELOPMENT_TEAM: AHVM2Z8TDL
           PROFILE_NAME: MathJoyAppStore2025
 
-    
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
         with:
