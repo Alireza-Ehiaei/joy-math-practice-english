@@ -270,7 +270,7 @@ jobs:
             /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchScreen" ios/Runner/Info.plist
             /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
           fi
-      
+        
       - name: Build IPA
         run: |
           set -e
@@ -305,18 +305,27 @@ jobs:
               <true/>
               <key>thinning</key>
               <string>&lt;none&gt;</string>
-              </dict>
-              </plist>
-              EOL
-                  cd ..
-                  flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign > build_log.txt 2>&1 || {
-                    echo "IPA build failed. Errors logged to build_log.txt"
-                    grep -i "error:" build_log.txt || cat build_log.txt
-                    exit 1
-                  }
-                  mkdir -p app-ipa
-                  cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
+          </dict>
+          </plist>
+          EOL
+              cd ..
+              flutter clean
+              flutter pub get
+              flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign > build_log.txt 2>&1 || {
+                echo "IPA build failed. Errors logged to build_log.txt"
+                cat build_log.txt
+                exit 1
+              }
+              mkdir -p app-ipa
+              IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
+              if [ -z "$IPA_PATH" ]; then
+                echo "❌ No IPA file found in build/ios/ipa"
+                exit 1
+              fi
+              cp "$IPA_PATH" app-ipa/math_joy_practice_english.ipa
+              echo "✅ IPA copied to app-ipa/math_joy_practice_english.ipa"
 
+    
       - name: Install Fastlane
         run: |
           gem install fastlane
