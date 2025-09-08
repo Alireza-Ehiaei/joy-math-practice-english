@@ -35,11 +35,12 @@ jobs:
           cache-key: flutter-3.29.3
           cache-path: /Users/runner/hostedtoolcache/flutter
 
-      - name: Clean Flutter project
+      - name: Clean and prepare Flutter project
         run: |
           flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
           rm -rf ios/Flutter ios/Pods ios/Podfile.lock ~/Library/Developer/Xcode/DerivedData/*
           flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+          flutter create --platforms=ios . > flutter_create_log.txt 2>&1 || { cat flutter_create_log.txt; exit 1; }
 
       - name: Update iOS deployment target
         run: |
@@ -66,18 +67,11 @@ jobs:
           grep -n "platform :ios" ios/Podfile
           grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
 
-      - name: Install CocoaPods dependencies with fixes
+      - name: Install CocoaPods dependencies
         run: |
           cd ios
           pod cache clean --all
-          pod install --repo-update --verbose > pod_install_log.txt 2>&1
-          if [ $? -eq 0 ]; then
-            echo "Pod installation completed (warnings are expected)"
-          else
-            echo "Pod installation failed:"
-            cat pod_install_log.txt | grep -i error
-            exit 1
-          fi
+          pod install --repo-update --verbose > pod_install_log.txt 2>&1 || { cat pod_install_log.txt | grep -i error; exit 1; }
           cd ..
 
       - name: Verify Xcode configuration
@@ -87,8 +81,7 @@ jobs:
             echo "✓ Pods xcconfig files generated"
           else
             echo "⚠️ Pods xcconfig files missing - attempting workaround"
-            pod deintegrate
-            pod install --repo-update
+            pod deintegrate && pod install --repo-update
           fi
           if [ -f "Runner.xcworkspace/contents.xcworkspacedata" ]; then
             echo "✓ Workspace configuration exists"
@@ -107,18 +100,9 @@ jobs:
           echo "Checking pubspec.yaml dependencies:"
           grep -E "in_app_purchase" pubspec.yaml || echo "No in_app_purchase dependency found"
 
-      - name: Generate Flutter iOS configs
+      - name: Build iOS configurations
         run: |
           cd ios
-          pod deintegrate > pod_deintegrate_log.txt 2>&1 || { cat pod_deintegrate_log.txt; exit 1; }
-          rm -rf Pods Podfile.lock
-          cd ..
-          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
-          flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
-          rm -rf ios/Flutter ~/Library/Developer/Xcode/DerivedData/*
-          flutter create --platforms=ios . > flutter_create_log.txt 2>&1 || { cat flutter_create_log.txt; exit 1; }
-          cd ios
-          pod install --repo-update > pod_install_log.txt 2>&1 || { cat pod_install_log.txt; exit 1; }
           xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
           cd ..
           flutter build ios --release --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
@@ -136,23 +120,7 @@ jobs:
             exit 1
           fi
 
-      - name: Ensure Runner.entitlements exists
-        run: |
-          mkdir -p ios/Runner
-          cat > ios/Runner/Runner.entitlements << EOL
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>com.apple.developer.in-app-purchase</key>
-              <true/>
-          </dict>
-          </plist>
-          EOL
-          echo "Runner.entitlements content:"
-          cat ios/Runner/Runner.entitlements
-
-      - name: Update Xcode project for entitlements and signing
+      - name: Update Xcode project for signing
         run: |
           gem install xcodeproj
           cat > update_project.rb << EOL
@@ -166,15 +134,7 @@ jobs:
             exit 1
           end
           
-          entitlements_path = 'Runner/Runner.entitlements'
-          file_ref = project.files.find { |f| f.path == entitlements_path } 
-          unless file_ref
-            file_ref = project.main_group['Runner'].new_file(entitlements_path)
-          end
-          target.add_file_references([file_ref])
-          
           target.build_configurations.each do |config|
-            config.build_settings['CODE_SIGN_ENTITLEMENTS'] = entitlements_path
             config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
             config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
             config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
@@ -216,17 +176,6 @@ jobs:
           EOL
           ruby update_project.rb
 
-      - name: Verify project settings
-        run: |
-          if [ -f "ios/Runner/Runner.entitlements" ] && grep -q "com.apple.developer.in-app-purchase" ios/Runner/Runner.entitlements; then
-            echo "✓ Runner.entitlements exists with IAP entitlement"
-          else
-            echo "✗ Runner.entitlements missing or lacks IAP entitlement"
-            echo "Current content:"
-            cat ios/Runner/Runner.entitlements 2>/dev/null || echo "File not found"
-            exit 1
-          fi
-
       - name: Create temporary keychain
         env:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
@@ -260,18 +209,6 @@ jobs:
           mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision || { echo "Failed to move provisioning profile"; exit 1; }
           echo "Provisioning profile installed successfully"
           ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
-          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision > temp_profile.plist
-          /usr/libexec/PlistBuddy -c "Print UUID" temp_profile.plist
-
-      - name: Clear Xcode provisioning profile cache
-        env:
-          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
-        run: |
-          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/*
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision || { echo "Failed to decode IOS_PROVISIONING_PROFILE_BASE64"; exit 1; }
-          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision || { echo "Failed to move provisioning profile"; exit 1; }
-          echo "Provisioning profile cache cleared and reinstalled"
 
       - name: Verify Provisioning Profile
         run: |
@@ -281,7 +218,6 @@ jobs:
           /usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" profile.plist
           /usr/libexec/PlistBuddy -c "Print AppIDName" profile.plist
           /usr/libexec/PlistBuddy -c "Print Entitlements:application-identifier" profile.plist
-          /usr/libexec/PlistBuddy -c "Print Entitlements" profile.plist
           if /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" profile.plist | grep -q "AHVM2Z8TDL.com.tech4dev.mathjoypracticeenglish"; then
             echo "✓ Bundle ID matches: com.tech4dev.mathjoypracticeenglish"
           else
@@ -294,13 +230,11 @@ jobs:
             echo "❌ Team ID mismatch in provisioning profile"
             exit 1
           fi
-          echo "Note: In-App Purchase entitlement is implied by default and may not appear explicitly."
+          echo "Note: In-App Purchase entitlement is enabled by default and not explicitly listed."
 
       - name: Build IPA
         run: |
           cd ios
-          
-          # Create ExportOptions.plist with UUID
           cat > ExportOptions.plist << EOL
           <?xml version="1.0" encoding="UTF-8"?>
           <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -330,30 +264,19 @@ jobs:
           </dict>
           </plist>
           EOL
-          
           echo "ExportOptions.plist content:"
           cat ExportOptions.plist
           cd ..
-          
-          # Build IPA with correct flags (REMOVE --target-platform)
-          flutter build ipa \
-            --release \
-            --export-options-plist=ios/ExportOptions.plist \
-            --codesign \
-            --verbose 2>&1 | tee build_log.txt
-          
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign --verbose 2>&1 | tee build_log.txt
           if [ ${PIPESTATUS[0]} -ne 0 ]; then
             echo "IPA build failed. Checking for specific errors:"
             grep -i "error:" build_log.txt || cat build_log.txt
             exit 1
           fi
-          
           mkdir -p app-ipa
           cp build/ios/ipa/*.ipa app-ipa/math_joy_practice_english.ipa
           echo "IPA generated successfully:"
           ls -la app-ipa/
-        env:
-          DEVELOPMENT_TEAM: AHVM2Z8TDL
 
       - name: Set up Ruby for Fastlane
         uses: ruby/setup-ruby@v1
