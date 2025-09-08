@@ -345,8 +345,6 @@ jobs:
               )
               deliver(
                 ipa: "./app-ipa/math_joy_practice_english.ipa",
-                app_version: "1.0.2",
-                build_number: "1",
                 skip_screenshots: true,
                 skip_metadata: true,
                 skip_app_version_update: true,
