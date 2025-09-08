@@ -1,14 +1,6 @@
-- name: Ensure Runner.entitlements exists
-  run: |
-    mkdir -p ios/Runner
-    cat > ios/Runner/Runner.entitlements << EOL
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-        <key>com.apple.developer.in-app-purchase</key>
-        <true/>
-    </dict>
-    </plist>
-    EOL
-    cat ios/Runner/Runner.entitlements
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+</dict>
+</plist>
