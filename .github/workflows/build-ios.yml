@@ -302,14 +302,10 @@ jobs:
             /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
           fi
 
-    
+      
       - name: Build IPA
         run: |
           set -e
-          PLIST_PATH="ios/Runner/Info.plist"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString 1.0.2" "$PLIST_PATH"
-          /usr/libexec/PlistBuddy -c "Set :CFBundleVersion 1" "$PLIST_PATH"
-          /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.in-app-payments" "$PLIST_PATH" || true
           cd ios
           cat > ExportOptions.plist << 'EOL'
           <?xml version="1.0" encoding="UTF-8"?>
@@ -356,7 +352,7 @@ jobs:
               fi
               cp "$IPA_PATH" app-ipa/math_joy_practice_english.ipa
               echo "✅ IPA copied to app-ipa/math_joy_practice_english.ipa"
-
+              
     
       - name: Install Fastlane
         run: |
