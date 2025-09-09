@@ -1,34 +1,21 @@
-set -e
-    if [ -f "ios/Runner/Base.lproj/LaunchScreen.storyboard" ]; then
-      echo "✅ LaunchScreen.storyboard exists"
-      # Verify key attributes for iPadOS compatibility
-      if grep -q 'useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES"' ios/Runner/Base.lproj/LaunchScreen.storyboard; then
-        echo "✅ LaunchScreen.storyboard has required attributes for iOS/iPadOS"
-      else
-        echo "❌ LaunchScreen.storyboard missing required attributes, recreating"
-        rm -f ios/Runner/Base.lproj/LaunchScreen.storyboard
-        mkdir -p ios/Runner/Base.lproj
-        echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '    <dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '    </dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '    <scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '        <scene sceneID="EHf-IW-A2E">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '            <objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                <viewController id="01J-lp-oVM" sceneMemberID="viewController">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                    </view>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                </viewController>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '            </objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '            <point key="canvasLocation" x="53" y="375"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '        </scene>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '    </scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo '</document>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-        echo "✅ LaunchScreen.storyboard recreated with required attributes"
-      fi
-
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+        </scene>
+    </scenes>
+</document>
