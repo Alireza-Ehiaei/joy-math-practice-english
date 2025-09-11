@@ -11,6 +11,7 @@ import 'package:math_expressions/math_expressions.dart';
 import 'dart:math';
 import 'customKeyboard.dart';
 import 'main.dart';
+
 class NumericalBasesPage extends StatefulWidget {
   const NumericalBasesPage({super.key});
 
@@ -18,18 +19,20 @@ class NumericalBasesPage extends StatefulWidget {
   _NumericalBasesPageState createState() => _NumericalBasesPageState();
 }
 
+
 class _NumericalBasesPageState extends State<NumericalBasesPage> {
   static const String _productId = 'nonConsumable1';
   bool _isPurchased = false;
   bool _isLoading = false;
-  late bool _isRestoring = false; // Add this line
+  bool _isRestoring = false;
+  bool _isStoreAvailable = false;
+  bool _isDialogShowing = false; // Add flag to prevent multiple dialogs
   StreamSubscription<List<PurchaseDetails>>? _purchaseSubscription;
   final InAppPurchase _iap = InAppPurchase.instance;
 
   @override
   void initState() {
     super.initState();
-    _initPurchaseInfo();
     _purchaseSubscription = _iap.purchaseStream.listen(_handlePurchaseUpdate);
   }
 
@@ -40,98 +43,125 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
   }
 
   Future<void> _initPurchaseInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _isPurchased = prefs.getBool(_productId) ?? false;
-    });
+    try {
+      _isStoreAvailable = await _iap.isAvailable();
+      if (!_isStoreAvailable) {
+        if (mounted && !_isDialogShowing) {
+          setState(() => _isDialogShowing = true);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showErrorDialog(context, 'StoreKit is unavailable.');
+          });
+        }
+        return;
+      }
+      final response = await _iap.queryProductDetails({_productId});
+      if (response.error != null || response.productDetails.isEmpty) {
+        if (mounted && !_isDialogShowing) {
+          setState(() => _isDialogShowing = true);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showErrorDialog(context, 'Failed to validate product: ${response.error?.message ?? "Product not found"}');
+          });
+        }
+        return;
+      }
+      final prefs = await SharedPreferences.getInstance();
+      bool cachedPurchaseState = prefs.getBool(_productId) ?? false;
+      setState(() => _isPurchased = cachedPurchaseState);
+      // Remove restorePurchases to avoid duplicate events
+    } catch (e) {
+      if (mounted && !_isDialogShowing) {
+        setState(() => _isDialogShowing = true);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showErrorDialog(context, 'Initialization failed: $e');
+        });
+      }
+    }
+  }
+
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    String displayMessage = message;
+    if (message == 'StoreKit is unavailable.') {
+      displayMessage = 'Unable to connect to the App Store. Please check your internet connection, ensure the App Store is available, or try again later.';
+    }
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(displayMessage),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              setState(() => _isDialogShowing = false); // Reset flag
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handlePurchaseUpdate(List<PurchaseDetails> purchases) async {
     for (final purchase in purchases) {
       if (purchase.productID == _productId) {
         final isValid = await _verifyPurchase(purchase);
-
-        if (isValid && (purchase.status == PurchaseStatus.purchased ||
-            purchase.status == PurchaseStatus.restored)) {
-
+        if (isValid && (purchase.status == PurchaseStatus.purchased || purchase.status == PurchaseStatus.restored)) {
           final prefs = await SharedPreferences.getInstance();
           await prefs.setBool(_productId, true);
-
-          if (purchase.pendingCompletePurchase) {
-            await _iap.completePurchase(purchase);
+          if (mounted) {
+            setState(() => _isPurchased = true);
           }
-
-          setState(() => _isPurchased = true);
+        } else if (purchase.status == PurchaseStatus.error) {
+          if (mounted) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _showErrorDialog(context, 'Purchase error: ${purchase.error?.message}');
+            });
+          }
+        }
+        if (purchase.pendingCompletePurchase) {
+          await _iap.completePurchase(purchase);
         }
       }
     }
   }
 
   Future<bool> _verifyPurchase(PurchaseDetails purchase) async {
-    return purchase.status == PurchaseStatus.purchased ||
-        purchase.status == PurchaseStatus.restored;
+    return purchase.status == PurchaseStatus.purchased || purchase.status == PurchaseStatus.restored;
   }
 
-  Future<void> _buyProduct() async {
+
+  Future<void> _buyProduct(ProductDetails productDetails) async {
     setState(() => _isLoading = true);
-
     try {
-      final response = await _iap.queryProductDetails({_productId});
-      if (response.productDetails.isEmpty) {
-        throw Exception('Product not found in store');
-      }
-
-      final productDetails = response.productDetails.first;
       final purchaseParam = PurchaseParam(productDetails: productDetails);
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Purchase failed: ${e.toString()}')),
-      );
+      if (mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _showErrorDialog(context, 'Purchase failed: $e');
+        });
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   Future<void> _restorePurchases() async {
-    if (_isRestoring) return;
-
+    if (_isRestoring || !_isStoreAvailable) return;
     setState(() => _isRestoring = true);
-
     try {
       await _iap.restorePurchases();
-      // Restoration results come through _handlePurchaseUpdate stream
-    } on SocketException catch (_) {
-      setState(() => _isRestoring = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Network error. Please check your connection.')),
-        );
-      }
     } catch (e) {
-      setState(() => _isRestoring = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Restore failed: ${e.toString()}')),
-        );
+        _showErrorDialog(context, 'Restore failed: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isRestoring = false);
       }
     }
-  }
-
-  void _showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
   }
 
   void _showNoProductDialog(BuildContext context) {
@@ -154,38 +184,43 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
     final Uri url = Uri.parse(urlString);
     try {
       if (await canLaunchUrl(url)) {
-        await launchUrl(
-          url,
-          mode: LaunchMode.externalApplication,
-        );
+        await launchUrl(url, mode: LaunchMode.externalApplication);
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Could not launch URL')),
-        );
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Could not launch URL')),
+          );
+        }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e')),
+        );
+      }
     }
   }
 
   Future<void> showPracticeSubscriptionUI(BuildContext context) async {
+    if (!_isStoreAvailable) {
+      _showErrorDialog(context, 'StoreKit is unavailable.');
+      return;
+    }
     setState(() => _isLoading = true);
-
     try {
-      final response = await InAppPurchase.instance.queryProductDetails({_productId});
-
+      final response = await _iap.queryProductDetails({_productId});
       if (response.error != null) {
-        _showErrorDialog(context, response.error!.message);
+        if (mounted) {
+          _showErrorDialog(context, 'Failed to load products: ${response.error!.message}');
+        }
         return;
       }
-
       if (response.productDetails.isEmpty) {
-        _showNoProductDialog(context);
+        if (mounted) {
+          _showNoProductDialog(context);
+        }
         return;
       }
-
       final product = response.productDetails.firstWhere(
             (product) => product.id == _productId,
         orElse: () => throw Exception('$_productId not found'),
@@ -193,7 +228,6 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
 
       List<Widget> subscriptionTiles = [
         const SizedBox(height: 20),
-        // Practice subscription button
         SizedBox(
           width: 300,
           child: ElevatedButton(
@@ -208,7 +242,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
             ),
             onPressed: _isLoading ? null : () async {
               try {
-                await _buyProduct();
+                await _buyProduct(product);
                 if (mounted) Navigator.of(context).pop();
               } catch (e) {
                 if (mounted) _showErrorDialog(context, e.toString());
@@ -234,7 +268,6 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 20),
-        // Learn More button
         SizedBox(
           width: 300,
           child: ElevatedButton(
@@ -279,7 +312,6 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
           ),
         ),
         const SizedBox(height: 12),
-        // Restore Purchases button
         SizedBox(
           width: 300,
           child: ElevatedButton(
@@ -318,7 +350,6 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
           ),
         ),
         const SizedBox(height: 20),
-        // Privacy Policy and Terms of Use links
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -387,7 +418,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
       );
     } catch (e) {
       if (mounted) {
-        _showErrorDialog(context, 'Failed to load products: ${e.toString()}');
+        _showErrorDialog(context, 'Failed to load products: $e');
       }
     } finally {
       if (mounted) {
@@ -396,6 +427,200 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
     }
   }
 
+
+  // just for checking pop up content
+/*  Future<void> showPracticeSubscriptionUI(BuildContext context) async {
+    List<Widget> subscriptionTiles = [
+      const SizedBox(height: 20),
+      SizedBox(
+        width: 300,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green.shade700,
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 0,
+          ),
+          onPressed: _isLoading ? null : () async {
+            try {
+              // Placeholder for _buyProduct; assumes product is passed or handled elsewhere
+              if (mounted) Navigator.of(context).pop();
+            } catch (e) {
+              if (mounted) _showErrorDialog(context, e.toString());
+            }
+          },
+          child: _isLoading
+              ? const CircularProgressIndicator(color: Colors.white)
+              : const Text(
+            'Lifetime Access\n\$3.99 (One-time)', // Placeholder price
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      const Text(
+        'Unlock unlimited practice forever!',
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: Colors.green,
+        ),
+        textAlign: TextAlign.center,
+      ),
+      const SizedBox(height: 20),
+      SizedBox(
+        width: 300,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: null,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Colors.black),
+            ),
+            elevation: 0,
+          ),
+          onPressed: () async {
+            await showDialog(
+              context: context,
+              builder: (BuildContext context) => AlertDialog(
+                title: const Text('Practice Features'),
+                content: const Text(
+                  'With lifetime access to Practice, you get:\n\n'
+                      '• Unlimited practice sessions\n'
+                      '• All difficulty levels unlocked\n'
+                      '• One-time payment, forever product access\n\n'
+                      'Perfect for mastering math skills at your own pace!',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(fontSize: 16, height: 1.5),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text('OK', style: TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
+            );
+          },
+          child: const Text(
+            'Learn More',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ),
+      const SizedBox(height: 12),
+      SizedBox(
+        width: 300,
+        child: ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: null,
+            foregroundColor: Colors.black,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+              side: const BorderSide(color: Colors.black),
+            ),
+            elevation: 0,
+          ),
+          onPressed: _isRestoring ? null : () async {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: CircularProgressIndicator()),
+            );
+            try {
+              await _restorePurchases();
+              if (mounted) Navigator.of(context, rootNavigator: true).pop();
+            } catch (e) {
+              if (mounted) {
+                Navigator.of(context, rootNavigator: true).pop();
+                _showErrorDialog(context, e.toString());
+              }
+            }
+          },
+          child: _isRestoring
+              ? const CircularProgressIndicator()
+              : const Text(
+            'Restore Purchases',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          ),
+        ),
+      ),
+      const SizedBox(height: 20),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => _launchUrl(context, 'https://www.termsfeed.com/live/1338938e-748c-4423-9431-196fdbebc78e'),
+            child: const Text(
+              'Privacy Policy',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            ),
+            onPressed: () => _launchUrl(context, 'https://www.apple.com/legal/internet-services/itunes/us/terms.html'),
+            child: const Text(
+              'Terms of Use',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.blue,
+                fontWeight: FontWeight.w500,
+                decoration: TextDecoration.underline,
+              ),
+            ),
+          ),
+        ],
+      ),
+      const SizedBox(height: 20),
+    ];
+
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text(
+          'Unlock Practice Features',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+        contentPadding: const EdgeInsets.all(16.0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        backgroundColor: Colors.white,
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: subscriptionTiles,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel', style: TextStyle(fontSize: 16)),
+          ),
+        ],
+      ),
+    );
+  }*/
 
 
   @override
@@ -477,7 +702,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
           
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                  backgroundColor: const Color.fromARGB(255, 150, 1, 13),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: Size(buttonMinWidth, buttonMinHeight1),
                 ),
@@ -494,10 +719,10 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
               ),
           
               SizedBox(height: spacingSmall),
-          
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                  backgroundColor: const Color.fromARGB(255, 150, 1, 13),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: Size(buttonMinWidth, buttonMinHeight2),
                 ),
@@ -514,24 +739,24 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
               ),
           
               SizedBox(height: spacingSmall),
-          
+
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 106, 2, 11),
+                  backgroundColor: const Color.fromARGB(255, 150, 1, 13),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32.0)),
                   minimumSize: Size(buttonMinWidth, buttonMinHeight3),
                 ),
                 onPressed: _isLoading
                     ? null
-                    : () {
+                    : () async {
+                  await _initPurchaseInfo();
                   if (_isPurchased) {
-
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => NumeralBasePracticePage()),
                     );
                   } else {
-                    showPracticeSubscriptionUI(context); // Call the new function
+                    showPracticeSubscriptionUI(context);
                   }
                 },
                 child: _isLoading
@@ -571,6 +796,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
       ),
     );
   }
+
 }
 
 
@@ -1172,32 +1398,18 @@ class NumeralBaseExamplePage extends StatelessWidget {
 
 // Define base sizes for phone
     const baseTitleFontSize = 22.0;
-    const baseButtonFontSize = 24.0;
-    const baseButtonMinWidth = 220.0;
-    const baseButtonMinHeight1 = 95.0;
-    const baseButtonMinHeight2 = 85.0;
-    const baseButtonMinHeight3 = 75.0;
+
     const baseIconSize = 38.0;
-    const baseSpacingLarge = 90.0;
-    const baseSpacingMedium = 70.0;
-    const baseSpacingSmall = 20.0;
-    const baseSpacingExtraSmall = 30.0;
+
 
 // Scale factor (increase sizes on tablets)
     double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
 
 // Scaled sizes
     final titleFontSize = baseTitleFontSize * scaleFactor;
-    final buttonFontSize = baseButtonFontSize * scaleFactor;
-    final buttonMinWidth = baseButtonMinWidth * scaleFactor;
-    final buttonMinHeight1 = baseButtonMinHeight1 * scaleFactor;
-    final buttonMinHeight2 = baseButtonMinHeight2 * scaleFactor;
-    final buttonMinHeight3 = baseButtonMinHeight3 * scaleFactor;
+
     final iconSize = baseIconSize * scaleFactor;
-    final spacingLarge = baseSpacingLarge * scaleFactor;
-    final spacingMedium = baseSpacingMedium * scaleFactor;
-    final spacingSmall = baseSpacingSmall * scaleFactor;
-    final spacingExtraSmall = baseSpacingExtraSmall * scaleFactor;
+
 // Set container width: fixed for phones, wider for tablets
     final containerWidth = isTablet ? 600.0 : 360.0;
 
