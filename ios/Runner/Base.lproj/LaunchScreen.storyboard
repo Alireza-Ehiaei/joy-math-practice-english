@@ -1,21 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
-    <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
-    </dependencies>
-    <scenes>
-        <scene sceneID="EHf-IW-A2E">
-            <objects>
-                <viewController id="01J-lp-oVM" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
-                    </view>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="53" y="375"/>
-        </scene>
-    </scenes>
-</document>
+   <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+       <device id="universal" orientation="portrait" appearance="light"/>
+       <dependencies>
+           <deployment identifier="iOS"/>
+           <plugIn identifier="com.apple.InterfaceBuilder.CocoaTouch.Plugin" version="22131"/>
+           <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+           <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+       </dependencies>
+       <scenes>
+           <scene sceneID="EHf-IW-A2E">
+               <objects>
+                   <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                       <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                           <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                           <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                           <subviews>
+                               <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="123-45-678">
+                                   <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                               </imageView>
+                           </subviews>
+                           <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                           <constraints>
+                               <constraint firstItem="123-45-678" firstAttribute="leading" secondItem="njF-e1-oar" secondAttribute="leading" id="abc-123"/>
+                               <constraint firstItem="123-45-678" firstAttribute="top" secondItem="njF-e1-oar" secondAttribute="top" id="def-456"/>
+                               <constraint firstItem="123-45-678" firstAttribute="trailing" secondItem="njF-e1-oar" secondAttribute="trailing" id="ghi-789"/>
+                               <constraint firstItem="123-45-678" firstAttribute="bottom" secondItem="njF-e1-oar" secondAttribute="bottom" id="jkl-012"/>
+                           </constraints>
+                           <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+                       </view>
+                   </viewController>
+                   <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+               </objects>
+               <point key="canvasLocation" x="53" y="375"/>
+           </scene>
+       </scenes>
+       <resources>
+           <image name="splash"/>
+       </resources>
+   </document>
