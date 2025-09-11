@@ -27,7 +27,7 @@
 	<key>MinimumOSVersion</key>
 	<string>16.0</string>
 	<key>UILaunchStoryboardName</key>
-	<string>LaunchStoryboard</string>
+	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
 	<string>Main</string>
 	<key>UISupportedInterfaceOrientations</key>
