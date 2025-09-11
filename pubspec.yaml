@@ -70,6 +70,7 @@ flutter:
     - assets/images/back2.JPG
     - assets/images/back3.JPEG
     - assets/images/back4.JPEG
+    - assets/images/splash.PNG
 
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
