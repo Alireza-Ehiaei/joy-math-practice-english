@@ -233,75 +233,67 @@ jobs:
           echo "Note: In-App Purchase entitlement is enabled by default and not explicitly listed."
 
 
-      - name: Verify LaunchScreen setup
+      - name: Verify LaunchScreen Setup
         run: |
           set -e
-          if [ -f "ios/Runner/Base.lproj/LaunchScreen.storyboard" ]; then
-            echo "✅ LaunchScreen.storyboard exists"
-            # Verify key attributes for iPadOS compatibility
-            if grep -q 'useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES"' ios/Runner/Base.lproj/LaunchScreen.storyboard; then
-              echo "✅ LaunchScreen.storyboard has required attributes for iOS/iPadOS"
-            else
-              echo "❌ LaunchScreen.storyboard missing required attributes, recreating"
-              rm -f ios/Runner/Base.lproj/LaunchScreen.storyboard
-              mkdir -p ios/Runner/Base.lproj
-              echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '    <dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '    </dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '    <scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '        <scene sceneID="EHf-IW-A2E">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '            <objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                <viewController id="01J-lp-oVM" sceneMemberID="viewController">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                    </view>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                </viewController>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '            </objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '            <point key="canvasLocation" x="53" y="375"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '        </scene>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '    </scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo '</document>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-              echo "✅ LaunchScreen.storyboard recreated with required attributes"
-            fi
+          if [ -f "ios/Runner/Base.lproj/LaunchScreen.storyboard" ] && grep -q "imageView" ios/Runner/Base.lproj/LaunchScreen.storyboard && grep -q 'device id="universal"' ios/Runner/Base.lproj/LaunchScreen.storyboard; then
+            echo "✅ LaunchScreen.storyboard exists with UIImageView and universal device"
           else
-            echo "❌ LaunchScreen.storyboard missing, creating it"
+            echo "❌ LaunchScreen.storyboard missing, lacks content, or not universal, creating adaptive version"
             mkdir -p ios/Runner/Base.lproj
-            echo '<?xml version="1.0" encoding="UTF-8"?>' > ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '    <dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '    </dependencies>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '    <scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '        <scene sceneID="EHf-IW-A2E">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '            <objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                <viewController id="01J-lp-oVM" sceneMemberID="viewController">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                    <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                        <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                    </view>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                </viewController>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '            </objects>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '            <point key="canvasLocation" x="53" y="375"/>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '        </scene>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '    </scenes>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo '</document>' >> ios/Runner/Base.lproj/LaunchScreen.storyboard
-            echo "✅ LaunchScreen.storyboard created"
-          fi
-          if /usr/libexec/PlistBuddy -c "Print :UILaunchStoryboardName" ios/Runner/Info.plist | grep -q "LaunchStoryboard"; then
-            echo "✅ Info.plist references LaunchStoryboard"
-          else
-            echo "❌ Updating Info.plist to reference LaunchStoryboard"
-            /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchStoryboard" ios/Runner/Info.plist
-            /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
-          fi
-
+            echo '<?xml version="1.0" encoding="UTF-8"?>
+            <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+                <device id="universal" orientation="portrait" appearance="light"/>
+                <dependencies>
+                    <deployment identifier="iOS"/>
+                    <plugIn identifier="com.apple.InterfaceBuilder.CocoaTouch.Plugin" version="22131"/>
+                    <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+                    <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+                </dependencies>
+                <scenes>
+                    <scene sceneID="EHf-IW-A2E">
+                        <objects>
+                            <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                                <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="123-45-678">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="123-45-678" firstAttribute="leading" secondItem="njF-e1-oar" secondAttribute="leading" id="abc-123"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="top" secondItem="njF-e1-oar" secondAttribute="top" id="def-456"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="trailing" secondItem="njF-e1-oar" secondAttribute="trailing" id="ghi-789"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="bottom" secondItem="njF-e1-oar" secondAttribute="bottom" id="jkl-012"/>
+                                    </constraints>
+                                    <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+                                </view>
+                            </viewController>
+                            <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                        </objects>
+                        <point key="canvasLocation" x="53" y="375"/>
+                    </scene>
+                </scenes>
+                <resources>
+                    <image name="splash"/>
+                </resources>
+            </document>' > ios/Runner/Base.lproj/LaunchScreen.storyboard
+                  echo "✅ Created adaptive LaunchScreen.storyboard"
+                fi
+                if [ ! -f "assets/images/splash.png" ]; then
+                  echo "❌ Splash image missing, add assets/images/splash.png"
+                  exit 1
+                fi
+                if /usr/libexec/PlistBuddy -c "Print :UILaunchStoryboardName" ios/Runner/Info.plist | grep -q "LaunchScreen"; then
+                  echo "✅ Info.plist references LaunchScreen"
+                else
+                  echo "❌ Updating Info.plist to reference LaunchScreen"
+                  /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchScreen" ios/Runner/Info.plist
+                  /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
+                fi
       
       - name: Build IPA
         run: |
