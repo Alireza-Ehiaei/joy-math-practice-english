@@ -206,7 +206,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
       _showErrorDialog(context, 'StoreKit is unavailable.');
       return;
     }
-    setState(() => _isLoading = true);
+
     try {
       final response = await _iap.queryProductDetails({_productId});
       if (response.error != null) {
@@ -240,7 +240,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
               ),
               elevation: 0,
             ),
-            onPressed: _isLoading ? null : () async {
+            onPressed: () async {
               try {
                 await _buyProduct(product);
                 if (mounted) Navigator.of(context).pop();
@@ -248,9 +248,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                 if (mounted) _showErrorDialog(context, e.toString());
               }
             },
-            child: _isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : Text(
+            child: Text(
               'Lifetime Access\n\$${product.price} (One-time)',
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
@@ -419,10 +417,6 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
     } catch (e) {
       if (mounted) {
         _showErrorDialog(context, 'Failed to load products: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
       }
     }
   }
@@ -749,6 +743,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                 onPressed: _isLoading
                     ? null
                     : () async {
+                  setState(() => _isLoading = true); // Start loading
                   await _initPurchaseInfo();
                   if (_isPurchased) {
                     Navigator.push(
@@ -756,8 +751,9 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                       MaterialPageRoute(builder: (context) => NumeralBasePracticePage()),
                     );
                   } else {
-                    showPracticeSubscriptionUI(context);
+                    await showPracticeSubscriptionUI(context); // Wait for dialog to complete
                   }
+                  setState(() => _isLoading = false); // Stop loading after everything
                 },
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
