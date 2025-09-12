@@ -1,0 +1,373 @@
+name: Build and Upload iOS IPA to App Store Connect
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-upload:
+    runs-on: macos-15
+    env:
+      MD_APPLE_SDK_ROOT: /Applications/Xcode.app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Xcode 16
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.0'
+
+      - name: Initialize Xcode
+        run: |
+          sudo xcode-select -switch /Applications/Xcode.app/Contents/Developer
+          sudo xcodebuild -runFirstLaunch
+          xcodebuild -showsdks | grep -E "(iphoneos|ios-simulator)" || { echo "iOS SDK missing"; exit 1; }
+          defaults write com.apple.dt.Xcode IDESkipPackagePluginFingerprintValidatation -bool YES
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.29.3'
+          channel: 'stable'
+          architecture: arm64
+          cache: true
+          cache-key: flutter-3.29.3
+          cache-path: /Users/runner/hostedtoolcache/flutter
+
+      - name: Clean and prepare Flutter project
+        run: |
+          flutter clean > flutter_clean_log.txt 2>&1 || { cat flutter_clean_log.txt; exit 1; }
+          rm -rf ios/Flutter ios/Pods ios/Podfile.lock ~/Library/Developer/Xcode/DerivedData/*
+          flutter pub get > pub_get_log.txt 2>&1 || { cat pub_get_log.txt; exit 1; }
+          flutter create --platforms=ios . > flutter_create_log.txt 2>&1 || { cat flutter_create_log.txt; exit 1; }
+
+      - name: Update iOS deployment target
+        run: |
+          DEPLOYMENT_TARGET="16.0"
+          echo "Updating Podfile platform to $DEPLOYMENT_TARGET"
+          sed -i '' "s/platform :ios, '.*'/platform :ios, '$DEPLOYMENT_TARGET'/" ios/Podfile
+          echo "Ensuring IPHONEOS_DEPLOYMENT_TARGET in Podfile"
+          if ! grep -q "IPHONEOS_DEPLOYMENT_TARGET.*=.*'$DEPLOYMENT_TARGET'" ios/Podfile; then
+            echo "Adding or updating IPHONEOS_DEPLOYMENT_TARGET in post_install block"
+            if grep -q "post_install do |installer|" ios/Podfile; then
+              sed -i '' "/flutter_additional_ios_build_settings(target)/a\\
+                \ \ \ \ target.build_configurations.each do |config|\\
+                \ \ \ \ \ \ config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\\
+                \ \ \ \ \ \ config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''\\
+                \ \ \ \ \ \ config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'\\
+                \ \ \ \ \ \ config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'\\
+                \ \ \ \ end" ios/Podfile
+            else
+              echo -e "\npost_install do |installer|\n  installer.pods_project.targets.each do |target|\n    flutter_additional_ios_build_settings(target)\n    target.build_configurations.each do |config|\n      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '$DEPLOYMENT_TARGET'\n      config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''\n      config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'\n      config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'\n    end\n  end\nend" >> ios/Podfile
+            fi
+          fi
+          echo "Podfile content after update:"
+          cat ios/Podfile
+          grep -n "platform :ios" ios/Podfile
+          grep -n "IPHONEOS_DEPLOYMENT_TARGET" ios/Podfile
+
+      - name: Install CocoaPods dependencies
+        run: |
+          cd ios
+          pod cache clean --all
+          pod install --repo-update --verbose > pod_install_log.txt 2>&1 || { cat pod_install_log.txt | grep -i error; exit 1; }
+          cd ..
+
+      - name: Verify Xcode configuration
+        run: |
+          cd ios
+          if [ -f "Pods/Target Support Files/Pods-Runner/Pods-Runner.release.xcconfig" ]; then
+            echo "✓ Pods xcconfig files generated"
+          else
+            echo "⚠️ Pods xcconfig files missing - attempting workaround"
+            pod deintegrate && pod install --repo-update
+          fi
+          if [ -f "Runner.xcworkspace/contents.xcworkspacedata" ]; then
+            echo "✓ Workspace configuration exists"
+          else
+            echo "❌ Workspace configuration missing"
+            exit 1
+          fi
+          cd ..
+
+      - name: Debug project state
+        run: |
+          echo "Checking ios/Runner.xcodeproj/project.pbxproj:"
+          cat ios/Runner.xcodeproj/project.pbxproj | grep -E "Release.xcconfig|Generated.xcconfig"
+          echo "Checking ios/Podfile:"
+          if [ -f "ios/Podfile" ]; then cat ios/Podfile; else echo "Podfile missing"; fi
+          echo "Checking pubspec.yaml dependencies:"
+          grep -E "in_app_purchase" pubspec.yaml || echo "No in_app_purchase dependency found"
+
+      - name: Build iOS configurations
+        run: |
+          cd ios
+          xcodebuild clean -workspace Runner.xcworkspace -scheme Runner -configuration Release > xcode_clean_log.txt 2>&1 || { cat xcode_clean_log.txt; exit 1; }
+          cd ..
+          flutter build ios --release --no-codesign > flutter_config_log.txt 2>&1 || { cat flutter_config_log.txt; exit 1; }
+          ls -l ios/Flutter/ || { echo "ios/Flutter directory missing"; exit 1; }
+          if [ -f "ios/Flutter/Release.xcconfig" ]; then
+            echo "✓ Release.xcconfig generated"
+          else
+            echo "✗ Failed to generate Release.xcconfig"
+            exit 1
+          fi
+          if [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-input-files.xcfilelist" ] && [ -f "ios/Pods/Target Support Files/Pods-Runner/Pods-Runner-frameworks-Release-output-files.xcfilelist" ]; then
+            echo "✓ Pods file lists generated"
+          else
+            echo "✗ Pods file lists missing"
+            exit 1
+          fi
+
+      - name: Update Xcode project for signing
+        run: |
+          gem install xcodeproj
+          cat > update_project.rb << EOL
+          require 'xcodeproj'
+          
+          project_path = 'ios/Runner.xcodeproj'
+          project = Xcodeproj::Project.open(project_path)
+          target = project.targets.find { |t| t.name == 'Runner' }
+          unless target
+            puts "Error: Runner target not found"
+            exit 1
+          end
+          
+          target.build_configurations.each do |config|
+            config.build_settings['CODE_SIGN_STYLE'] = 'Manual'
+            config.build_settings['DEVELOPMENT_TEAM'] = 'AHVM2Z8TDL'
+            config.build_settings['PROVISIONING_PROFILE_SPECIFIER'] = 'MathJoyAppStore2025'
+            config.build_settings['PROVISIONING_PROFILE'] = '5958cfe6-4d68-4858-82b9-107d3b2c64a2'
+            config.build_settings['PRODUCT_BUNDLE_IDENTIFIER'] = 'com.tech4dev.mathjoypracticeenglish'
+          end
+          
+          project.targets.each do |t|
+            next if t.name == 'Runner'
+            t.build_configurations.each do |config|
+              config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+              config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+              config.build_settings.delete('CODE_SIGN_IDENTITY')
+              config.build_settings.delete('DEVELOPMENT_TEAM')
+              config.build_settings.delete('CODE_SIGN_ENTITLEMENTS')
+            end
+          end
+          
+          pods_project_path = 'ios/Pods/Pods.xcodeproj'
+          if File.exist?(pods_project_path)
+            pods_project = Xcodeproj::Project.open(pods_project_path)
+            pods_project.targets.each do |t|
+              t.build_configurations.each do |config|
+                config.build_settings['CODE_SIGN_STYLE'] = 'Automatic'
+                config.build_settings.delete('PROVISIONING_PROFILE_SPECIFIER')
+                config.build_settings.delete('CODE_SIGN_IDENTITY')
+                config.build_settings.delete('DEVELOPMENT_TEAM')
+                config.build_settings.delete('CODE_SIGN_ENTITLEMENTS')
+                config.build_settings['EXPANDED_CODE_SIGN_IDENTITY'] = ''
+                config.build_settings['CODE_SIGNING_REQUIRED'] = 'NO'
+                config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+              end
+            end
+            pods_project.save
+          end
+          
+          project.save
+          puts "Updated project settings"
+          EOL
+          ruby update_project.rb
+
+      - name: Create temporary keychain
+        env:
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
+          security default-keychain -s build.keychain
+
+      - name: Import Apple certificate
+        env:
+          IOS_CERTIFICATE_BASE64: ${{ secrets.IOS_CERTIFICATE_BASE64 }}
+          IOS_CERTIFICATE_PASSWORD: ${{ secrets.IOS_CERTIFICATE_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$IOS_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          if [ ! -s certificate.p12 ]; then
+            echo "Error: certificate.p12 is empty or invalid"
+            exit 1
+          fi
+          security import certificate.p12 -k build.keychain -P "$IOS_CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" build.keychain
+          security find-identity -v -p codesigning build.keychain | grep "AHVM2Z8TDL" || { echo "Certificate import failed"; exit 1; }
+
+      - name: Install provisioning profile
+        env:
+          IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > profile.mobileprovision || { echo "Failed to decode IOS_PROVISIONING_PROFILE_BASE64"; exit 1; }
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          mv profile.mobileprovision ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision || { echo "Failed to move provisioning profile"; exit 1; }
+          echo "Provisioning profile installed successfully"
+          ls -l ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      - name: Verify Provisioning Profile
+        run: |
+          security cms -D -i ~/Library/MobileDevice/Provisioning\ Profiles/5958cfe6-4d68-4858-82b9-107d3b2c64a2.mobileprovision > profile.plist || { echo "Failed to decode provisioning profile"; exit 1; }
+          echo "=== Provisioning Profile Details ==="
+          /usr/libexec/PlistBuddy -c "Print Name" profile.plist
+          /usr/libexec/PlistBuddy -c "Print TeamIdentifier:0" profile.plist
+          /usr/libexec/PlistBuddy -c "Print AppIDName" profile.plist
+          /usr/libexec/PlistBuddy -c "Print Entitlements:application-identifier" profile.plist
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:application-identifier" profile.plist | grep -q "AHVM2Z8TDL.com.tech4dev.mathjoypracticeenglish"; then
+            echo "✓ Bundle ID matches: com.tech4dev.mathjoypracticeenglish"
+          else
+            echo "❌ Bundle ID mismatch in provisioning profile"
+            exit 1
+          fi
+          if /usr/libexec/PlistBuddy -c "Print :Entitlements:com.apple.developer.team-identifier" profile.plist | grep -q "AHVM2Z8TDL"; then
+            echo "✓ Team ID matches: AHVM2Z8TDL"
+          else
+            echo "❌ Team ID mismatch in provisioning profile"
+            exit 1
+          fi
+          echo "Note: In-App Purchase entitlement is enabled by default and not explicitly listed."
+
+
+      - name: Verify LaunchScreen Setup
+        run: |
+          set -e
+          if [ -f "ios/Runner/Base.lproj/LaunchScreen.storyboard" ] && grep -q "imageView" ios/Runner/Base.lproj/LaunchScreen.storyboard && grep -q 'device id="universal"' ios/Runner/Base.lproj/LaunchScreen.storyboard; then
+            echo "✅ LaunchScreen.storyboard exists with UIImageView and universal device"
+          else
+            echo "❌ LaunchScreen.storyboard missing, lacks content, or not universal, creating adaptive version"
+            mkdir -p ios/Runner/Base.lproj
+            echo '<?xml version="1.0" encoding="UTF-8"?>
+            <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="22155" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+                <device id="universal" orientation="portrait" appearance="light"/>
+                <dependencies>
+                    <deployment identifier="iOS"/>
+                    <plugIn identifier="com.apple.InterfaceBuilder.CocoaTouch.Plugin" version="22131"/>
+                    <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+                    <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+                </dependencies>
+                <scenes>
+                    <scene sceneID="EHf-IW-A2E">
+                        <objects>
+                            <viewController id="01J-lp-oVM" sceneMemberID="viewController">
+                                <view key="view" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="splash" translatesAutoresizingMaskIntoConstraints="NO" id="123-45-678">
+                                            <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                        </imageView>
+                                    </subviews>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="123-45-678" firstAttribute="leading" secondItem="njF-e1-oar" secondAttribute="leading" id="abc-123"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="top" secondItem="njF-e1-oar" secondAttribute="top" id="def-456"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="trailing" secondItem="njF-e1-oar" secondAttribute="trailing" id="ghi-789"/>
+                                        <constraint firstItem="123-45-678" firstAttribute="bottom" secondItem="njF-e1-oar" secondAttribute="bottom" id="jkl-012"/>
+                                    </constraints>
+                                    <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+                                </view>
+                            </viewController>
+                            <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+                        </objects>
+                        <point key="canvasLocation" x="53" y="375"/>
+                    </scene>
+                </scenes>
+                <resources>
+                    <image name="splash"/>
+                </resources>
+            </document>' > ios/Runner/Base.lproj/LaunchScreen.storyboard
+                  echo "✅ Created adaptive LaunchScreen.storyboard"
+                fi
+                if [ ! -f "assets/images/splash.png" ]; then
+                  echo "❌ Splash image missing, add assets/images/splash.png"
+                  exit 1
+                fi
+                if /usr/libexec/PlistBuddy -c "Print :UILaunchStoryboardName" ios/Runner/Info.plist | grep -q "LaunchScreen"; then
+                  echo "✅ Info.plist references LaunchScreen"
+                else
+                  echo "❌ Updating Info.plist to reference LaunchScreen"
+                  /usr/libexec/PlistBuddy -c "Set :UILaunchStoryboardName LaunchScreen" ios/Runner/Info.plist
+                  /usr/libexec/PlistBuddy -c "Delete :UILaunchScreen" ios/Runner/Info.plist || true
+                fi
+            
+      - name: Build IPA
+        run: |
+          set -e
+          cd ios
+          cat > ExportOptions.plist << 'EOL'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>app-store</string>
+              <key>teamID</key>
+              <string>AHVM2Z8TDL</string>
+              <key>signingCertificate</key>
+              <string>iPhone Distribution: Alireza Ehiaei (AHVM2Z8TDL)</string>
+              <key>signingStyle</key>
+              <string>manual</string>
+              <key>provisioningProfiles</key>
+              <dict>
+                  <key>com.tech4dev.mathjoypracticeenglish</key>
+                  <string>5958cfe6-4d68-4858-82b9-107d3b2c64a2</string>
+              </dict>
+              <key>compileBitcode</key>
+              <false/>
+              <key>uploadBitcode</key>
+              <false/>
+              <key>stripSwiftSymbols</key>
+              <true/>
+              <key>thinning</key>
+              <string>&lt;none&gt;</string>
+          </dict>
+          </plist>
+          EOL
+          cd ..
+          flutter clean
+          flutter pub get
+          flutter build ipa --release --export-options-plist=ios/ExportOptions.plist --codesign > build_log.txt 2>&1 || {
+            echo "IPA build failed. Errors logged to build_log.txt"
+            cat build_log.txt
+            exit 1
+          }
+          mkdir -p app-ipa
+          IPA_PATH=$(find build/ios/ipa -name "*.ipa" | head -n 1)
+          if [ -z "$IPA_PATH" ]; then
+            echo "❌ No IPA file found in build/ios/ipa"
+            exit 1
+          fi
+          cp "$IPA_PATH" app-ipa/math_joy_practice_english.ipa
+          echo "✅ IPA copied to app-ipa/math_joy_practice_english.ipa"
+          
+    
+      - name: Upload build log and IPA
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-and-ipa
+          path: |
+            flutter_clean_log.txt
+            pub_get_log.txt
+            pod_install_log.txt
+            flutter_config_log.txt
+            build_log.txt
+            app-ipa/*.ipa
+    
+      - name: Display download info
+        if: always()
+        run: |
+          echo "Build completed! Download the IPA from:"
+          echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo ""
+          echo "Look for the 'build-log-and-ipa' artifact in the Artifacts section"
+        
+      - name: Clean up keychain
+        if: always()
+        run: |
+          security delete-keychain build.keychain || true
