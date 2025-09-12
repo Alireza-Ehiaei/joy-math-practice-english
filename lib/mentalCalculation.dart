@@ -1964,7 +1964,8 @@ class _State extends State<MentalCalculationPracticePage> {
                                   child: Center(
                                     child: Row(
                                       children: [
-                                        Flexible(
+                                        Expanded(
+                                          flex: 1,
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: const Color.fromARGB(255, 50, 87, 86),
@@ -1990,7 +1991,8 @@ class _State extends State<MentalCalculationPracticePage> {
                                           ),
                                         ),
                                         SizedBox(width: isTablet ? 16 : 7),
-                                        Flexible(
+                                        Expanded(
+                                          flex: 1,
                                           child: ElevatedButton(
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: const Color.fromARGB(255, 50, 87, 86),
