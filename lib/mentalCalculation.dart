@@ -1096,7 +1096,7 @@ class _State extends State<MentalCalculationPracticePage> {
   final  ValueNotifier<int> notificationcolor_remainder = ValueNotifier(2);
 
   bool _visible = false;
-  bool calculator_visible = false;
+  bool calculatorVisible = false;
   final FocusNode _focus_answer = FocusNode();
   final FocusNode _focus_answer_remainder = FocusNode();
   final FocusNode _focus_minimum = FocusNode();
@@ -1425,7 +1425,7 @@ class _State extends State<MentalCalculationPracticePage> {
                                   //  fillColor: Colors.blue[200],
                                   color: Colors.green,
                                   children: <Widget>[
-                                    Icon(Icons.social_distance, size: iconSizeSmall,),
+                                    Icon(Icons.swap_horiz  , size: iconSizeSmall,),
                     
                                   ],
                                 ),
@@ -1506,8 +1506,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                       showCursor: true,
                                       cursorColor: Colors.black,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_minimum.requestFocus(); // Explicit focus for iOS 26.0
+                                          if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -1548,8 +1549,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                       showCursor: true,
                                       cursorColor: Colors.black,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_maximum.requestFocus(); // Explicit focus for iOS 26.0
+                                       if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -1714,8 +1716,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                   showCursor: true,
                                   cursorColor: Colors.black,
                                   onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
+                                    _focus_first_number.requestFocus(); // Explicit focus for iOS 26.0
+                                      if (!_visible) {
+                                      showKeyboard();
                                     }
                                   },
                                   autofocus: false,
@@ -1760,8 +1763,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                   showCursor: true,
                                   cursorColor: Colors.black,
                                   onTap: () {
+                                    _focus_second_number.requestFocus(); // Explicit focus for iOS 26.0
                                     if (!_visible) {
-                                      show_keboard();
+                                      showKeyboard();
                                     }
                                   },
                                   autofocus: false,
@@ -1816,8 +1820,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                       cursorColor: Colors.black,
                                       showCursor: true,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_answer.requestFocus(); // Explicit focus for iOS 26.0
+                                         if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -1868,8 +1873,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                       cursorColor: Colors.black,
                                       showCursor: true,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_answer.requestFocus(); // Explicit focus for iOS 26.0
+                                           if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -1910,8 +1916,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                       cursorColor: Colors.black,
                                       showCursor: true,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_answer_remainder.requestFocus(); // Explicit focus for iOS 26.0
+                                            if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -1967,9 +1974,9 @@ class _State extends State<MentalCalculationPracticePage> {
                                               id = 0;
                                               if (myModel.timerSelected[0]) {
                                                 if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
-                                                show_answer(id, timer_enabled);
+                                                showAnswer(id, timer_enabled);
                                               } else {
-                                                show_answer(id, timer_enabled);
+                                                showAnswer(id, timer_enabled);
                                               }
                                             },
                                             child: Text(
@@ -1991,7 +1998,7 @@ class _State extends State<MentalCalculationPracticePage> {
                                             ),
                                             onPressed: () {
                                               id = 1;
-                                              show_answer(id, timer_enabled);
+                                              showAnswer(id, timer_enabled);
                                               if (_controller_answer.text.isNotEmpty) myModel.stopTimer();
                                             },
                                             child: Text(
@@ -2069,7 +2076,7 @@ class _State extends State<MentalCalculationPracticePage> {
                         ),
                     
                         // box for the correct answer
-                        //      SizedBox(height: calculator_visible ?  135 : 220, child:
+                        //      SizedBox(height: calculatorVisible ?  135 : 220, child:
                         ValueListenableBuilder<List<String>>(
                           valueListenable: notificationlist,
                           builder: (context, value, widget) {
@@ -2100,7 +2107,7 @@ class _State extends State<MentalCalculationPracticePage> {
                                               style: TextStyle(
                                                 color: Colors.white,
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: fontSize, // Responsive!
+                                                fontSize: fontSize,
                                               ),
                                               textAlign: TextAlign.left,
                                             ),
@@ -2164,10 +2171,10 @@ class _State extends State<MentalCalculationPracticePage> {
                                     : _backspace(_controller_calc);
                               },
                               callbackFunction: () {
-                                show_keboard();
+                                showKeyboard();
                               },
                               calculator_callbackFunction: () {
-                                show_keboard_calculator();
+                                showKeyboardCalculator();
                               },
                               // If your CustomKeyboard widget supports font or button size, pass scaleFactor here:
                               // scaleFactor: scaleFactor,
@@ -2175,7 +2182,7 @@ class _State extends State<MentalCalculationPracticePage> {
                           ),
                         ),
                     
-                        Visibility(visible: calculator_visible ,
+                        Visibility(visible: calculatorVisible ,
                           child: Align(alignment: Alignment.bottomCenter,
                             child: Calculator_Keyboard(
                               // we don't have access to _calculateor_textfield_focus directly so we use
@@ -2190,7 +2197,7 @@ class _State extends State<MentalCalculationPracticePage> {
                                   _backspace(_controller_calc);
                                 } ,
                                 calculator_callbackFunction: () {
-                                  show_keboard_calculator();
+                                  showKeyboardCalculator();
                                 }
                             ),
                           ),
@@ -2254,16 +2261,16 @@ class _State extends State<MentalCalculationPracticePage> {
 
 
 
-  void show_keboard() {
+  void showKeyboard() {
     setState(() {
-      _visible = !_visible; if (calculator_visible = false);
-    }
-    );
+      _visible = !_visible;
+    });
+    _focus_answer.requestFocus(); // Ensure input mode activates
   }
 
-  void show_keboard_calculator() {
+  void showKeyboardCalculator() {
     setState(() {
-      calculator_visible = !calculator_visible;
+      calculatorVisible = !calculatorVisible;
     });
   }
 
@@ -2272,8 +2279,8 @@ class _State extends State<MentalCalculationPracticePage> {
   }
 
 
-  // void show_answer <T extends num>() {
-  show_answer(id, timerEnabled){
+  // void showAnswer <T extends num>() {
+  showAnswer(id, timerEnabled){
     final screenWidth = MediaQuery.of(context).size.width;
     final bool isTablet = screenWidth >= 600;
 // You can use scaleFactor for finer scaling if you want:
