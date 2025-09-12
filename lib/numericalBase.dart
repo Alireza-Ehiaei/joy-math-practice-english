@@ -744,8 +744,8 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                     ? null
                     : () async {
                   setState(() => _isLoading = true); // Start loading
-                  await _initPurchaseInfo();
-                  if (_isPurchased) {
+              //    await _initPurchaseInfo();
+                  if (1==1){//(_isPurchased) {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => NumeralBasePracticePage()),
@@ -1621,7 +1621,7 @@ class _State extends State<NumeralBasePracticePage> {
   final  ValueNotifier<String> notificationtext = ValueNotifier("");
   final  ValueNotifier<int> notificationcolor = ValueNotifier(2); // // for changing answer textfield color
   bool _visible = false;
-  bool calculator_visible = false;
+  bool calculatorVisible = false;
   final FocusNode _focus_main_number = FocusNode();
   final FocusNode _focus_from_base = FocusNode();
   final FocusNode _focus_to_base = FocusNode();
@@ -1947,7 +1947,7 @@ class _State extends State<NumeralBasePracticePage> {
                                   //  fillColor: Colors.blue[200],
                                   color: Colors.green,
                                   children: <Widget>[
-                                    Icon(Icons.social_distance, size: iconSizeSmall,),
+                                    Icon(Icons.swap_horiz   , size: iconSizeSmall,),
                     
                                   ],
                                 ),
@@ -2028,8 +2028,9 @@ class _State extends State<NumeralBasePracticePage> {
                                       showCursor: true,
                                       cursorColor: Colors.black,
                                       onTap: () {
-                                        if (!_visible) {
-                                          show_keboard();
+                                        _focus_minimum.requestFocus(); // Explicit focus for iOS 26.0
+                                          if (!_visible) {
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -2070,8 +2071,9 @@ class _State extends State<NumeralBasePracticePage> {
                                       showCursor: true,
                                       cursorColor: Colors.black,
                                       onTap: () {
+                                        _focus_maximum.requestFocus(); // Explicit focus for iOS 26.0
                                         if (!_visible) {
-                                          show_keboard();
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -2203,8 +2205,9 @@ class _State extends State<NumeralBasePracticePage> {
                                   cursorHeight: isTablet ? 32 : 22,
                                   cursorColor: Colors.black,
                                   onTap: () {
+                                    _focus_main_number.requestFocus(); // Explicit focus for iOS 26.0
                                     if (!_visible) {
-                                      show_keboard();
+                                      showKeyboard();
                                     }
                                   },
                                   autofocus: false,
@@ -2251,11 +2254,12 @@ class _State extends State<NumeralBasePracticePage> {
                                   focusNode: _focus_from_base,
                                   readOnly: true,
                                   showCursor: true,
-                                  cursorHeight: isTablet ? 32 : 12,
+                                  cursorHeight: isTablet ? 32 : 22,
                                   cursorColor: Colors.black,
                                   onTap: () {
+                                    _focus_from_base.requestFocus(); // Explicit focus for iOS 26.0
                                     if (!_visible) {
-                                      show_keboard();
+                                      showKeyboard();
                                     }
                                   },
                                   autofocus: false,
@@ -2293,8 +2297,9 @@ class _State extends State<NumeralBasePracticePage> {
                                   cursorHeight: isTablet ? 32 : 22,
                                   cursorColor: Colors.black,
                                   onTap: () {
-                                    if (!_visible) {
-                                      show_keboard();
+                                    _focus_to_base.requestFocus(); // Explicit focus for iOS 26.0
+                                      if (!_visible) {
+                                      showKeyboard();
                                     }
                                   },
                                   autofocus: false,
@@ -2346,8 +2351,9 @@ class _State extends State<NumeralBasePracticePage> {
                                       cursorColor: Colors.black,
                                       showCursor: true,
                                       onTap: () {
+                                        _focus_answer.requestFocus(); // Explicit focus for iOS 26.0
                                         if (!_visible) {
-                                          show_keboard();
+                                          showKeyboard();
                                         }
                                       },
                                       autofocus: false,
@@ -2386,49 +2392,49 @@ class _State extends State<NumeralBasePracticePage> {
                             builder: (context, myModel, child) {
                               return
                                 SizedBox(height: 40 * scaleFactor,
-                                  child: Row(
+                                  child:Row(
                                     children: [
-                                      Center(
-                                        child: Flexible(
-                                          child: ElevatedButton(
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: const Color.fromARGB(255, 50, 87, 86),
-                                              minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
-                                            ),
-                                            onPressed: () => {
-                                              id = 0,
-                                              myModel.timerSelected[0]
-                                                  ? {
-                                                _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
-                                                show_answer(id, timer_enabled),
-                                              }
-                                                  : show_answer(id, timer_enabled),
-                                            },
-                                            child: Text(
-                                              'Answer',
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                                fontSize: isTablet ? 33 : 20,
-                                              ),
+                                      Expanded(
+                                        flex: 1,
+                                        child: ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                            minimumSize: Size(double.infinity, isTablet ? 60 : 45), // Use double.infinity for width
+                                          ),
+                                          onPressed: () => {
+                                            id = 0,
+                                            myModel.timerSelected[0]
+                                                ? {
+                                              _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
+                                              showAnswer(id, timer_enabled),
+                                            }
+                                                : showAnswer(id, timer_enabled),
+                                          },
+                                          child: Text(
+                                            'Answer',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: isTablet ? 33 : 20,
                                             ),
                                           ),
                                         ),
                                       ),
                                       SizedBox(width: isTablet ? 16 : 7),
-                                      Flexible(
+                                      Expanded(
+                                        flex: 1,
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color.fromARGB(255, 50, 87, 86),
-                                            minimumSize: Size(isTablet ? 400 : 330, isTablet ? 60 : 45),
+                                            minimumSize: Size(double.infinity, isTablet ? 60 : 45), // Use double.infinity for width
                                           ),
                                           onPressed: () => {
                                             id = 1,
                                             myModel.timerSelected[0]
                                                 ? {
                                               _controller_answer.text.isNotEmpty ? myModel.stopTimer() : null,
-                                              show_answer(id, timer_enabled),
+                                              showAnswer(id, timer_enabled),
                                             }
-                                                : show_answer(id, timer_enabled),
+                                                : showAnswer(id, timer_enabled),
                                           },
                                           child: Text(
                                             'Check',
@@ -2487,7 +2493,7 @@ class _State extends State<NumeralBasePracticePage> {
                         ),
                     
                         // box for the correct answer
-                        //      SizedBox(height: calculator_visible ?  135 : 220, child:
+                        //      SizedBox(height: calculatorVisible ?  135 : 220, child:
                         ValueListenableBuilder<List<String>>(valueListenable: notificationlist,
                             // using List<String> to be able to check each character of answer
                             builder: (context, value, widget) {
@@ -2579,15 +2585,15 @@ class _State extends State<NumeralBasePracticePage> {
                             _backspace(_controller_calc) ;
                             } ,
                             callbackFunction: () {
-                              show_keboard();
+                              showKeyboard();
                             },
                             calculator_callbackFunction: () {
-                              show_keboard_calculator();
+                              showKeyboardCalculator();
                             },
                           ),
                         ),
                     
-                        Visibility(visible: calculator_visible ,
+                        Visibility(visible: calculatorVisible ,
                           child: Align(alignment: Alignment.bottomCenter,
                             child: Calculator_Keyboard(
                               // we don't have access to _calculateor_textfield_focus directly so we use
@@ -2602,7 +2608,7 @@ class _State extends State<NumeralBasePracticePage> {
                                   _backspace(_controller_calc);
                                 } ,
                                 calculator_callbackFunction: () {
-                                  show_keboard_calculator();
+                                  showKeyboardCalculator();
                                 }
                             ),
                           ),
@@ -2658,18 +2664,16 @@ class _State extends State<NumeralBasePracticePage> {
   }
 
 
-
-
-  void show_keboard() {
+  void showKeyboard() {
     setState(() {
-      _visible = !_visible; if (calculator_visible = false);
-    }
-    );
+      _visible = !_visible;
+    });
+    _focus_answer.requestFocus(); // Ensure input mode activates
   }
 
-  void show_keboard_calculator() {
+  void showKeyboardCalculator() {
     setState(() {
-      calculator_visible = !calculator_visible;
+      calculatorVisible = !calculatorVisible;
     });
   }
 
@@ -2678,8 +2682,8 @@ class _State extends State<NumeralBasePracticePage> {
   }
 
 
-  // void show_answer <T extends num>() {
-  show_answer(id, timerEnabled){
+  // void showAnswer <T extends num>() {
+  showAnswer(id, timerEnabled){
     // updating random numbers if user manually change them
     main_number_text =(_controller_main_number.text);
     to_base_text= (_controller_to_base.text);
@@ -2716,14 +2720,14 @@ class _State extends State<NumeralBasePracticePage> {
 
       if (fromBase < 10)   // first the main number must convert to base ten
         // T res = main_number_text[0] as T;
-        for (var i = 0; i < (main_number_text.length); i++) {
+       { for (var i = 0; i < (main_number_text.length); i++) {
           int reverseIndex = main_number_text.length - i - 1;
           k = k + (int.parse(main_number_text[i]) * (pow(fromBase,reverseIndex)) as int);
           // as int prevents occurring error of dart A value of type 'num' can't be assigned to a variable of type 'int'
           digit1= k;
           //  digit1.copyWith =
           //      k; // copyWith is used to prevent occurring error "There isn’t a setter named 'digit1' in class"
-        }
+        }}
 
 
       String text1 = "The answer is not correct.";
@@ -2792,7 +2796,7 @@ class _State extends State<NumeralBasePracticePage> {
                 ' $digit1Print (in base ${_controller_from_base.text} ) =\n $digit1 (in base 10) =');
           } else  {
             _answer_text = (' $digit1Print (in base 10) = \n $digit_ (in base ${(toBase.toString())} ) = ');
-          };
+          }
 
         }
         else if (id == 1) { //show answer of answer button is pressed
