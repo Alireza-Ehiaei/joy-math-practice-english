@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'mentalCalculation.dart';
 import 'numericalBase.dart';
@@ -24,16 +25,17 @@ void main() {
 
 class Homepage extends StatelessWidget {
   const Homepage({super.key});
-/*
   void shareApp() {
-    const String appLink = 'https://play.google.com/store/apps/details?id=com.tech4dev.math_joy_practice_english';
+   // const String appLink = 'https://play.google.com/store/apps/details?id=com.tech4dev.math_joy_practice_english';
+    const String appLink = 'https://apps.apple.com/us/app/math-joy-practice/id6745490006';
+
     const String appName = 'Math Joy Practice';
 
     Share.share(
       'Check out $appName: $appLink',
       subject: 'Share $appName',
     );
-  }*/
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,8 +44,6 @@ class Homepage extends StatelessWidget {
 
 // Base sizes for phones
     const baseButtonWidth = 300.0;
-    const baseFontSize = 30;
-    const baseTitleFontSize = 35;
     const baseIconSizeLarge = 42;
 
 // Calculate scale factor for tablets (e.g., width > 400)
@@ -52,8 +52,6 @@ class Homepage extends StatelessWidget {
 
 // Scaled sizes
     final buttonWidth = baseButtonWidth * scaleFactor;
-    final fontSize = baseFontSize * scaleFactor;
-    final titleFontSize = baseTitleFontSize * scaleFactor;
     final iconSizeLarge = baseIconSizeLarge * scaleFactor;
 
 
@@ -213,15 +211,14 @@ class Homepage extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                /* Uncomment if needed
+
                   IconButton(
-                    icon: const Icon(Icons.share, color: Colors.deepOrange),
-                    iconSize: iconSizeSmall,
+                    icon: const Icon(Icons.share, color: Colors.tealAccent),
+                    iconSize: iconSizeLarge,
                     onPressed: shareApp,
                     tooltip: 'Share App',
                   ),
                   const SizedBox(height: 16),
-                  */
 
                 IconButton(
                   icon: Icon(Icons.email
