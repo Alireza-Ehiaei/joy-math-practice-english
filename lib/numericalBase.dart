@@ -46,43 +46,36 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
     try {
       _isStoreAvailable = await _iap.isAvailable();
       if (!_isStoreAvailable) {
-        if (mounted && !_isDialogShowing) {
-          setState(() => _isDialogShowing = true);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showErrorDialog(context, 'StoreKit is unavailable.');
-          });
-        }
-        return;
+        return; // Just return, let caller handle the UI
       }
+
       final response = await _iap.queryProductDetails({_productId});
       if (response.error != null || response.productDetails.isEmpty) {
-        if (mounted && !_isDialogShowing) {
-          setState(() => _isDialogShowing = true);
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _showErrorDialog(context, 'Failed to validate product: ${response.error?.message ?? "Product not found"}');
-          });
-        }
-        return;
+        return; // Just return, let caller handle the UI
       }
+
       final prefs = await SharedPreferences.getInstance();
       bool cachedPurchaseState = prefs.getBool(_productId) ?? false;
       setState(() => _isPurchased = cachedPurchaseState);
-      // Remove restorePurchases to avoid duplicate events
+
     } catch (e) {
-      if (mounted && !_isDialogShowing) {
-        setState(() => _isDialogShowing = true);
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          _showErrorDialog(context, 'Initialization failed: $e');
-        });
-      }
+      debugPrint('Purchase init failed: $e');
+      // Just log, let caller handle errors
     }
   }
 
   Future<void> _showErrorDialog(BuildContext context, String message) async {
+    // Check if a dialog is already showing
+    if (_isDialogShowing) return;
+
     String displayMessage = message;
     if (message == 'StoreKit is unavailable.') {
-      displayMessage = 'Unable to connect to the App Store. Please check your internet connection, ensure the App Store is available, or try again later.';
+      displayMessage = 'Unable to connect to the App Store. '
+          'Please check your internet connection, ensure the App Store is available, or try again later.';
     }
+
+    setState(() => _isDialogShowing = true);
+
     await showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
@@ -92,7 +85,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              setState(() => _isDialogShowing = false); // Reset flag
+              setState(() => _isDialogShowing = false);
             },
             child: const Text('OK'),
           ),
@@ -136,7 +129,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
       final purchaseParam = PurchaseParam(productDetails: productDetails);
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_isDialogShowing) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _showErrorDialog(context, 'Purchase failed: $e');
         });
@@ -154,7 +147,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
     try {
       await _iap.restorePurchases();
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_isDialogShowing) {
         _showErrorDialog(context, 'Restore failed: $e');
       }
     } finally {
@@ -203,20 +196,22 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
 
   Future<void> showPracticeSubscriptionUI(BuildContext context) async {
     if (!_isStoreAvailable) {
-      _showErrorDialog(context, 'StoreKit is unavailable.');
+      if (!_isDialogShowing) {
+        _showErrorDialog(context, 'StoreKit is unavailable.');
+      }
       return;
     }
 
     try {
       final response = await _iap.queryProductDetails({_productId});
       if (response.error != null) {
-        if (mounted) {
+        if (mounted && !_isDialogShowing) {
           _showErrorDialog(context, 'Failed to load products: ${response.error!.message}');
         }
         return;
       }
       if (response.productDetails.isEmpty) {
-        if (mounted) {
+        if (mounted && !_isDialogShowing) {
           _showNoProductDialog(context);
         }
         return;
@@ -245,7 +240,9 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                 await _buyProduct(product);
                 if (mounted) Navigator.of(context).pop();
               } catch (e) {
-                if (mounted) _showErrorDialog(context, e.toString());
+                if (mounted && !_isDialogShowing) {
+                  _showErrorDialog(context, e.toString());
+                }
               }
             },
             child: Text(
@@ -335,7 +332,9 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
               } catch (e) {
                 if (mounted) {
                   Navigator.of(context, rootNavigator: true).pop();
-                  _showErrorDialog(context, e.toString());
+                  if (!_isDialogShowing) {
+                    _showErrorDialog(context, e.toString());
+                  }
                 }
               }
             },
@@ -415,7 +414,7 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
         ),
       );
     } catch (e) {
-      if (mounted) {
+      if (mounted && !_isDialogShowing) {
         _showErrorDialog(context, 'Failed to load products: $e');
       }
     }
@@ -743,17 +742,30 @@ class _NumericalBasesPageState extends State<NumericalBasesPage> {
                 onPressed: _isLoading
                     ? null
                     : () async {
-                  setState(() => _isLoading = true); // Start loading
-              //    await _initPurchaseInfo();
-                  if (1==1){//(_isPurchased) {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => NumeralBasePracticePage()),
-                    );
-                  } else {
-                    await showPracticeSubscriptionUI(context); // Wait for dialog to complete
+                  setState(() => _isLoading = true);
+
+                  try {
+                    await _initPurchaseInfo();
+
+                    // Use the updated value after await
+                    if (_isPurchased) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => NumeralBasePracticePage()),
+                      );
+                    } else {
+                      await showPracticeSubscriptionUI(context);
+                    }
+                  } catch (e) {
+                    // Handle any errors from _initPurchaseInfo or navigation
+                    if (mounted && !_isDialogShowing) {
+                      _showErrorDialog(context, 'Failed to initialize: $e');
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() => _isLoading = false);
+                    }
                   }
-                  setState(() => _isLoading = false); // Stop loading after everything
                 },
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
@@ -1754,17 +1766,7 @@ class _State extends State<NumeralBasePracticePage> {
     final bool isTablet = screenWidth >= 600; // Tablet breakpoint
 
 // Define base sizes for phone
-    const baseTitleFontSize = 22.0;
-    const baseButtonFontSize = 24.0;
-    const baseButtonMinWidth = 220.0;
-    const baseButtonMinHeight1 = 95.0;
-    const baseButtonMinHeight2 = 85.0;
-    const baseButtonMinHeight3 = 75.0;
-    const baseIconSize = 38.0;
-    const baseSpacingLarge = 90.0;
-    const baseSpacingMedium = 70.0;
-    const baseSpacingSmall = 20.0;
-    const baseSpacingExtraSmall = 30.0;
+
 
     double scaleFactor = isTablet ? (screenWidth / 850) : 1.0;
 
@@ -2399,6 +2401,7 @@ class _State extends State<NumeralBasePracticePage> {
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
                                             minimumSize: Size(double.infinity, isTablet ? 60 : 45), // Use double.infinity for width
                                           ),
                                           onPressed: () => {
@@ -2425,6 +2428,7 @@ class _State extends State<NumeralBasePracticePage> {
                                         child: ElevatedButton(
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: const Color.fromARGB(255, 50, 87, 86),
+                                            padding: const EdgeInsets.symmetric(vertical: 10),
                                             minimumSize: Size(double.infinity, isTablet ? 60 : 45), // Use double.infinity for width
                                           ),
                                           onPressed: () => {
